@@ -108,7 +108,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
 thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
 .col-r{position:absolute;right:0;top:0;height:100%;width:6px;cursor:col-resize;z-index:2}
 .col-r:hover,.col-r.on{background:var(--blue);opacity:.4}
-td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden}
+td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:visible}
 tr:hover td{background:#FAFBFD}
 tr:last-child td{border-bottom:none}
 /* INLINE EDIT */
@@ -154,7 +154,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 .chip-dep{background:var(--blue-l);color:var(--blue)}
 /* CLIENT READ ROW */
 .cl-ro{font-size:12.5px;color:var(--text);padding:2px 4px}
-.cl-mods-ro{display:flex;flex-wrap:wrap;gap:2px}
+.cl-mods-ro{display:flex;flex-wrap:wrap;gap:3px;align-items:flex-start;max-width:220px}
 /* SECTION */
 .sec-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
 .sec-title{font-size:18px;font-weight:700}.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
@@ -335,7 +335,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v3.0 · 30 Mar 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v4.0 · 30 Mar 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -370,7 +370,6 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         <input type="date" class="fi" id="st" onchange="renderDash()">
         <select class="fi" id="sf-ln" onchange="renderDash()">
           <option value="">Todos los launchers</option>
-          <option>Betty Palacios</option><option>Roberto Arrobo</option><option>Pablo Malla</option><option>Vicente Quezada</option>
         </select>
         <span class="clear-link" onclick="clearDashF()">× Limpiar</span>
         <span id="dash-cnt" style="font-size:12px;color:var(--muted);margin-left:auto"></span>
@@ -396,7 +395,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         <input type="text" class="fi" id="sd" placeholder="🔍 Buscar..." oninput="renderDeps()">
         <select class="fi" id="fsd" onchange="renderDeps()"><option value="">Todos los estados</option><option>🔧 En proceso</option><option>🆕 Por iniciar</option><option>🆕 Capacitación</option></select>
         <select class="fi" id="ftd" onchange="renderDeps()"><option value="">Todas las modalidades</option></select>
-        <select class="fi" id="fld" onchange="renderDeps()"><option value="">Todos los launchers</option><option>Betty Palacios</option><option>Roberto Arrobo</option><option>Pablo Malla</option><option>Vicente Quezada</option></select>
+        <select class="fi" id="fld" onchange="renderDeps()"><option value="">Todos los launchers</option></select>
         <span class="fcnt" id="cd"></span>
       </div>
       <div class="tbl-wrap"><table id="tbl-d"><thead><tr id="th-d"></tr></thead><tbody id="dtb"></tbody></table></div>
@@ -407,7 +406,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       <div class="sec-hdr"><div><div class="sec-title">Clientes Operativos</div><div class="sec-sub">Implementaciones completadas · Cambiar estado regresa a Despliegues</div></div></div>
       <div class="filters">
         <input type="text" class="fi" id="so" placeholder="🔍 Buscar..." oninput="renderOps()">
-        <select class="fi" id="flo" onchange="renderOps()"><option value="">Todos los launchers</option><option>Betty Palacios</option><option>Roberto Arrobo</option><option>Pablo Malla</option><option>Vicente Quezada</option></select>
+        <select class="fi" id="flo" onchange="renderOps()"><option value="">Todos los launchers</option></select>
         <input type="date" class="fi" id="fdo" onchange="renderOps()" title="Entrega desde">
         <input type="date" class="fi" id="fto" onchange="renderOps()" title="Entrega hasta">
         <span class="fcnt" id="co"></span>
@@ -472,7 +471,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
           <th style="width:110px">Tipo<div class="col-r"></div></th>
           <th style="width:115px">Estado<div class="col-r"></div></th>
           <th style="width:115px">F. Confirmación<div class="col-r"></div></th>
-          <th style="width:185px">Módulos<div class="col-r"></div></th>
+          <th style="min-width:200px">Módulos<div class="col-r"></div></th>
           <th style="width:90px">Complej.<div class="col-r"></div></th>
           <th style="width:120px">Contacto<div class="col-r"></div></th>
           <th style="width:125px">Tel / Email<div class="col-r"></div></th>
@@ -494,7 +493,6 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         </select>
         <select class="fi" id="tl-launcher" onchange="renderTimeline()">
           <option value="">Todos los launchers</option>
-          <option>Betty Palacios</option><option>Roberto Arrobo</option><option>Pablo Malla</option><option>Vicente Quezada</option>
         </select>
         <select class="fi" id="tl-modal" onchange="renderTimeline()">
           <option value="">Todas las modalidades</option>
@@ -777,181 +775,121 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center · Clipp</div><div class="sec-sub">Guía completa de módulos, flujos y reportes</div></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v4.0</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
+
+      <!-- REFERENCE TABLE -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-h"><div class="card-title">📋 Qué dato alimenta qué reporte</div></div>
+        <div class="card-b" style="padding:0"><div style="overflow-x:auto"><table class="cat-table">
+          <thead><tr><th>Si llenas este dato en...</th><th>Aparece en estos reportes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>F. Confirmación</strong> del cliente</td><td>Línea de Tiempo → Confirmados por mes</td></tr>
+            <tr><td><strong>F. Entrega</strong> del despliegue</td><td>Línea de Tiempo → Finalizados · Dashboard KPIs · Días de implementación</td></tr>
+            <tr><td><strong>F. Inicio</strong> del despliegue</td><td>Línea de Tiempo → En Proceso · Capacidad Operativa</td></tr>
+            <tr><td><strong>Estado ✅ Listo</strong> en despliegue</td><td>Mueve el cliente a Clientes Operativos automáticamente</td></tr>
+            <tr><td><strong>Horas soporte / Horas despliegue</strong></td><td>Capacidad Operativa → cálculo de carga real por cliente</td></tr>
+            <tr><td><strong>Módulos activos</strong> del cliente</td><td>Complejidad automática · Estrategia de Despliegue · Capacidad</td></tr>
+            <tr><td><strong>Contrato</strong> con componentes de cobro</td><td>Cobranzas → generación automática de facturas mensuales</td></tr>
+            <tr><td><strong>Launcher</strong> del despliegue</td><td>Filtros en Dashboard, Despliegues, Línea de Tiempo, Capacidad</td></tr>
+          </tbody>
+        </table></div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">
 
         <!-- CLIENTES -->
-        <div class="card"><div class="card-h"><div class="card-title">👥 Clientes</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <p><strong>¿Qué es?</strong> Registro maestro de todos tus clientes (activos, inactivos, perdidos).</p>
-          <p><strong>¿Cómo usarlo?</strong></p>
-          <ul style="padding-left:16px;margin:4px 0">
-            <li>Crea el cliente primero antes de crear un despliegue o contrato</li>
-            <li>Asigna <strong>Fecha de Confirmación</strong> = cuando firmó o se confirmó la venta</li>
-            <li>El estado <strong>activo</strong> = cliente registrado. Solo pasan a "operativo" cuando el despliegue se marca ✅ Listo</li>
+        <div class="card"><div class="card-h"><div class="card-title">👥 Clientes</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Registro central de todos tus clientes. <strong>Haz clic en el nombre</strong> para ver el resumen completo: contrato, cobros e historial de despliegues.</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li>Usa el filtro de <strong>Estado</strong> para ver activos, deshabilitados o perdidos.</li>
+            <li>El botón ✏️ abre el modal de edición — los cambios se sincronizan automáticamente a todos sus despliegues.</li>
+            <li>La <strong>complejidad</strong> se asigna automáticamente según los módulos activos (configurable en Catálogos → Complejidad).</li>
+            <li><strong>F. Confirmación:</strong> llénala para que aparezca en la Línea de Tiempo.</li>
           </ul>
-          <p style="margin-top:8px;padding:8px;background:var(--blue-l);border-radius:6px;font-size:12px"><strong>📊 Afecta:</strong> Línea de Tiempo (confirmados), Capacidad (conteo), Dashboard KPIs</p>
         </div></div>
 
         <!-- DESPLIEGUES -->
-        <div class="card"><div class="card-h"><div class="card-title">🚀 Despliegues</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <p><strong>¿Qué es?</strong> Seguimiento de cada implementación técnica por cliente.</p>
-          <p><strong>Flujo correcto:</strong></p>
-          <ul style="padding-left:16px;margin:4px 0">
-            <li><strong>1.</strong> Clic en "+ Nuevo Despliegue" → elige cliente de la lista</li>
-            <li><strong>2.</strong> Asigna módulos, launcher, fechas de inicio e ideal</li>
-            <li><strong>3.</strong> Avanza la <strong>Fase</strong> con ▶ según el progreso real</li>
-            <li><strong>4.</strong> Cuando termina → cambia estado a <strong>✅ Listo</strong> y llena F. Entrega</li>
-            <li><strong>5.</strong> Al marcar ✅ Listo → pasa automáticamente a <strong>Clientes Operativos</strong></li>
+        <div class="card"><div class="card-h"><div class="card-title">🚀 Despliegues</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Seguimiento operativo de implementaciones en curso. Todas las columnas son editables directamente en la tabla.</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li>Cambia el <strong>Estado</strong> a ✅ Listo → el cliente pasa automáticamente a <em>Clientes Operativos</em>.</li>
+            <li>Usa ▶ / ◀ para avanzar o retroceder la <strong>Fase de implementación</strong>.</li>
+            <li>Las <strong>Hrs Sop./Desp.</strong> alimentan el cálculo de Capacidad Operativa.</li>
+            <li>El <strong>Launcher</strong> se elige entre los configurados en Catálogos → Launchers.</li>
           </ul>
-          <p style="margin-top:8px;padding:8px;background:var(--blue-l);border-radius:6px;font-size:12px"><strong>📊 Afecta:</strong> Dashboard, Línea de Tiempo (finalizados/en proceso), Capacidad Operativa, Estrategia</p>
-        </div></div>
-
-        <!-- COBRANZAS -->
-        <div class="card"><div class="card-h"><div class="card-title">💰 Cobranzas — Cómo registrar cobros</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <p><strong>¿Quién entra en cobranza?</strong> Solo clientes con estado <strong>✅ Listo (Operativos)</strong> que tengan un contrato creado.</p>
-          <p><strong>Para registrar cobros de meses anteriores (Ene, Feb, Mar):</strong></p>
-          <ol style="padding-left:16px;margin:4px 0">
-            <li>Ve a <strong>Cobranzas</strong></li>
-            <li>En el selector de mes, elige el mes a registrar (ej: 2026-01)</li>
-            <li>Clic en <strong>⚡ Generar Cobros</strong> — crea una fila por cada cliente operativo</li>
-            <li>Cambia el estado de cada cobro según lo real: ✅ Pagado / 🔴 Atrasado / 🔶 Parcial</li>
-            <li>Repite para cada mes pasado</li>
-          </ol>
-          <p style="margin-top:6px;font-size:12px;color:var(--muted)">💡 El estado de cada cobro se cambia con un solo clic en la columna "Estado Pago"</p>
-          <p style="margin-top:8px;padding:8px;background:var(--blue-l);border-radius:6px;font-size:12px"><strong>📊 Afecta:</strong> KPIs de cobranza, gráfico de tendencia, distribución por estado</p>
-        </div></div>
-
-        <!-- CONTRATOS -->
-        <div class="card"><div class="card-h"><div class="card-title">📋 Contratos</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <p><strong>¿Qué es?</strong> Condiciones comerciales de cada cliente: modalidad de cobro, precio y mínimos.</p>
-          <p><strong>Modalidades:</strong></p>
-          <ul style="padding-left:16px;margin:4px 0">
-            <li><strong>Por Conductor</strong> → cobra por número de conductores activos (mín. X)</li>
-            <li><strong>Por Vehículo</strong> → cobra por vehículos activos</li>
-            <li><strong>Mixto</strong> → promedio de ambos</li>
-          </ul>
-          <p><strong>Campos clave:</strong> Valor Fijo/mes + Setup Fee inicial + Descuentos por mes</p>
-          <p style="margin-top:8px;padding:8px;background:var(--blue-l);border-radius:6px;font-size:12px"><strong>📊 Afecta:</strong> Cálculo de cobranzas, monto base vs real, alertas de riesgo</p>
-        </div></div>
-
-        <!-- CAPACIDAD OPERATIVA -->
-        <div class="card"><div class="card-h"><div class="card-title">⚡ Capacidad Operativa</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <p><strong>¿Qué calcula?</strong> Cuántos clientes puede soportar el equipo sin colapsar.</p>
-          <p><strong>Fórmula:</strong><br>
-          <code style="background:var(--bg2);padding:2px 6px;border-radius:4px;font-size:11.5px">Hrs disponibles = Operadores × Hrs/día × Días/mes</code><br>
-          <code style="background:var(--bg2);padding:2px 6px;border-radius:4px;font-size:11.5px">Hrs consumidas = Σ(hrsOp × peso) + Σ(hrsNew × peso)</code></p>
-          <p><strong>Peso por complejidad</strong> = configurable en Catálogos → Complejidad<br>Ej: Avanzado = 2.5× consume 2.5 veces más horas que un Básico</p>
-          <p><strong>Hrs individuales:</strong> En la tabla de Despliegues, columna <strong>Hrs/mes</strong> — si la dejas vacía usa el global × peso.</p>
-          <p style="margin-top:8px;padding:8px;background:var(--blue-l);border-radius:6px;font-size:12px"><strong>📊 Afecta:</strong> KPIs de capacidad, proyección 6 meses, alerta de saturación</p>
         </div></div>
 
         <!-- LÍNEA DE TIEMPO -->
-        <div class="card"><div class="card-h"><div class="card-title">📅 Línea de Tiempo</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <p><strong>¿Qué muestra?</strong> Actividad mensual del año seleccionado con 4 series:</p>
-          <ul style="padding-left:16px;margin:4px 0">
-            <li>🟢 <strong>Confirmados</strong> = clientes con <em>Fecha de Confirmación</em> en ese mes</li>
-            <li>🔵 <strong>Finalizados</strong> = despliegues con <em>F. Entrega</em> real en ese mes</li>
-            <li>🟡 <strong>En Proceso</strong> = despliegues con <em>F. Inicio</em> en ese mes (no ✅ Listo)</li>
-            <li>🟣 <strong>Operativos</strong> = despliegues que pasaron a ✅ Listo ese mes</li>
+        <div class="card"><div class="card-h"><div class="card-title">📅 Línea de Tiempo</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Reporte histórico y proyección mes a mes con 4 series:</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li>🔵 <strong>Confirmados</strong> — clientes con F. Confirmación en ese mes.</li>
+            <li>🟢 <strong>Finalizados</strong> — despliegues con F. Entrega en ese mes.</li>
+            <li>🟡 <strong>En Proceso</strong> — despliegues activos durante ese mes.</li>
+            <li>🟣 <strong>Operativos</strong> — clientes acumulados con estado Listo.</li>
           </ul>
-          <p style="margin-top:6px;font-size:12px;color:var(--muted)">💡 Para que aparezcan datos, debes llenar las fechas correctas en cada módulo</p>
-          <p style="margin-top:8px;padding:8px;background:var(--blue-l);border-radius:6px;font-size:12px"><strong>Alimentado por:</strong> Clientes (fconf) + Despliegues (fi, fe, es)</p>
+          <p style="margin-top:6px">Las líneas punteadas son proyección (regresión lineal sobre datos reales).</p>
         </div></div>
 
-        <!-- ESTRATEGIA -->
-        <div class="card"><div class="card-h"><div class="card-title">🎯 Estrategia de Despliegue</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <p><strong>Complejidad automática</strong> = se asigna cuando el cliente tiene <strong>EXACTAMENTE todos</strong> los módulos definidos como disparadores en ese nivel. Si no coincide exactamente, la complejidad queda vacía.</p>
-          <p><strong>Ejemplo:</strong> Si "Avanzado" tiene disparadores [CallCenter, App Cliente], el cliente debe tener AMBOS para que se asigne Avanzado. Si solo tiene CallCenter, no se asigna.</p>
-          <p>Los módulos disparadores se seleccionan con una lista múltiple en Catálogos → Complejidad.</p>
-          <p><strong>Fases de Implementación:</strong></p>
-          <ul style="padding-left:16px;margin:4px 0">
-            <li>Avanza con ▶ / retrocede con ◀ en la tabla de Despliegues</li>
-            <li>También puedes avanzarlas desde Estrategia → selecciona el cliente</li>
-            <li>Las fases son configurables en Catálogos → Fases</li>
+        <!-- COBRANZAS -->
+        <div class="card"><div class="card-h"><div class="card-title">💰 Cobranzas</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Facturación mensual. Solo se facturan clientes <strong>Operativos con contrato</strong>.</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li>Usa <strong>⚡ Generar Cobros</strong> al inicio de cada mes.</li>
+            <li>Haz clic en ✏️ de cada cobro para ajustar activos, descuentos y extras.</li>
+            <li>Cicla el estado: ⏳ Pendiente → ✅ Pagado → 🔶 Parcial → 🔴 Atrasado.</li>
+            <li>El monto se calcula automáticamente según el <strong>contrato vigente</strong>.</li>
           </ul>
-          <p><strong>Checklists:</strong> Selecciona un cliente → marca cada tarea completada por módulo. El progreso se guarda individualmente.</p>
-          <p style="margin-top:8px;padding:8px;background:var(--blue-l);border-radius:6px;font-size:12px"><strong>📊 Afecta:</strong> Conteo por complejidad, horas en Capacidad</p>
+        </div></div>
+
+        <!-- CONTRATOS -->
+        <div class="card"><div class="card-h"><div class="card-title">📋 Contratos</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Define las condiciones de cobro de cada cliente. Un contrato puede mezclar múltiples componentes:</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li>Por conductor / por vehículo / cobro fijo / mínimo operativo / setup / bot WA.</li>
+            <li>Los componentes se configuran en <strong>Catálogos → Tipos de Cobro</strong>.</li>
+            <li>El campo <strong>Bots WA Activos</strong> se carga automáticamente en cada cobro.</li>
+          </ul>
+        </div></div>
+
+        <!-- CAPACIDAD -->
+        <div class="card"><div class="card-h"><div class="card-title">⚡ Capacidad Operativa</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Calcula cuánta carga tiene tu equipo en tiempo real.</p>
+          <p style="margin-top:6px"><strong>Fórmula:</strong><br>
+          Hrs disponibles = Operadores × Hrs/día × Días/mes<br>
+          Hrs consumidas = Σ(cliente × peso_complejidad × hrs_asignadas)</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li>Pesos: Básico=1× · Medio=1.5× · Avanzado=2.5× (editables en Catálogos).</li>
+            <li>Las horas individuales de cada cliente se configuran en la tabla de Despliegues.</li>
+          </ul>
         </div></div>
 
         <!-- CATÁLOGOS -->
-        <div class="card"><div class="card-h"><div class="card-title">🗂 Catálogos — Qué configura cada pestaña</div></div><div class="card-b" style="font-size:13px;line-height:1.7">
-          <ul style="padding-left:16px;margin:0;line-height:2">
-            <li><strong>Módulos</strong> → los módulos disponibles al crear despliegues/clientes</li>
-            <li><strong>Categorías</strong> → cómo se agrupan los módulos en el selector</li>
-            <li><strong>Modalidades</strong> → tipos de despliegue (Cliente Nuevo, Update…)</li>
-            <li><strong>Fases</strong> → etapas del proceso de implementación</li>
-            <li><strong>T. Implementación</strong> → tiempos estándar por paquete de módulos</li>
-            <li><strong>Complejidad</strong> → niveles con peso para cálculo de capacidad</li>
-            <li><strong>Estados de Riesgo</strong> → umbrales % para alertas en Cobranzas</li>
-            <li><strong>Aplicativos</strong> → plataformas (Clipp, Azutaxo…)</li>
-            <li><strong>Tipos de Cliente</strong> → categoría del cliente por aplicativo</li>
+        <div class="card"><div class="card-h"><div class="card-title">🗂 Catálogos</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Configura todos los valores maestros del sistema. Los cambios impactan en toda la aplicación al instante.</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li><strong>Módulos</strong> — los que aparecen en clientes y despliegues.</li>
+            <li><strong>Launchers</strong> — responsables de implementación. Agrégalos aquí y aparecerán en todos los dropdowns.</li>
+            <li><strong>Complejidad</strong> — niveles y módulos que los activan.</li>
+            <li><strong>Tipos de Cobro</strong> — componentes disponibles para contratos.</li>
+            <li><strong>Fases</strong> — etapas del proceso de implementación.</li>
+            <li><strong>Estados de Riesgo</strong> — umbrales para cobranzas y contratos.</li>
+          </ul>
+        </div></div>
+
+        <!-- USUARIOS Y ROLES -->
+        <div class="card"><div class="card-h"><div class="card-title">👤 Usuarios y Roles</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Controla quién puede ver y editar cada módulo.</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li><strong>Roles</strong>: define niveles de acceso (Sin acceso / Solo lectura / Editar / Control total) por módulo.</li>
+            <li><strong>Usuarios</strong>: asocia cada email de Supabase a un rol. El sistema aplica los permisos automáticamente al entrar.</li>
+            <li>Roles base: Administrador · Gerente · Operador · Solo Lectura · Comercial.</li>
+            <li>El rol activo se muestra en la barra superior junto al botón Salir.</li>
           </ul>
         </div></div>
 
       </div>
-
-      <!-- Quick reference table -->
-      <div class="card">
-        <div class="card-h"><div class="card-title">📌 Referencia rápida — ¿Qué dato alimenta qué reporte?</div></div>
-        <div style="overflow-x:auto"><table class="cont-table">
-          <thead><tr><th>Si llenas este dato en...</th><th>Aparece en estos reportes</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Cliente → Fecha de Confirmación</strong></td><td>Línea de Tiempo (columna Confirmados)</td></tr>
-            <tr><td><strong>Despliegue → F. Inicio</strong></td><td>Línea de Tiempo (En Proceso), Dashboard</td></tr>
-            <tr><td><strong>Despliegue → F. Entrega + estado ✅ Listo</strong></td><td>Línea de Tiempo (Finalizados + Operativos), Dashboard</td></tr>
-            <tr><td><strong>Despliegue → Módulos</strong></td><td>Complejidad automática, Checklist, Capacidad</td></tr>
-            <tr><td><strong>Despliegue → Hrs/mes</strong></td><td>Capacidad Operativa (horas consumidas)</td></tr>
-            <tr><td><strong>Despliegue → Fase ▶◀</strong></td><td>Estrategia de Despliegue (barra de progreso)</td></tr>
-            <tr><td><strong>Contrato → Precio + Mínimos</strong></td><td>Cobranzas (monto base, alertas de riesgo)</td></tr>
-            <tr><td><strong>Cobro mensual → Estado Pago</strong></td><td>Cobranzas (KPIs cobrado vs facturado, gráfico tendencia)</td></tr>
-            <tr><td><strong>Catálogo → Complejidad (peso)</strong></td><td>Capacidad Operativa (hrs por cliente)</td></tr>
-            <tr><td><strong>Catálogo → Estados de Riesgo (%)</strong></td><td>Contratos (badge estado), Cobranzas (badge pago)</td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- ══ USUARIOS Y ROLES ══ -->
-    <div id="view-usuarios" class="view">
-      <div class="sec-hdr">
-        <div><div class="sec-title">👤 Usuarios y Roles</div><div class="sec-sub">Gestiona accesos, permisos y visibilidad de módulos por usuario</div></div>
-        <button class="btn btn-p btn-sm" onclick="openAddUsuario()">+ Nuevo Usuario</button>
-      </div>
-
-      <!-- ROLES PREDEFINIDOS -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px" id="roles-grid"></div>
-
-      <!-- TABLA DE USUARIOS -->
-      <div class="card">
-        <div class="card-h">
-          <div class="card-title">👥 Usuarios del Sistema</div>
-          <div style="display:flex;gap:8px">
-            <input class="fi" id="s-usr" placeholder="🔍 Buscar..." oninput="renderUsuarios()" style="width:180px">
-            <select class="fi" id="f-rol" onchange="renderUsuarios()">
-              <option value="">Todos los roles</option>
-            </select>
-          </div>
-        </div>
-        <div class="card-b" style="padding:0">
-          <div style="overflow-x:auto">
-            <table class="cat-table">
-              <thead><tr>
-                <th style="width:36px">#</th>
-                <th style="min-width:160px">Nombre</th>
-                <th style="min-width:180px">Email</th>
-                <th style="min-width:120px">Rol</th>
-                <th style="min-width:100px">Estado</th>
-                <th style="min-width:130px">Último acceso</th>
-                <th style="width:80px">Acciones</th>
-              </tr></thead>
-              <tbody id="usr-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
+    
     <!-- ══ CATÁLOGOS ══ -->
     <div id="view-catalogos" class="view">
       <div class="sec-hdr"><div><div class="sec-title">Gestión de Catálogos</div><div class="sec-sub">Administra Aplicativos, Tipos y Módulos disponibles en el sistema</div></div></div>
@@ -966,6 +904,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         <div class="cat-tab" onclick="setCatTab('riesgos')">🚦 Estados de Riesgo</div>
         <div class="cat-tab" onclick="setCatTab('aplicativos')">🖥 Aplicativos</div>
         <div class="cat-tab" onclick="setCatTab('tipos')">🏷 Tipos de Cliente</div>
+    <div class="cat-tab" onclick="setCatTab('launchers')" id="nav-cat-launchers">👤 Launchers</div>
       </div>
       <!-- CATEGORÍAS DE MÓDULOS -->
       <div class="cat-panel" id="cat-categorias">
@@ -1036,6 +975,21 @@ input[type=date].ei{cursor:pointer;min-width:110px}
           <tbody id="mo-dep-tbody"></tbody>
         </table></div></div>
       </div>
+      <!-- LAUNCHERS -->
+      <div class="cat-panel" id="cat-launchers">
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Los <strong>Launchers</strong> son los responsables de implementar y dar seguimiento a los despliegues. Aparecen en todos los módulos de seguimiento.</p>
+        <div class="cat-add-row">
+          <div class="fr"><label class="fl">Nombre completo</label><input class="cat-input" id="ln-name" placeholder="Ej: María López"></div>
+          <div class="fr"><label class="fl">Email</label><input class="cat-input" id="ln-email" placeholder="maria@clipp.com" type="email"></div>
+          <div class="fr"><label class="fl">Notas</label><input class="cat-input" id="ln-notas" placeholder="Rol o área"></div>
+          <button class="btn btn-p btn-sm" onclick="saveLauncher()">+ Agregar</button>
+        </div>
+        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
+          <thead><tr><th>Nombre</th><th>Email</th><th>Notas</th><th style="width:90px">Acciones</th></tr></thead>
+          <tbody id="ln-tbody"></tbody>
+        </table></div></div>
+      </div>
+
       <!-- TIPOS DE CLIENTE -->
       <!-- FASES DE IMPLEMENTACIÓN -->
       <div class="cat-panel" id="cat-fases">
@@ -1145,6 +1099,21 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         </table></div></div>
       </div>
 
+      <!-- LAUNCHERS -->
+      <div class="cat-panel" id="cat-launchers">
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Los <strong>Launchers</strong> son los responsables de implementar y dar seguimiento a los despliegues. Aparecen en todos los módulos de seguimiento.</p>
+        <div class="cat-add-row">
+          <div class="fr"><label class="fl">Nombre completo</label><input class="cat-input" id="ln-name" placeholder="Ej: María López"></div>
+          <div class="fr"><label class="fl">Email</label><input class="cat-input" id="ln-email" placeholder="maria@clipp.com" type="email"></div>
+          <div class="fr"><label class="fl">Notas</label><input class="cat-input" id="ln-notas" placeholder="Rol o área"></div>
+          <button class="btn btn-p btn-sm" onclick="saveLauncher()">+ Agregar</button>
+        </div>
+        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
+          <thead><tr><th>Nombre</th><th>Email</th><th>Notas</th><th style="width:90px">Acciones</th></tr></thead>
+          <tbody id="ln-tbody"></tbody>
+        </table></div></div>
+      </div>
+
       <!-- TIPOS DE CLIENTE -->
       <div class="cat-panel" id="cat-tipos">
         <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Los <strong>Tipos de Cliente</strong> son etiquetas libres que asignas a tus clientes para clasificarlos (ej: Taxi Convencional, Ejecutivo, Moto, Empresas, etc). Se seleccionan en la ficha de cada cliente.</p>
@@ -1233,7 +1202,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
             <select class="fld" id="cm-de"><option>🆕 Por iniciar</option><option>🔧 En proceso</option></select>
           </div>
           <div class="fr"><label class="fl">Launcher</label>
-            <select class="fld" id="cm-dl"><option>Betty Palacios</option><option>Roberto Arrobo</option><option>Pablo Malla</option><option>Vicente Quezada</option></select>
+            <select class="fld" id="cm-dl"></select>
           </div>
         </div>
         <div class="fr3">
@@ -1343,8 +1312,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     </div>
     <div class="fr"><label class="fl">👤 Launcher</label>
       <select class="fld" id="dm-ln">
-        <option>Betty Palacios</option><option>Roberto Arrobo</option><option>Pablo Malla</option><option>Vicente Quezada</option>
-      </select>
+        </select>
     </div>
     <div class="fr3">
       <div class="fr"><label class="fl">📅 F. Inicio</label><input type="date" class="fld" id="dm-fi"></div>
@@ -1694,14 +1662,20 @@ const BC=[
 // ═══ STATE ═══════════════════════════════════════════
 const EL='✅ Listo';
 const ESTADOS=['🆕 Por iniciar','🔧 En proceso','🆕 Capacitación',EL];
-const LAUNCHERS=['Betty Palacios','Roberto Arrobo','Pablo Malla','Vicente Quezada'];
+function LAUNCHERS(){return(cats.launchers||[]).map(l=>l.name);}
+const BASE_LAUNCHERS=[
+  {id:1,name:'Betty Palacios',email:'',notas:''},
+  {id:2,name:'Roberto Arrobo',email:'',notas:''},
+  {id:3,name:'Pablo Malla',email:'',notas:''},
+  {id:4,name:'Vicente Quezada',email:'',notas:''},
+];
 const MES_NAMES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const C6=['#1B4FD8','#0F7E4F','#B45309','#5B21B6','#DC2626','#0891B2'];
 const SB_URL='https://owfetilyxgvkrtdopskz.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93ZmV0aWx5eGd2a3J0ZG9wc2t6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MzcyMzYsImV4cCI6MjA5MDQxMzIzNn0.tQuq7XBTvqhn5dI3XMgm8fEc3c4RsvyF4JbXZ2Ttp0Q';
 let supabase=null,_currentUser=null;
 let usuarios=[],roles=[];
-let deps=[],cls=[],cats={ap:[],tp:[],md:[],modal:[],risk:[],implTimes:[],phases:[],catmod:[],billingTypes:[],complexity:[]};
+let deps=[],cls=[],cats={ap:[],tp:[],md:[],modal:[],risk:[],implTimes:[],phases:[],catmod:[],billingTypes:[],complexity:[],launchers:[]};
 let contratos=[],cobros=[],checklists={},trash=[];
 let mTgt=null,editClId=null,clMods=new Set(),dOpen=false,curV='dashboard',curCatTab='modulos',curScenario='mod';
 let _contComps=[],editingContratoId=null,_editCobroId=null,_csmClientId=null;
@@ -1838,12 +1812,13 @@ function setV(v){
     if(newMap[v]){btnNew.textContent=newMap[v];btnNew.style.display='';}
     else btnNew.style.display='none';
   }
+  popAllSelects();
   const actions={
     dashboard:renderDash,
     despliegues:()=>{renderDeps();},
     operativos:()=>{renderOps();},
     inactivos:renderInact,
-    clientes:()=>{popClSelects();renderCls();},
+    clientes:()=>{renderCls();},
     timeline:()=>setTimeout(renderTimeline,60),
     capacidad:renderCapacidad,
     contratos:renderContratos,
@@ -2022,6 +1997,7 @@ function barB(id,data){
   el.innerHTML=data.map(([l,v],i)=>`<div class="bar-item"><div class="bar-lbl">${esc(l)}</div><div class="bar-track"><div class="bar-fill" style="width:${v/mx*100}%;background:${C6[i%6]}"></div></div><div class="bar-cnt">${v}</div></div>`).join('');
 }
 function renderDash(){
+  popAllSelects();
   const from=document.getElementById('sf')?.value,to=document.getElementById('st')?.value,fLn=document.getElementById('sf-ln')?.value||'';
   const allF=deps.filter(d=>!fLn||d.ln===fLn);
   const t=allF.length,li=allF.filter(d=>d.es===EL).length,pr=allF.filter(d=>d.es==='🔧 En proceso').length;
@@ -2071,7 +2047,7 @@ function depTH(headerId){
     '<th style="min-width:130px">Estado</th>',
     '<th style="min-width:110px">Fase</th>',
     '<th style="min-width:90px">Complejidad</th>',
-    '<th style="min-width:150px">Módulos</th>',
+    '<th style="min-width:180px">Módulos</th>',
     '<th style="min-width:120px">Launcher</th>',
     '<th style="min-width:110px">F. Inicio</th>',
     '<th style="min-width:110px">F. Ideal</th>',
@@ -2096,7 +2072,7 @@ function togDep(){
 function depRow(d){
   const modAps=cats.modal.map(m=>`<option ${d.tp===(m.icon+' '+m.name)||d.tp===m.name?'selected':''}>${m.icon} ${m.name}</option>`).join('');
   const esOpts=ESTADOS.map(e=>`<option ${d.es===e?'selected':''}>${e}</option>`).join('');
-  const lnOpts=LAUNCHERS.map(l=>`<option ${d.ln===l?'selected':''}>${l}</option>`).join('');
+  const lnOpts=LAUNCHERS().map(l=>`<option ${d.ln===l?'selected':''}>${l}</option>`).join('');
   const cl=cls.find(c=>c.id===d.cid)||null;
   const moHtml=d.mo.length?d.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'<span style="color:var(--subtle);font-size:11px">—</span>';
   return`<tr>
@@ -2198,10 +2174,20 @@ function renderInact(){
 
 // ═══ CLIENTS ══════════════════════════════════════════
 function popClSelects(){
+  // Filter dropdowns
   const ap=document.getElementById('fac');
-  if(ap)ap.innerHTML='<option value="">Todos los aplicativos</option>'+(cats.ap||[]).map(a=>`<option>${esc(a.name)}</option>`).join('');
+  if(ap){const cur=ap.value;ap.innerHTML='<option value="">Todos los aplicativos</option>'+(cats.ap||[]).map(a=>`<option>${esc(a.name)}</option>`).join('');ap.value=cur;}
   const tp=document.getElementById('ftc');
-  if(tp)tp.innerHTML='<option value="">Todos los tipos</option>'+(cats.tp||[]).map(t=>`<option>${esc(t.name)}</option>`).join('');
+  if(tp){const cur=tp.value;tp.innerHTML='<option value="">Todos los tipos</option>'+(cats.tp||[]).map(t=>`<option>${esc(t.name)}</option>`).join('');tp.value=cur;}
+  // cm-dt: tipo despliegue en modal nuevo cliente
+  const cmDt=document.getElementById('cm-dt');
+  if(cmDt){const cur=cmDt.value;cmDt.innerHTML=(cats.modal||[]).map(m=>`<option value="${esc(m.name)}">${m.icon||''} ${esc(m.name)}</option>`).join('');cmDt.value=cur;}
+  // md-cat: categoría en panel catálogo módulos
+  const mdCat=document.getElementById('md-cat');
+  if(mdCat){const cur=mdCat.value;mdCat.innerHTML=(cats.catmod||[]).map(c=>`<option>${esc(c.name)}</option>`).join('');mdCat.value=cur;}
+  // md-cat-f: filtro de categoría en tabla módulos
+  const mdCatF=document.getElementById('md-cat-f');
+  if(mdCatF){const cur=mdCatF.value;mdCatF.innerHTML='<option value="">Todas</option>'+(cats.catmod||[]).map(c=>`<option>${esc(c.name)}</option>`).join('');mdCatF.value=cur;}
 }
 function renderCls(){
   const s=(document.getElementById('sc')?.value||'').toLowerCase();
@@ -2209,8 +2195,8 @@ function renderCls(){
   const fTp=document.getElementById('ftc')?.value||'';
   const fEs=document.getElementById('fes-cl')?.value||'';
   const f=cls.filter(c=>{
-    const esMatch=fEs?c.es===fEs:(c.es==='activo');
-    if(!esMatch)return false;
+    if(fEs&&c.es!==fEs)return false;
+    if(!fEs&&c.es==='papelera')return false; // nunca mostrar papelera sin filtro
     if(s&&!c.nm.toLowerCase().includes(s)&&!(c.ci||'').toLowerCase().includes(s)&&!(c.pa||'').toLowerCase().includes(s))return false;
     if(fAp&&c.ap!==fAp)return false;
     if(fTp&&c.tp!==fTp)return false;
@@ -2220,7 +2206,7 @@ function renderCls(){
   const tb=document.getElementById('ctb');if(!tb)return;
   tb.innerHTML=f.length?f.map((c,idx)=>{
     const cx=complexBadge({mo:c.mo});
-    const moHtml=(c.mo||[]).slice(0,3).map(m=>`<span class="mt">${esc(m)}</span>`).join('')+(c.mo.length>3?`<span style="color:var(--subtle);font-size:10px">+${c.mo.length-3}</span>`:'');
+    const moHtml=(c.mo||[]).map(m=>`<span class="mt">${esc(m)}</span>`).join('');
     return`<tr>
       <td style="color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace">${String(idx+1).padStart(2,'0')}</td>
       <td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="openClSummary(${c.id})">${esc(c.nm)}</td>
@@ -2368,6 +2354,7 @@ function openAddDep(){
   ['dm-pa','dm-ci','dm-fi','dm-fid','dm-fe','dm-p','dm-n','dm-hrsop','dm-hrsnew'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   const tpSel=document.getElementById('dm-tp');
   if(tpSel)tpSel.innerHTML=(cats.modal||[]).map(m=>`<option value="${esc(m.name)}">${m.icon||''} ${esc(m.name)}</option>`).join('');
+  popLauncherSelects();
   document.getElementById('dep-modal').classList.add('open');
 }
 function fillDepFromClient(){
@@ -2393,7 +2380,7 @@ function saveNewDep(){
     tp:tpVal,
     es:document.getElementById('dm-es')?.value||'🆕 Por iniciar',
     fase:0,
-    ln:document.getElementById('dm-ln')?.value||LAUNCHERS[0],
+    ln:document.getElementById('dm-ln')?.value||(LAUNCHERS()[0]||""),
     fi:document.getElementById('dm-fi')?.value||'',
     fd:document.getElementById('dm-fid')?.value||'',
     fe:document.getElementById('dm-fe')?.value||'',
@@ -2555,7 +2542,7 @@ function renderCapacidad(){
     return`<tr>
       <td style="font-weight:600">${esc(d.c)}</td>
       <td>${cx||'—'}</td>
-      <td>${d.mo.slice(0,3).map(m=>`<span class="mt" style="font-size:10px">${esc(m)}</span>`).join('')}</td>
+      <td style="max-width:200px"><div style="display:flex;flex-wrap:wrap;gap:3px">${d.mo.map(m=>`<span class="mt" style="font-size:10px">${esc(m)}</span>`).join('')}</div></td>
       <td style="text-align:center">${d.hrsOp?`<span style="color:#1B4FD8;font-weight:700">${d.hrsOp}h</span>`:`${globalHrsOp}h`}</td>
     </tr>`;
   });
@@ -2928,7 +2915,7 @@ function setCatTab(t){
   const tabEl=document.querySelector(`.cat-tab[onclick*="'${t}'"]`);if(tabEl)tabEl.classList.add('active');
   document.querySelectorAll('.cat-panel').forEach(el=>el.style.display='none');
   const panel=document.getElementById('cat-'+t);if(panel)panel.style.display='block';
-  const renders={modulos:renderMds,categorias:renderCatMods,modalidades:renderModDeps,fases:renderPhases,implTimes:renderImplTimes,complejidad:renderCxs,billingTypes:renderBTs,riesgos:renderRisks,aplicativos:renderAps,tipos:renderTps};
+  const renders={modulos:renderMds,categorias:renderCatMods,modalidades:renderModDeps,fases:renderPhases,implTimes:renderImplTimes,complejidad:renderCxs,billingTypes:renderBTs,riesgos:renderRisks,aplicativos:renderAps,tipos:renderTps,launchers:renderLaunchers};
   if(renders[t])renders[t]();
 }
 function renderCats(){
@@ -3163,6 +3150,12 @@ function _catModalBody(type,item){
     `<div class="fr"><label class="fl">Descripción</label><input type="text" class="fld" id="cem-desc" value="${esc(v('desc'))}" placeholder="Descripción del tipo de cobro"></div>`,
   ].join('');
 
+  if(type==='launchers') return [
+    row('Nombre completo',inp('name','Ej: María López')),
+    row('Email',`<input type="email" class="fld" id="cem-email" value="${esc(v('email'))}" placeholder="maria@clipp.com">`),
+    row('Notas',inp('notas','Rol o área')),
+  ].join('');
+
   if(type==='risk') return [
     `<div class="fr2">`,
     `<div class="fr"><label class="fl">Nombre del estado</label><input type="text" class="fld" id="cem-name" value="${esc(v('name'))}" placeholder="Alerta"></div>`,
@@ -3200,6 +3193,7 @@ function _catModalSave(type,id){
     item.desc=g('desc');
   }
   else if(type==='billingTypes'){item.icon=g('icon');item.name=g('name')||item.name;item.tipo=g('tipo');item.unidad=g('unidad');item.desc=g('desc');}
+  else if(type==='launchers'){item.name=g('name')||item.name;item.email=document.getElementById('cem-email')?.value.trim()||'';item.notas=g('notas');}
   else if(type==='risk'){
     item.name=g('name')||item.name;item.icon=g('icon');item.color=g('color','#B45309');
     item.minPct=parseInt(document.getElementById('cem-minPct')?.value)||0;item.desc=g('desc');
@@ -3291,6 +3285,55 @@ function initColResize(e){
   document.addEventListener('mouseup',onUp);
 }
 
+
+
+// ═══ LAUNCHERS CATALOG ═══════════════════════════════════════════════════════
+
+function renderLaunchers(){
+  const el=document.getElementById('ln-tbody');if(!el)return;
+  const lns=cats.launchers||[];
+  el.innerHTML=lns.length?lns.map((l,i)=>`<tr>
+    <td style="font-weight:600">${esc(l.name)}</td>
+    <td style="font-size:12px;color:var(--muted)">${esc(l.email||'')}</td>
+    <td style="font-size:12px;color:var(--muted)">${esc(l.notas||'')}</td>
+    <td style="white-space:nowrap">
+      <button class="icon-btn edit" onclick="openEditCat('launchers',${l.id})">✏️</button>
+      <button class="icon-btn del" onclick="delCat('launchers',${l.id},'${esc(l.name)}')">🗑</button>
+    </td>
+  </tr>`).join(''):`<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--subtle)">Sin launchers. Agrega uno arriba.</td></tr>`;
+  // Refresh all launcher dropdowns
+  popLauncherSelects();
+}
+
+function saveLauncher(){
+  const n=document.getElementById('ln-name').value.trim();if(!n)return;
+  if(!cats.launchers)cats.launchers=[];
+  cats.launchers.push({id:Date.now(),name:n,email:document.getElementById('ln-email').value.trim(),notas:document.getElementById('ln-notas').value.trim()});
+  sv();renderLaunchers();
+  ['ln-name','ln-email','ln-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+
+
+function popAllSelects(){
+  popLauncherSelects();
+  popClSelects();
+}
+
+function popLauncherSelects(){
+  const lns=LAUNCHERS();
+  const allOpts=lns.map(l=>`<option>${esc(l)}</option>`).join('');
+  const filterOpts='<option value="">Todos los launchers</option>'+lns.map(l=>`<option>${esc(l)}</option>`).join('');
+  // Filter selects (with "Todos" option)
+  ['tl-launcher','fld','flo','sf-ln'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){const cur=el.value;el.innerHTML=filterOpts;el.value=cur;}
+  });
+  // Modal selects (no "Todos" option)
+  ['dm-ln','cm-dl'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){const cur=el.value;el.innerHTML=allOpts;if(cur)el.value=cur;}
+  });
+}
 
 // ═══ ROLES & USUARIOS ════════════════════════════════════════════════════════
 
@@ -3618,6 +3661,7 @@ function delUsuario(id,name){
 
 // ── BOOT: load roles + apply to UI ────────────────────────────────────────
 function bootRoles(){
+  popLauncherSelects();  // populate all launcher dropdowns
   try{const r=JSON.parse(localStorage.getItem('roles_v1'));if(r&&r.length)roles=r;}catch(e){}
   try{const u=JSON.parse(localStorage.getItem('usuarios_v1'));if(u&&u.length)usuarios=u;}catch(e){}
   if(!roles.length)roles=BASE_ROLES.map(r=>Object.assign({},r,{perms:{...r.perms}}));
@@ -3671,6 +3715,17 @@ function subscribeRealtime(){
       else if(k==='contratos'){contratos=v;localStorage.setItem('ct_v1',JSON.stringify(v));}
       else if(k==='cobros'){cobros=v;localStorage.setItem('cobros_v1',JSON.stringify(v));}
       else if(k==='trash'){trash=v;localStorage.setItem('trash_v1',JSON.stringify(v));}
+      // Re-migrate cats in case Supabase had older version without new keys
+      if(!cats.launchers||!cats.launchers.length)cats.launchers=BASE_LAUNCHERS.map(x=>Object.assign({},x));
+      if(!cats.ap||!cats.ap.length)cats.ap=BASE_AP.map(x=>Object.assign({},x));
+      if(!cats.tp)cats.tp=[];
+      if(!cats.complexity||!cats.complexity.length)cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
+      if(!cats.billingTypes||!cats.billingTypes.length)cats.billingTypes=BASE_BILLING_TYPES.map(x=>Object.assign({},x));
+      if(!cats.phases||!cats.phases.length)cats.phases=BASE_PHASES.map(x=>Object.assign({},x));
+      if(!cats.catmod||!cats.catmod.length)cats.catmod=BASE_CATMOD.map(x=>Object.assign({},x));
+      if(!cats.modal||!cats.modal.length)cats.modal=BASE_MODAL.map(x=>Object.assign({},x));
+      if(!cats.risk||!cats.risk.length)cats.risk=BASE_RISK.map(x=>Object.assign({},x));
+      if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
       renderCurrentView();updBadges();updTrashBadge();
       setSyncStatus('↺ Actualizado','#0F7E4F');setTimeout(()=>setSyncStatus(''),2000);
     }
@@ -3678,10 +3733,13 @@ function subscribeRealtime(){
 }
 function bootApp(){
   // DATA RESET: force reload when version changes
-  var DATA_VERSION='v3.1_80clients';
+  var DATA_VERSION='v3.8_clean';
   if(localStorage.getItem('data_version')!==DATA_VERSION){
-    localStorage.removeItem('oc27');localStorage.removeItem('od27');
-    localStorage.removeItem('ct_v1');localStorage.removeItem('cobros_v1');
+    // Reset only deps and contracts — keep clients (oc27) and cats (ct27)
+    localStorage.removeItem('od27');
+    localStorage.removeItem('ct_v1');
+    localStorage.removeItem('cobros_v1');
+    localStorage.removeItem('chk_v1');
     localStorage.setItem('data_version',DATA_VERSION);
   }
   // Load from localStorage
@@ -3710,6 +3768,7 @@ function bootApp(){
   if(!cats.catmod||!cats.catmod.length)cats.catmod=BASE_CATMOD.map(x=>Object.assign({},x));
   if(!cats.billingTypes||!cats.billingTypes.length)cats.billingTypes=BASE_BILLING_TYPES.map(x=>Object.assign({},x));
   if(!cats.complexity||!cats.complexity.length)cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
+  if(!cats.launchers||!cats.launchers.length)cats.launchers=BASE_LAUNCHERS.map(x=>Object.assign({},x));
   if(!cats.tp)cats.tp=[];
 
   // Load roles
@@ -3726,11 +3785,22 @@ function bootApp(){
       if(!cls.length||cls.length!==BC.length){
         cls=BC.map(function(c){return Object.assign({},c,{mo:Array.isArray(c.mo)?c.mo.slice():[]});});
       }
+      // Re-migrate cats in case Supabase had older version without new keys
+      if(!cats.launchers||!cats.launchers.length)cats.launchers=BASE_LAUNCHERS.map(x=>Object.assign({},x));
+      if(!cats.ap||!cats.ap.length)cats.ap=BASE_AP.map(x=>Object.assign({},x));
+      if(!cats.tp)cats.tp=[];
+      if(!cats.complexity||!cats.complexity.length)cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
+      if(!cats.billingTypes||!cats.billingTypes.length)cats.billingTypes=BASE_BILLING_TYPES.map(x=>Object.assign({},x));
+      if(!cats.phases||!cats.phases.length)cats.phases=BASE_PHASES.map(x=>Object.assign({},x));
+      if(!cats.catmod||!cats.catmod.length)cats.catmod=BASE_CATMOD.map(x=>Object.assign({},x));
+      if(!cats.modal||!cats.modal.length)cats.modal=BASE_MODAL.map(x=>Object.assign({},x));
+      if(!cats.risk||!cats.risk.length)cats.risk=BASE_RISK.map(x=>Object.assign({},x));
+      if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
       renderCurrentView();updBadges();updTrashBadge();
       // Push initial data to Supabase if cobros/contratos empty
-      sv();
-      if(!contratos.length)svCont();
-      if(!cobros.length)svCobros();
+      sv(); // always push deps/cls/cats
+      svCont();
+      svCobros();
       svTrash();
       setSyncStatus('✓ Sincronizado','#0F7E4F');
       setTimeout(()=>setSyncStatus(''),3000);
