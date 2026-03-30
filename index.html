@@ -1259,9 +1259,7 @@ const BC=[
 // ═══════════════════════════════════════════════
 // SUPABASE CONFIG — reemplaza con tus credenciales
 // ═══════════════════════════════════════════════
-//const SB_URL = 'SUPABASE_URL_AQUI';   // ej: https://xxxx.supabase.co
-//const SB_KEY = 'SUPABASE_ANON_KEY_AQUI'; // clave anon pública
-const SB_URL = 'https://owfetilyxgvkrtdopskz.supabase.co'; 
+const SB_URL = 'https://owfetilyxgvkrtdopskz.supabase.co';
 const SB_KEY = 'sb_publishable_oF_WRd-avHEkoADZ7e_24w_YljNDFHR';
 let supabase = null;
 
@@ -1294,7 +1292,7 @@ function sv(){
   localStorage.setItem('oc27',JSON.stringify(cls));
   localStorage.setItem('ct27',JSON.stringify(cats));
   sessionStorage.setItem('clipp_authed','1');
-  if(SB_URL!=='SUPABASE_URL_AQUI'&&supabase){
+  if(supabase){
     Promise.all([
       supabase.from('ops_data').upsert({key:'deps',value:deps,updated_at:new Date().toISOString()}),
       supabase.from('ops_data').upsert({key:'cls',value:cls,updated_at:new Date().toISOString()}),
@@ -1305,12 +1303,12 @@ function sv(){
 function svCont2(){
   localStorage.setItem('ct_v1',JSON.stringify(contratos));
   sessionStorage.setItem('clipp_authed','1');
-  if(SB_URL!=='SUPABASE_URL_AQUI'&&supabase)
+  if(supabase)
     supabase.from('ops_data').upsert({key:'contratos',value:contratos,updated_at:new Date().toISOString()}).catch(()=>{});
 }
 function svCobros2(){
   localStorage.setItem('cobros_v1',JSON.stringify(cobros));
-  if(SB_URL!=='SUPABASE_URL_AQUI'&&supabase)
+  if(supabase)
     supabase.from('ops_data').upsert({key:'cobros',value:cobros,updated_at:new Date().toISOString()}).catch(()=>{});
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -2890,31 +2888,50 @@ function doLogin(){
 
   btn.disabled=true; btn.textContent='Ingresando...'; err.textContent='';
 
-  if(SB_URL === 'SUPABASE_URL_AQUI'){
-    // ── MODO DEMO: acceso libre, datos en este navegador ──
-    document.getElementById('login-overlay').classList.add('hidden');
-    bootApp();
-    return;
-  }
-
   // ── MODO PRODUCCIÓN: Supabase real ──
   loadSupabase().then(()=>{
-    supabase = window.supabase.createClient(SB_URL, SB_KEY);
-    supabase.auth.signInWithPassword({email, password:pass})
-      .then(({data,error})=>{
-        if(error){ err.textContent=error.message; btn.disabled=false; btn.textContent='Ingresar'; return; }
-        document.getElementById('login-overlay').classList.add('hidden');
-        bootApp();
-      })
-      .catch(e=>{ err.textContent='Error de conexión'; btn.disabled=false; btn.textContent='Ingresar'; });
-  }).catch(()=>{ err.textContent='Sin conexión a internet'; btn.disabled=false; btn.textContent='Ingresar'; });
+    try{
+      // Supabase v2.49+ supports sb_publishable_ keys
+      supabase = window.supabase.createClient(SB_URL, SB_KEY, {
+        auth:{
+          autoRefreshToken:true,
+          persistSession:true,
+          detectSessionInUrl:false
+        }
+      });
+      supabase.auth.signInWithPassword({email:email, password:pass})
+        .then(function(res){
+          if(res.error){
+            err.textContent = res.error.message==='Invalid login credentials'
+              ? 'Email o contraseña incorrectos'
+              : res.error.message;
+            btn.disabled=false; btn.textContent='Ingresar';
+            return;
+          }
+          sessionStorage.setItem('clipp_authed','1');
+          document.getElementById('login-overlay').classList.add('hidden');
+          bootApp();
+        })
+        .catch(function(e){
+          err.textContent='Error al conectar con Supabase';
+          btn.disabled=false; btn.textContent='Ingresar';
+          console.error(e);
+        });
+    }catch(e){
+      err.textContent='Error iniciando Supabase: '+e.message;
+      btn.disabled=false; btn.textContent='Ingresar';
+    }
+  }).catch(function(){
+    err.textContent='Sin conexión a internet. Usa modo demo.';
+    btn.disabled=false; btn.textContent='Ingresar';
+  });
 }
 
 function loadSupabase(){
   return new Promise((resolve,reject)=>{
     if(window.supabase){ resolve(); return; }
     const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js';
     s.onload=resolve; s.onerror=reject;
     document.head.appendChild(s);
   });
@@ -2969,15 +2986,24 @@ function bootApp(){
 
 // ── AUTO-LOGIN CHECK ──
 (function(){
-  // If already logged in this session (localStorage flag), skip login
-  if(sessionStorage.getItem('clipp_authed')==='1'){
-    document.getElementById('login-overlay').classList.add('hidden');
-    bootApp();
-    return;
-  }
-  // In demo mode, press Enter on password works
+  // Press Enter on password field
   const passEl=document.getElementById('li-pass');
   if(passEl) passEl.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+  // Check for existing Supabase session
+  loadSupabase().then(function(){
+    try{
+      const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false}});
+      sb.auth.getSession().then(function(res){
+        if(res.data&&res.data.session){
+          supabase=sb;
+          sessionStorage.setItem('clipp_authed','1');
+          document.getElementById('login-overlay').classList.add('hidden');
+          bootApp();
+        }
+      });
+    }catch(e){}
+  }).catch(function(){});
 })();
 
 </script>
