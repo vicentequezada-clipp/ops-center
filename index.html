@@ -333,7 +333,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="s-item" onclick="setV('catalogos')" id="nav-catalogos"><span>🗂</span> Catálogos</div>
     <div class="s-item" onclick="setV('manual')" id="nav-manual"><span>📖</span> Manual de Uso</div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp · 2026</div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v2.7 · 30 Mar 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -634,7 +634,14 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       </div>
       <div class="tbl-wrap"><table class="cont-table" id="cont-table">
         <thead><tr>
-          <th>#</th><th>Cliente</th><th>Modalidad Cobro</th><th>Precio/Unidad</th><th>Mín. Vehículos</th><th>Mín. Conductores</th><th>Modelo Activo</th><th>Facturación Base</th><th>Estado</th><th>Acciones</th>
+          <th style="width:36px">#</th>
+          <th style="min-width:150px">Cliente</th>
+          <th style="min-width:220px">Tipos de Cobro</th>
+          <th style="min-width:110px">Bots WA Activos</th>
+          <th style="width:120px">Est. Mensual</th>
+          <th style="width:100px">Estado</th>
+          <th style="min-width:160px">Notas</th>
+          <th style="width:90px">Acciones</th>
         </tr></thead><tbody id="cont-tbody"></tbody>
       </table></div>
     </div>
@@ -1089,26 +1096,6 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         </table></div></div>
       </div>
 
-      <!-- APLICATIVOS -->
-      <div class="cat-panel" id="cat-aplicativos">
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="ap-name" placeholder="Ej: Clipp"></div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="ap-desc" placeholder="Descripción"></div>
-          <div class="fr"><label class="fl">Color</label>
-            <select class="cat-input" id="ap-color">
-              <option value="#1B4FD8">🔵 Azul</option><option value="#0F7E4F">🟢 Verde</option>
-              <option value="#B45309">🟡 Ámbar</option><option value="#5B21B6">🟣 Violeta</option>
-              <option value="#BE123C">🔴 Rojo</option><option value="#0369A1">🩵 Celeste</option>
-            </select>
-          </div>
-          <button class="btn btn-p btn-sm" onclick="saveAp()">+ Agregar</button>
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Nombre</th><th>Descripción</th><th>Color</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="ap-tbody"></tbody>
-        </table></div></div>
-      </div>
-
       <!-- TIPOS DE CLIENTE -->
       <div class="cat-panel" id="cat-tipos">
         <div class="cat-add-row">
@@ -1294,14 +1281,17 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 <div class="modal-ov" id="cont-modal">
   <div class="modal" style="max-width:860px;width:96vw">
     <div class="m-title"><span id="cont-mt">📋 Nuevo Contrato</span><button class="m-close" onclick="closeM('cont-modal')">✕</button></div>
-    <div class="fr2">
-      <div class="fr"><label class="fl">📛 Cliente</label>
+    <div class="fr3">
+      <div class="fr" style="flex:2"><label class="fl">📛 Cliente</label>
         <select class="fld" id="cm-cont-cli" onchange="updateContratoPreview()">
           <option value="">Seleccionar cliente...</option>
         </select>
       </div>
+      <div class="fr"><label class="fl">💬 Bots WA en Coexistencia</label>
+        <input type="number" class="fld" id="cm-cont-bots" value="0" min="0" placeholder="0" oninput="updateContratoPreview()">
+      </div>
       <div class="fr"><label class="fl">📝 Notas del contrato</label>
-        <input class="fld" id="cm-cont-nota" placeholder="Condiciones especiales, vigencia...">
+        <input class="fld" id="cm-cont-nota" placeholder="Condiciones especiales...">
       </div>
     </div>
 
@@ -1359,13 +1349,17 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 </div>
 
 <!-- CONFIRM -->
-<div class="modal-ov" id="conf-modal">
-  <div class="modal modal-sm">
-    <div class="m-title"><span>Confirmar eliminación</span><button class="m-close" onclick="closeM('conf-modal')">✕</button></div>
-    <div class="modal-body" style="padding:10px 0">¿Eliminar <strong id="del-n"></strong>? Esta acción no se puede deshacer.</div>
+<div class="modal-ov" id="conf-modal" style="align-items:center;justify-content:center">
+  <div class="modal" style="max-width:380px;width:90vw">
+    <div class="m-title" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px">
+      <span style="font-size:15px">🗑 Confirmar eliminación</span>
+      <button class="m-close" onclick="closeM('conf-modal')">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--text);margin-bottom:6px">¿Eliminar <strong id="del-n"></strong>?</p>
+    <p style="font-size:12.5px;color:#DC2626;margin-bottom:18px">Esta acción no se puede deshacer.</p>
     <div class="m-actions">
       <button class="btn btn-g" onclick="closeM('conf-modal')">Cancelar</button>
-      <button class="btn btn-danger" id="del-btn" style="background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-weight:700;cursor:pointer;font-family:inherit">Eliminar</button>
+      <button class="btn" id="del-btn" style="background:#DC2626;color:#fff;border:none;border-radius:8px;padding:9px 22px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px">Sí, eliminar</button>
     </div>
   </div>
 </div>
@@ -1853,7 +1847,7 @@ function depRow(d){
     </div>
   </td>
   <td>${complexBadge(d)}</td>
-  <td><div class="md" onclick="openMod('dep',${d.id},this)">${d.mo.length?d.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'<span class="me">+ Módulos</span>'}</div></td>  <td><select class="ei" onchange="uD(${d.id},'ln',this.value)">${LAUNCHERS.map(l=>`<option ${d.ln===l?'selected':''}>${l}</option>`).join('')}</select></td>
+  <td><div class="cl-mods-ro" title="Editar módulos desde el cliente vinculado">${d.mo.length?d.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'<span style="color:var(--subtle);font-size:11px;cursor:help" title="Sin módulos asignados">—</span>'}</div></td>  <td><select class="ei" onchange="uD(${d.id},'ln',this.value)">${LAUNCHERS.map(l=>`<option ${d.ln===l?'selected':''}>${l}</option>`).join('')}</select></td>
   <td><input type="date" class="ei" value="${esc(d.fi||'')}" onchange="uD(${d.id},'fi',this.value)"></td>
   <td><input type="date" class="ei" value="${esc(d.fid||'')}" onchange="uD(${d.id},'fid',this.value)"></td>
   <td><input type="date" class="ei" value="${esc(d.fe||'')}" onchange="uD(${d.id},'fe',this.value)"></td>
@@ -1890,8 +1884,10 @@ function updateCapTooltip(id,el){uD(id,'hrsOp',parseFloat(el.value)||null);if(cu
 function advanceFase(id){const d=deps.find(x=>x.id===id);if(!d)return;d.fase=Math.min((parseInt(d.fase||0)+1),cats.phases.length-1);sv();if(curV==='despliegues')renderDeps();else if(curV==='operativos')renderOps();}
 function backFase(id){const d=deps.find(x=>x.id===id);if(!d)return;d.fase=Math.max((parseInt(d.fase||0)-1),0);sv();if(curV==='despliegues')renderDeps();else if(curV==='operativos')renderOps();}
 function uDEs(id,val){
-  const d=deps.find(x=>x.id===id);if(!d)return;const prev=d.es;d.es=val;sv();updBadges();renderDash();
-  if(prev===EL&&val!==EL){renderOps();renderDeps();}else if(prev!==EL&&val===EL){renderDeps();renderOps();}
+  const d=deps.find(x=>x.id===id);if(!d)return;
+  const prev=d.es;d.es=val;sv();updBadges();renderDash();
+  if(prev===EL&&val!==EL){renderOps();renderDeps();}
+  else if(prev!==EL&&val===EL){renderDeps();renderOps();}
 }
 
 function renderDeps(){
@@ -2879,7 +2875,7 @@ function calcFactura(contrato, mes, activosOverride){
         detalle = `${usar} veh × $${comp.precio}`;
         totalVariable += monto;
       } else if(comp.tipo === 'bot_wa'){
-        const usar = actBot || comp.cantidad || 0;
+        const usar = actBot > 0 ? actBot : (contrato.botsActivos || comp.cantidad || 0);
         monto = (comp.precio||0) * usar;
         detalle = `${usar} bots × $${comp.precio}`;
         totalVariable += monto;
@@ -3049,14 +3045,18 @@ function renderContratos(){
       return`<span class="tag" style="background:var(--bg2);font-size:10.5px">${bt.icon||'💰'} ${esc(comp.nombre||bt.name)}: $${comp.precio}${comp.minimo?` (mín ${comp.minimo})`:''}${comp.cantidad&&comp.cantidad>1?` ×${comp.cantidad}`:''}</span>`;
     }).join(' '):'<span style="color:var(--subtle);font-size:11px">Legacy</span>';
     const preview=calcFactura(c,'',{});
+    // Extract bot WA component if any
+    const botComp=(c.componentes||[]).find(comp=>comp.tipo==='bot_wa');
+    const botInfo=botComp?`${botComp.cantidad||1} bot${(botComp.cantidad||1)>1?'s':''} × $${botComp.precio}`:'—';
     return`<tr>
       <td style="color:var(--subtle);font-family:'DM Mono',monospace;font-size:11px">${String(c.id).padStart(2,'0')}</td>
       <td style="font-weight:600">${esc(c.cliente)}</td>
-      <td style="max-width:260px">${compBadges}</td>
+      <td style="min-width:200px">${compBadges}</td>
+      <td style="font-size:12.5px;color:${botComp?'#1B4FD8':'var(--subtle)'}">${botInfo}</td>
       <td style="font-weight:700;color:var(--green)">$${preview.total.toLocaleString()}/mes</td>
-      <td style="font-size:12px;color:var(--muted)">${esc(c.nota||'')}</td>
       <td>${estBadge}</td>
-      <td style="display:flex;gap:4px">
+      <td style="font-size:12px;color:var(--muted);max-width:160px">${esc(c.nota||'')}</td>
+      <td style="white-space:nowrap">
         <button class="icon-btn edit" onclick="editContrato(${c.id})" title="Editar">✏️</button>
         <button class="icon-btn del" onclick="confDel('cont',${c.id},'${esc(c.cliente)}')" title="Eliminar">🗑</button>
       </td>
@@ -3145,6 +3145,7 @@ function openAddContrato(){
   const sel=document.getElementById('cm-cont-cli');
   sel.innerHTML='<option value="">Seleccionar cliente...</option>'+cls.map(c=>`<option value="${c.id}">${esc(c.nm)} — ${esc(c.ci||c.pa||'')}</option>`).join('');
   document.getElementById('cm-cont-nota').value='';
+  const botEl=document.getElementById('cm-cont-bots');if(botEl)botEl.value=0;
   initContModal();renderContComps();updateContratoPreview();
   document.getElementById('cont-modal').classList.add('open');
 }
@@ -3157,6 +3158,7 @@ function editContrato(id){
   const sel=document.getElementById('cm-cont-cli');
   sel.innerHTML=`<option value="${c.clienteId||''}" selected>${esc(c.cliente)}</option>`;
   document.getElementById('cm-cont-nota').value=c.nota||'';
+  const botEdEl=document.getElementById('cm-cont-bots');if(botEdEl)botEdEl.value=c.botsActivos||0;
   // Legacy fields
   if(document.getElementById('cm-cont-px'))document.getElementById('cm-cont-px').value=c.precio||15;
   if(document.getElementById('cm-cont-mv'))document.getElementById('cm-cont-mv').value=c.minV||0;
@@ -3173,6 +3175,7 @@ function saveContrato(){
   const clienteNm=(cliSel.options[cliSel.selectedIndex]?.text||'').split(' — ')[0].trim();
   if(!clienteNm||clienteNm==='Seleccionar cliente...'){alert('Selecciona un cliente');return;}
   const nota=document.getElementById('cm-cont-nota').value.trim();
+  const botsCount=parseInt(document.getElementById('cm-cont-bots')?.value)||0;
   const comps=_contComps.length>0?[..._contComps]:null;
   // Determine legacy fields
   const va=parseInt(document.getElementById('cm-cont-va')?.value)||0;
@@ -3182,12 +3185,12 @@ function saveContrato(){
   const mc=parseInt(document.getElementById('cm-cont-mc')?.value)||0;
   if(editingContratoId){
     const c=contratos.find(x=>x.id===editingContratoId);
-    if(c){c.componentes=comps;c.nota=nota;c.vehiculosActivos=va;c.conductoresActivos=ca;c.precio=px;c.minV=mv;c.minC=mc;c.modalidad=comps?'componentes':'conductor';}
+    if(c){c.componentes=comps;c.nota=nota;c.vehiculosActivos=va;c.conductoresActivos=ca;c.botsActivos=botsCount;c.precio=px;c.minV=mv;c.minC=mc;c.modalidad=comps?'componentes':'conductor';}
   } else {
     const id=Math.max(...contratos.map(c=>c.id),0)+1;
-    contratos.push({id,clienteId,cliente:clienteNm,componentes:comps,modalidad:comps?'componentes':'conductor',precio:px,minV:mv,minC:mc,conductoresActivos:ca,vehiculosActivos:va,botsActivos:0,es:'activo',valorFijo:0,setupFee:0,descuentos:[],nota});
+    contratos.push({id,clienteId,cliente:clienteNm,componentes:comps,modalidad:comps?'componentes':'conductor',precio:px,minV:mv,minC:mc,conductoresActivos:ca,vehiculosActivos:va,botsActivos:botsCount,es:'activo',valorFijo:0,setupFee:0,descuentos:[],nota});
   }
-  svCont();closeM('cont-modal');renderContratos();renderCobranzas();updBadges();
+  svCont();closeM('cont-modal');renderContratos();if(curV==='cobranzas')renderCobranzas();updBadges();
 }
 function setupContratoPreview(){}
 
@@ -3287,7 +3290,7 @@ function renderCobranzas(){
   if(ctx1)cobCharts.trend=new Chart(ctx1,{type:'line',data:{labels:lblHist,datasets:[
     {label:'Facturado',data:facturadoHist,borderColor:'#1B4FD8',backgroundColor:'rgba(27,79,216,.08)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#1B4FD8',borderWidth:2.5},
     {label:'Cobrado',data:cobradoHist,borderColor:'#0F7E4F',backgroundColor:'rgba(15,126,79,.06)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#0F7E4F',borderWidth:2.5},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'DM Sans',size:11},padding:14}},tooltip:{backgroundColor:'#0D1B2E',cornerRadius:8}},scales:{y:{beginAtZero:true,grid:{color:'#E4E9F0'},ticks:{font:{family:'DM Sans',size:11},callback:v=>'$'+v}},x:{grid:{color:'#E4E9F0'},ticks:{font:{family:'DM Sans',size:11}}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'DM Sans',size:11},padding:14}},tooltip:{backgroundColor:'#0D1B2E',cornerRadius:8}},scales:{y:{beginAtZero:true,suggestedMax:100,grid:{color:'#E4E9F0'},ticks:{font:{family:'DM Sans',size:11},callback:v=>'$'+v.toLocaleString()}},x:{grid:{color:'#E4E9F0'},ticks:{font:{family:'DM Sans',size:11}}}}}});
 
   // Pie: estado distribution
   const estCounts={pendiente:0,pagado:0,parcial:0,atrasado:0};
