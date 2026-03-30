@@ -1270,22 +1270,22 @@ input[type=date].ei{cursor:pointer;min-width:110px}
   </div>
 </div>
 
-<!-- GENERAR COBROS MODAL -->
+<!-- GENERAR COBROS MODAL — simple, direct -->
 <div class="modal-ov" id="gen-cobro-modal">
-  <div class="modal" style="max-width:820px;width:95vw">
-    <div class="m-title"><span>⚡ Generar Cobros del Mes</span><button class="m-close" onclick="closeM('gen-cobro-modal')">✕</button></div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <div class="fr" style="flex:1;margin:0"><label class="fl">Mes a facturar</label><input type="month" class="fld" id="gcm-mes" style="max-width:180px"></div>
-      <button class="btn btn-g btn-sm" onclick="gcmSelectAll(true)">✓ Seleccionar todos</button>
-      <button class="btn btn-g btn-sm" onclick="gcmSelectAll(false)">✗ Deseleccionar</button>
+  <div class="modal" style="max-width:480px;width:95vw">
+    <div class="m-title"><span>⚡ Generar Cobros</span><button class="m-close" onclick="closeM('gen-cobro-modal')">✕</button></div>
+    <div class="fr">
+      <label class="fl">📅 Mes a facturar</label>
+      <input type="month" class="fld" id="gcm-mes">
     </div>
-    <div id="gcm-tabla" style="overflow-y:auto;max-height:420px"></div>
-    <div style="background:var(--bg2);padding:12px 14px;border-radius:8px;border:1px solid var(--border);margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:13px;color:var(--muted)">Total a generar: <strong id="gcm-total" style="color:var(--green)">$0</strong></span>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-g" onclick="closeM('gen-cobro-modal')">Cancelar</button>
-        <button class="btn btn-p" onclick="confirmarGenerarCobros()">⚡ Confirmar y Generar</button>
-      </div>
+    <div style="padding:10px 14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);margin:10px 0;font-size:13px;color:var(--muted)">
+      Se generará un cobro pendiente por cada cliente con contrato activo.<br>
+      Después podrás editar cada cobro con ✏️ para ajustar activos, descuentos y extras.
+    </div>
+    <div id="gcm-info" style="font-size:12.5px;color:var(--muted);min-height:20px"></div>
+    <div class="m-actions">
+      <button class="btn btn-g" onclick="closeM('gen-cobro-modal')">Cancelar</button>
+      <button class="btn btn-p" onclick="confirmarGenerarCobros()">⚡ Generar Cobros</button>
     </div>
   </div>
 </div>
@@ -1360,6 +1360,29 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
 <!-- CONFIRM -->
 <div class="modal-ov" id="conf-modal">
+  <div class="modal modal-sm">
+    <div class="m-title"><span>Confirmar eliminación</span><button class="m-close" onclick="closeM('conf-modal')">✕</button></div>
+    <div class="modal-body" style="padding:10px 0">¿Eliminar <strong id="del-n"></strong>? Esta acción no se puede deshacer.</div>
+    <div class="m-actions">
+      <button class="btn btn-g" onclick="closeM('conf-modal')">Cancelar</button>
+      <button class="btn btn-danger" id="del-btn" style="background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-weight:700;cursor:pointer;font-family:inherit">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT SUMMARY MODAL -->
+<div class="modal-ov" id="cl-summary-modal">
+  <div class="modal" style="max-width:860px;width:96vw;max-height:90vh;overflow-y:auto">
+    <div class="m-title">
+      <span id="csm-title">📊 Resumen del Cliente</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g btn-sm" onclick="editCl(_csmClientId)">✏️ Editar Cliente</button>
+        <button class="m-close" onclick="closeM('cl-summary-modal')">✕</button>
+      </div>
+    </div>
+    <div id="csm-body" style="padding:4px 0"></div>
+  </div>
+</div>
   <div class="modal modal-sm">
     <div class="m-title"><span>Confirmar eliminación</span><button class="m-close" onclick="closeM('conf-modal')">✕</button></div>
     <p style="font-size:14px;color:var(--muted);margin-bottom:6px">¿Eliminar <strong id="del-n"></strong>?</p>
@@ -1743,7 +1766,11 @@ function setV(v){
   if(v==='catalogos')renderCats();
   if(v==='manual'){}
 }
-function openAdd(){if(curV==='clientes')openAddCl();else openAddDep();}
+function openAdd(){
+  if(curV==='clientes') openAddCl();
+  else if(curV==='contratos') openAddContrato();
+  else openAddDep();
+}
 
 // ═══════════════════════════════════════════════
 // DASHBOARD
@@ -2092,7 +2119,7 @@ function renderCls(){
   document.getElementById('ccl').textContent=`${f.length} de ${cls.length}`;
   document.getElementById('ctb').innerHTML=f.map(c=>`<tr style="${c.es!=='activo'?'opacity:.65':''}">
     <td style="color:var(--subtle);font-family:'DM Mono',monospace;font-size:11px">${String(c.id).padStart(2,'0')}</td>
-    <td class="cl-ro" style="font-weight:600">${esc(c.nm)}</td>
+    <td class="cl-ro" style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="openClSummary(${c.id})" title="Ver resumen">${esc(c.nm)}</td>
     <td class="cl-ro">${esc(c.pa||'—')}</td>
     <td class="cl-ro">${esc(c.ci||'—')}</td>
     <td class="cl-ro">${esc(c.ap||'—')}</td>
@@ -2144,6 +2171,126 @@ function openAddCl(){
   // populate modalidad select
   document.getElementById('cm-dt').innerHTML=TIPOS_DEP().map(t=>`<option>${t}</option>`).join('');
   document.getElementById('cl-modal').classList.add('open');
+}
+
+let _csmClientId=null;
+function openClSummary(id){
+  _csmClientId=id;
+  const cl=cls.find(c=>c.id===id);
+  if(!cl)return;
+
+  // Contract
+  const cont=contratos.find(c=>c.clienteId===cl.id||c.cliente===cl.nm);
+  // Deployments
+  const depsCl=deps.filter(d=>d.cid===cl.id||d.c===cl.nm);
+  // Cobros history
+  const cobrosCl=cobros.filter(cb=>cb.contratoId===cont?.id||cb.cliente===cl.nm).sort((a,b)=>b.mes.localeCompare(a.mes));
+
+  document.getElementById('csm-title').innerHTML=`📊 ${esc(cl.nm)} <span style="font-size:12px;font-weight:400;color:var(--muted)">— ${esc(cl.pa||'')}${cl.ci?' / '+esc(cl.ci):''}</span>`;
+
+  // ── Build summary HTML ──
+  const esChipHtml=esChip(cl.es||'activo');
+  const modsHtml=cl.mo.length?cl.mo.map(m=>`<span class="tag">${esc(m)}</span>`).join(' '):'<span style="color:var(--subtle)">Sin módulos</span>';
+  const cx=complexBadge({mo:cl.mo});
+
+  // Contract section
+  let contHtml='<div style="color:var(--subtle);font-size:13px;padding:12px 0">Sin contrato creado. <span style="cursor:pointer;color:var(--blue)" onclick="closeM(\'cl-summary-modal\');openAddContrato()">+ Crear contrato</span></div>';
+  if(cont){
+    const comps=cont.componentes||[];
+    const preview=calcFactura(cont,'',{});
+    contHtml=`
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        ${comps.length?comps.map(comp=>{
+          const bt=(cats.billingTypes||BASE_BILLING_TYPES).find(t=>t.tipo===comp.tipo)||{icon:'💰',name:comp.tipo};
+          return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:130px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${bt.icon||''} ${esc(bt.name)}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--text)">$${comp.precio}<span style="font-size:10px;font-weight:400;color:var(--muted)">/${bt.unidad||'unid'}</span></div>
+            ${comp.minimo?`<div style="font-size:10.5px;color:var(--subtle)">Mín: ${comp.minimo}</div>`:''}
+          </div>`;
+        }).join(''):`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+          <div style="font-size:11px;color:var(--muted)">Modalidad legacy</div>
+          <div style="font-size:13px">${cont.modalidad} · $${cont.precio}/unid</div>
+        </div>`}
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
+        <div><div style="font-size:10.5px;color:var(--muted)">Estimado mensual</div><div style="font-size:20px;font-weight:700;color:var(--green)">$${preview.total.toLocaleString()}/mes</div></div>
+        <div style="flex:1"></div>
+        ${cont.nota?`<div style="font-size:12px;color:var(--muted)">📝 ${esc(cont.nota)}</div>`:''}
+        <button class="btn btn-g btn-sm" onclick="closeM('cl-summary-modal');editContrato(${cont.id})">✏️ Editar</button>
+      </div>`;
+  }
+
+  // Cobros table
+  const totalFact=cobrosCl.reduce((s,cb)=>s+cb.montoFinal,0);
+  const totalCob=cobrosCl.filter(cb=>cb.estado==='pagado'||cb.estado==='parcial').reduce((s,cb)=>s+cb.montoFinal,0);
+  const cobroHtml=cobrosCl.length?`
+    <div style="display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap">
+      <div style="background:#ECFDF5;border:1px solid #6EE7B7;border-radius:8px;padding:8px 14px;min-width:130px">
+        <div style="font-size:10.5px;color:#0F7E4F">Total Facturado</div>
+        <div style="font-size:17px;font-weight:700;color:#0F7E4F">$${totalFact.toLocaleString()}</div>
+      </div>
+      <div style="background:#EEF2FF;border:1px solid #BFDBFE;border-radius:8px;padding:8px 14px;min-width:130px">
+        <div style="font-size:10.5px;color:#1B4FD8">Total Cobrado</div>
+        <div style="font-size:17px;font-weight:700;color:#1B4FD8">$${totalCob.toLocaleString()}</div>
+      </div>
+      <div style="background:${totalFact-totalCob>0?'#FFF1F2':'#F0FDF4'};border:1px solid ${totalFact-totalCob>0?'#FECDD3':'#BBF7D0'};border-radius:8px;padding:8px 14px;min-width:130px">
+        <div style="font-size:10.5px;color:${totalFact-totalCob>0?'#BE123C':'#0F7E4F'}">Pendiente</div>
+        <div style="font-size:17px;font-weight:700;color:${totalFact-totalCob>0?'#BE123C':'#0F7E4F'}">$${(totalFact-totalCob).toLocaleString()}</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto"><table class="cont-table"><thead><tr>
+      <th>Mes</th><th>Detalle</th><th>Descuento</th><th>Total</th><th>Estado</th><th>Notas</th><th></th>
+    </tr></thead><tbody>${cobrosCl.map(cb=>{
+      const desgRow=(cb.desglose||[]).map(d=>`<div style="font-size:10.5px;color:var(--muted)">• ${esc(d.nombre)}: $${d.monto}</div>`).join('');
+      const extRow=(cb.extras||[]).map(e=>`<div style="font-size:10.5px;color:#1B4FD8">+ ${esc(e.nombre)}: $${e.monto}</div>`).join('');
+      return`<tr>
+        <td><strong>${esc(cb.mes)}</strong></td>
+        <td style="min-width:180px">${desgRow||`<span style="font-size:11.5px">$${(cb.montoBase||0).toLocaleString()}</span>`}${extRow}</td>
+        <td style="color:#DC2626">${(cb.descuento||0)>0?`-$${cb.descuento}`:'-'}</td>
+        <td style="font-weight:700;color:var(--green)">$${(cb.montoFinal||0).toLocaleString()}</td>
+        <td>${estadoCobro(cb.estado)}</td>
+        <td style="font-size:11.5px;color:var(--muted)">${esc(cb.notas||'')}</td>
+        <td><button class="icon-btn edit" onclick="closeM('cl-summary-modal');openEditCobro('${cb.id}')">✏️</button></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`
+  :'<div style="color:var(--subtle);font-size:13px;padding:12px 0">Sin cobros registrados. Ve a Cobranzas → ⚡ Generar Cobros.</div>';
+
+  // Deployments summary
+  const depHtml=depsCl.length?depsCl.map(d=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);margin-bottom:6px">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${esc(d.tp||'')} <span style="font-size:11px;font-weight:400;color:var(--muted)">${esc(d.fi||'')} → ${esc(d.fe||'en curso')}</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px">${d.mo.slice(0,4).map(m=>`<span class="tag" style="font-size:10px">${esc(m)}</span>`).join('')}${d.mo.length>4?`<span style="font-size:10px;color:var(--subtle)">+${d.mo.length-4}</span>`:''}</div>
+      </div>
+      <div style="text-align:right">${phaseBadge(d)}<br>${complexBadge(d)}</div>
+      <div style="font-size:12px;font-weight:600">${d.es}</div>
+    </div>`).join('')
+  :'<div style="color:var(--subtle);font-size:13px;padding:8px 0">Sin despliegues registrados.</div>';
+
+  document.getElementById('csm-body').innerHTML=`
+    <!-- Header info -->
+    <div style="display:flex;flex-wrap:wrap;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:16px">
+      <div>${esChipHtml}</div>
+      ${cx?`<div>${cx}</div>`:''}
+      <div style="font-size:12.5px;color:var(--muted)">📞 ${esc(cl.co||'—')} · ${esc(cl.ph||'—')}</div>
+      <div style="font-size:12.5px;color:var(--muted)">📅 Confirmado: ${cl.fconf?fmtD(cl.fconf):'—'}</div>
+      ${cl.ap?`<div style="font-size:12.5px;color:var(--muted)">🖥 ${esc(cl.ap)}</div>`:''}
+    </div>
+    <div style="margin-bottom:6px;font-size:12.5px;color:var(--muted)">Módulos: ${modsHtml}</div>
+
+    <!-- Contract -->
+    <div style="margin:16px 0 8px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">📋 Contrato</div>
+    ${contHtml}
+
+    <!-- Deployments -->
+    <div style="margin:16px 0 8px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">🚀 Despliegues (${depsCl.length})</div>
+    ${depHtml}
+
+    <!-- Cobros -->
+    <div style="margin:16px 0 8px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">💰 Historial de Cobros (${cobrosCl.length})</div>
+    ${cobroHtml}`;
+
+  document.getElementById('cl-summary-modal').classList.add('open');
 }
 
 function editCl(id){
@@ -2797,97 +2944,57 @@ function calcFactura(contrato, mes, activosOverride){
 }
 
 // ── GENERAR COBROS MODAL ──
-let _gcmData = []; // [{contrato, activos, incluir, mes}]
-
 function openGenerarCobros(){
-  const now = new Date();
-  const mesEl = document.getElementById('gcm-mes');
-  if(mesEl) mesEl.value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  buildGcmTabla();
+  const now=new Date();
+  const mesEl=document.getElementById('gcm-mes');
+  if(mesEl) mesEl.value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  updateGcmInfo();
   document.getElementById('gen-cobro-modal').classList.add('open');
 }
-
-function buildGcmTabla(){
-  const mes = document.getElementById('gcm-mes')?.value || '';
-  // Include ALL clients with a contract (not just operativos)
-  _gcmData = contratos.map(cont => {
-    const exists = cobros.find(cb => cb.contratoId === cont.id && cb.mes === mes);
-    return {
-      cont,
-      conductores: cont.conductoresActivos || 0,
-      vehiculos: cont.vehiculosActivos || 0,
-      bots: cont.botsActivos || 0,
-      incluir: !exists,
-      yaExiste: !!exists
-    };
-  });
-  renderGcmTabla(mes);
+function updateGcmInfo(){
+  const mes=document.getElementById('gcm-mes')?.value||'';
+  const yaExisten=contratos.filter(cont=>cobros.find(cb=>cb.contratoId===cont.id&&cb.mes===mes)).length;
+  const total=contratos.length;
+  const info=document.getElementById('gcm-info');
+  if(info) info.innerHTML=total
+    ?`<span style="color:var(--muted)">${total} contratos activos · ${total-yaExisten} nuevos · ${yaExisten} ya generados</span>`
+    :'<span style="color:#BE123C">Sin contratos. Crea contratos primero.</span>';
 }
-
-function renderGcmTabla(mes){
-  const wrap = document.getElementById('gcm-tabla');
-  if(!wrap) return;
-  if(!_gcmData.length){wrap.innerHTML='<p style="color:var(--subtle);padding:16px">Sin contratos creados</p>';return;}
-
-  let totalPreview = 0;
-  const rows = _gcmData.map((item, idx) => {
-    const f = calcFactura(item.cont, mes, {conductores: item.conductores, vehiculos: item.vehiculos, bots: item.bots});
-    if(item.incluir && !item.yaExiste) totalPreview += f.neto;
-    const tieneComp = (item.cont.componentes||[]).length > 0;
-    const hasCond = tieneComp ? item.cont.componentes.some(x=>x.tipo==='conductor') : item.cont.modalidad==='conductor'||item.cont.modalidad==='mixto';
-    const hasVeh  = tieneComp ? item.cont.componentes.some(x=>x.tipo==='vehiculo')  : item.cont.modalidad==='vehiculo'||item.cont.modalidad==='mixto';
-    const hasBot  = tieneComp ? item.cont.componentes.some(x=>x.tipo==='bot_wa')    : false;
-
-    return `<div style="display:grid;grid-template-columns:28px 140px ${hasCond?'90px':''}${hasVeh?'90px':''}${hasBot?'80px':''} 1fr 90px;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);background:${item.yaExiste?'var(--bg2)':'var(--bg)'}">
-      <input type="checkbox" ${item.incluir&&!item.yaExiste?'checked':''} ${item.yaExiste?'disabled':''} onchange="_gcmData[${idx}].incluir=this.checked;gcmRecalc('${mes||''}')">
-      <span style="font-size:12.5px;font-weight:600;${item.yaExiste?'color:var(--muted)':''}">${esc(item.cont.cliente)}${item.yaExiste?' <span style="font-size:10px;color:var(--muted)">(ya generado)</span>':''}</span>
-      ${hasCond?`<div><label style="font-size:10px;color:var(--muted)">Cond.</label><input type="number" style="width:70px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:inherit" value="${item.conductores}" min="0" ${item.yaExiste?'disabled':''} onchange="_gcmData[${idx}].conductores=parseInt(this.value)||0;gcmRecalc('${mes||''}')"></div>`:''}
-      ${hasVeh?`<div><label style="font-size:10px;color:var(--muted)">Veh.</label><input type="number" style="width:70px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:inherit" value="${item.vehiculos}" min="0" ${item.yaExiste?'disabled':''} onchange="_gcmData[${idx}].vehiculos=parseInt(this.value)||0;gcmRecalc('${mes||''}')"></div>`:''}
-      ${hasBot?`<div><label style="font-size:10px;color:var(--muted)">Bots</label><input type="number" style="width:55px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:inherit" value="${item.bots}" min="0" ${item.yaExiste?'disabled':''} onchange="_gcmData[${idx}].bots=parseInt(this.value)||0;gcmRecalc('${mes||''}')"></div>`:''}
-      <div style="font-size:11.5px;color:var(--muted)">${f.desglose.map(d=>`<span>${esc(d.detalle)}</span>`).join('<br>')}</div>
-      <div style="font-weight:700;color:${item.yaExiste?'var(--muted)':'var(--green)'};text-align:right;font-size:13px">$${f.neto.toLocaleString()}</div>
-    </div>`;
-  }).join('');
-  wrap.innerHTML = `<div style="display:grid;grid-template-columns:28px 140px 1fr 90px;padding:7px 12px;background:var(--bg2);border-bottom:2px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">
-    <span></span><span>Cliente</span><span>Detalle cobro</span><span style="text-align:right">Total</span></div>${rows}`;
-  const el = document.getElementById('gcm-total');
-  if(el) el.textContent = '$'+totalPreview.toLocaleString();
-}
-
-function gcmRecalc(mes){ renderGcmTabla(mes); }
-function gcmSelectAll(v){ _gcmData.forEach((item,i)=>{if(!item.yaExiste)item.incluir=v;}); const mes=document.getElementById('gcm-mes')?.value||''; renderGcmTabla(mes); }
-
 function confirmarGenerarCobros(){
-  const mes = document.getElementById('gcm-mes')?.value;
+  const mes=document.getElementById('gcm-mes')?.value;
   if(!mes){alert('Selecciona un mes');return;}
-  let added = 0;
-  _gcmData.forEach(item => {
-    if(!item.incluir || item.yaExiste) return;
-    const f = calcFactura(item.cont, mes, {conductores: item.conductores, vehiculos: item.vehiculos, bots: item.bots});
+  let added=0;
+  contratos.forEach(cont=>{
+    const exists=cobros.find(cb=>cb.contratoId===cont.id&&cb.mes===mes);
+    if(exists)return;
+    const f=calcFactura(cont,mes,{conductores:cont.conductoresActivos||0,vehiculos:cont.vehiculosActivos||0,bots:cont.botsActivos||0});
     cobros.push({
-      id: Date.now()+Math.random(),
-      contratoId: item.cont.id,
-      cliente: item.cont.cliente,
+      id:Date.now()+Math.random(),
+      contratoId:cont.id,
+      cliente:cont.cliente,
       mes,
-      montoBase: f.total,
-      descuento: f.descMonto,
-      montoFinal: f.neto,
-      estado: 'pendiente',
-      notas: '',
-      conductoresActivos: item.conductores,
-      vehiculosActivos: item.vehiculos,
-      botsActivos: item.bots,
-      desglose: f.desglose,
+      montoBase:f.total,
+      descuento:f.descMonto||0,
+      descPct:f.descPct||0,
+      descFijo:0,
+      montoFinal:f.neto!==undefined?f.neto:f.total,
+      estado:'pendiente',
+      notas:'',
+      conductoresActivos:cont.conductoresActivos||0,
+      vehiculosActivos:cont.vehiculosActivos||0,
+      botsActivos:cont.botsActivos||0,
+      desglose:f.desglose||[],
+      extras:[],
     });
     added++;
   });
-  if(added > 0){ svCobros(); }
+  if(added>0) svCobros();
   closeM('gen-cobro-modal');
-  const mesEl = document.getElementById('cob-mes');
-  if(mesEl) mesEl.value = mes;
+  const mesEl=document.getElementById('cob-mes');
+  if(mesEl) mesEl.value=mes;
   renderCobranzas();
-  if(added > 0) alert(`✅ Se generaron ${added} cobros para ${mes}`);
-  else alert('ℹ️ No se generaron cobros nuevos.');
+  if(added>0) alert(`✅ Se generaron ${added} cobros para ${mes}\nUsa ✏️ para editar activos, descuentos y extras de cada cobro.`);
+  else alert(`ℹ️ Todos los cobros de ${mes} ya existen.`);
 }
 
 function generarMesPasado(){
