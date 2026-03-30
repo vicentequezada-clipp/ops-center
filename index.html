@@ -188,7 +188,8 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 .cat-tab{padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
 .cat-tab:hover{color:var(--text)}
 .cat-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.cat-panel{display:none}.cat-panel.active{display:block}
+.cat-panel{display:none !important}.cat-panel.active{display:block !important}
+  .cat-panel.cat-panel-visible{display:block !important}
 .cat-table{width:100%;border-collapse:collapse}
 .cat-table thead th{padding:9px 13px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border)}
 .cat-table td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
@@ -335,7 +336,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v4.2 · 30 Mar 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v4.5 · 30 Mar 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -454,8 +455,8 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         <select class="fi" id="fac" onchange="renderCls()"><option value="">Todos los aplicativos</option></select>
         <select class="fi" id="ftc" onchange="renderCls()"><option value="">Todos los tipos</option></select>
         <select class="fi" id="fes-cl" onchange="renderCls()">
-          <option value="">Todos los estados</option>
           <option value="activo" selected>✅ Activos</option>
+          <option value="">👁 Todos</option>
           <option value="deshabilitado">⛔ Deshabilitados</option>
           <option value="perdido">❌ Perdidos</option>
         </select>
@@ -892,7 +893,10 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     
     <!-- ══ CATÁLOGOS ══ -->
     <div id="view-catalogos" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">Gestión de Catálogos</div><div class="sec-sub">Administra Aplicativos, Tipos y Módulos disponibles en el sistema</div></div></div>
+      <div class="sec-hdr">
+        <div><div class="sec-title">🗂 Gestión de Catálogos</div><div class="sec-sub">Aplicativos, Tipos, Módulos, Launchers y más</div></div>
+        <button class="btn btn-g btn-sm" onclick="reloadCatsFromSupabase()" title="Recargar datos del servidor">🔄 Recargar</button>
+      </div>
       <div class="cat-tabs">
         <div class="cat-tab active" onclick="setCatTab('modulos')">⚙️ Módulos</div>
         <div class="cat-tab" onclick="setCatTab('categorias')">🏷 Categorías</div>
@@ -928,7 +932,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       </div>
 
       <!-- MÓDULOS -->
-      <div class="cat-panel active" id="cat-modulos">
+      <div class="cat-panel cat-panel-visible" id="cat-modulos">
         <div class="cat-add-row">
           <div class="fr"><label class="fl">Nombre del Módulo</label><input class="cat-input" id="md-name" placeholder="Ej: Bot WA Normal"></div>
           <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="md-desc" placeholder="Descripción breve"></div>
@@ -1123,6 +1127,45 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       </div>
 
     </div>
+    <!-- ══ USUARIOS Y ROLES ══ -->
+    <div id="view-usuarios" class="view">
+      <div class="sec-hdr">
+        <div><div class="sec-title">👤 Usuarios y Roles</div><div class="sec-sub">Gestiona accesos, permisos y visibilidad de módulos por usuario</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-g btn-sm" onclick="openAddRol()">+ Nuevo Rol</button>
+          <button class="btn btn-p btn-sm" onclick="openAddUsuario()">+ Nuevo Usuario</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px" id="roles-grid"></div>
+      <div class="card">
+        <div class="card-h">
+          <div class="card-title">👥 Usuarios del Sistema</div>
+          <div style="display:flex;gap:8px">
+            <input class="fi" id="s-usr" placeholder="🔍 Buscar..." oninput="renderUsuarios()" style="width:180px">
+            <select class="fi" id="f-rol" onchange="renderUsuarios()">
+              <option value="">Todos los roles</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-b" style="padding:0">
+          <div style="overflow-x:auto">
+            <table class="cat-table">
+              <thead><tr>
+                <th style="width:36px">#</th>
+                <th style="min-width:160px">Nombre</th>
+                <th style="min-width:180px">Email</th>
+                <th style="min-width:120px">Rol</th>
+                <th style="min-width:100px">Estado</th>
+                <th style="min-width:130px">Último acceso</th>
+                <th style="width:80px">Acciones</th>
+              </tr></thead>
+              <tbody id="usr-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1261,43 +1304,6 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     </div>
   </div>
 </div>
-
-
-    <!-- ══ USUARIOS Y ROLES ══ -->
-    <div id="view-usuarios" class="view">
-      <div class="sec-hdr">
-        <div><div class="sec-title">👤 Usuarios y Roles</div><div class="sec-sub">Gestiona accesos, permisos y visibilidad de módulos por usuario</div></div>
-        <button class="btn btn-p btn-sm" onclick="openAddUsuario()">+ Nuevo Usuario</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px" id="roles-grid"></div>
-      <div class="card">
-        <div class="card-h">
-          <div class="card-title">👥 Usuarios del Sistema</div>
-          <div style="display:flex;gap:8px">
-            <input class="fi" id="s-usr" placeholder="🔍 Buscar..." oninput="renderUsuarios()" style="width:180px">
-            <select class="fi" id="f-rol" onchange="renderUsuarios()">
-              <option value="">Todos los roles</option>
-            </select>
-          </div>
-        </div>
-        <div class="card-b" style="padding:0">
-          <div style="overflow-x:auto">
-            <table class="cat-table">
-              <thead><tr>
-                <th style="width:36px">#</th>
-                <th style="min-width:160px">Nombre</th>
-                <th style="min-width:180px">Email</th>
-                <th style="min-width:120px">Rol</th>
-                <th style="min-width:100px">Estado</th>
-                <th style="min-width:130px">Último acceso</th>
-                <th style="width:80px">Acciones</th>
-              </tr></thead>
-              <tbody id="usr-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
 
 
 <!-- CAT EDIT MODAL -->
@@ -1714,7 +1720,9 @@ function showSync(ok,msg){setSyncStatus((ok?'✓ ':'✗ ')+msg,ok?'#0F7E4F':'#DC
 function closeM(id){const el=document.getElementById(id);if(el)el.classList.remove('open');}
 
 // ═══ SAVE ════════════════════════════════════════════
+let _saving=false;
 function sv(){
+  _saving=true;
   localStorage.setItem('od27',JSON.stringify(deps));
   localStorage.setItem('oc27',JSON.stringify(cls));
   localStorage.setItem('ct27',JSON.stringify(cats));
@@ -1844,7 +1852,7 @@ function setV(v){
   popAllSelects();
   const actions={
     dashboard:renderDash,
-    despliegues:()=>{renderDeps();},
+    despliegues:()=>{renderDeps();renderDash();},
     operativos:()=>{renderOps();},
     inactivos:renderInact,
     clientes:()=>{renderCls();},
@@ -2106,9 +2114,11 @@ function togDep(){
 
 // ═══ DEP ROW ═════════════════════════════════════════
 function depRow(d){
-  const modAps=cats.modal.map(m=>`<option ${d.tp===(m.icon+' '+m.name)||d.tp===m.name?'selected':''}>${m.icon} ${m.name}</option>`).join('');
+  const _modals=cats.modal&&cats.modal.length?cats.modal:BASE_MODAL;
+  const modAps=_modals.map(m=>`<option ${d.tp===(m.icon+' '+m.name)||d.tp===m.name?'selected':''}>${m.icon||''} ${m.name}</option>`).join('');
   const esOpts=ESTADOS.map(e=>`<option ${d.es===e?'selected':''}>${e}</option>`).join('');
-  const lnOpts=LAUNCHERS().map(l=>`<option ${d.ln===l?'selected':''}>${l}</option>`).join('');
+  const _lns=LAUNCHERS().length?LAUNCHERS():BASE_LAUNCHERS.map(l=>l.name);
+  const lnOpts=_lns.map(l=>`<option ${d.ln===l?'selected':''}>${l}</option>`).join('');
   const cl=cls.find(c=>c.id===d.cid)||null;
   const moHtml=d.mo.length?d.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'<span style="color:var(--subtle);font-size:11px">—</span>';
   return`<tr>
@@ -2155,6 +2165,7 @@ function backFase(id){
 
 // ═══ RENDER DEPS / OPS / INACT ═══════════════════════
 function renderDeps(){
+  // If deps is empty but Supabase connected, might be stale — try a quick fetch
   depTH('th-d');
   const s=(document.getElementById('sd')?.value||'').toLowerCase();
   const fL=document.getElementById('fld')?.value||'';
@@ -2166,7 +2177,12 @@ function renderDeps(){
     return true;
   });
   const cd=document.getElementById('cd');if(cd)cd.textContent=`${f.length} de ${deps.filter(d=>d.es!==EL).length}`;
-  const tb=document.getElementById('dep-tbod');if(tb)tb.innerHTML=f.map(depRow).join('');
+  const tb=document.getElementById('dtb');
+  if(tb)tb.innerHTML=f.length?f.map(depRow).join(''):`<tr><td colspan="20" style="text-align:center;padding:40px;color:var(--muted)">
+    <div style="font-size:32px;margin-bottom:8px">🚀</div>
+    <div style="font-weight:600;margin-bottom:4px">Sin despliegues activos</div>
+    <div style="font-size:12px">Crea uno con el botón <strong>+ Nuevo</strong> arriba a la derecha</div>
+  </td></tr>`;
 }
 function renderOps(){
   depTH('th-o');
@@ -2231,14 +2247,14 @@ function renderCls(){
   const fTp=document.getElementById('ftc')?.value||'';
   const fEs=document.getElementById('fes-cl')?.value||'';
   const f=cls.filter(c=>{
-    const esFilter=fEs||'activo'; // default to activos
-    if(c.es!==esFilter)return false;
+    if(fEs&&c.es!==fEs)return false; // filter by state if selected
+    // no filter = show all (activos, deshabilitados, perdidos)
     if(s&&!c.nm.toLowerCase().includes(s)&&!(c.ci||'').toLowerCase().includes(s)&&!(c.pa||'').toLowerCase().includes(s))return false;
     if(fAp&&c.ap!==fAp)return false;
     if(fTp&&c.tp!==fTp)return false;
     return true;
   });
-  const _esF=fEs||'activo';const _tot=cls.filter(c=>c.es===_esF).length;const ccl=document.getElementById('ccl');if(ccl)ccl.textContent=`${f.length} de ${_tot}`;
+  const _tot=fEs?cls.filter(c=>c.es===fEs).length:cls.length;const ccl=document.getElementById('ccl');if(ccl)ccl.textContent=`${f.length} de ${_tot}`;
   const tb=document.getElementById('ctb');if(!tb)return;
   tb.innerHTML=f.length?f.map((c,idx)=>{
     const cx=complexBadge({mo:c.mo});
@@ -2452,8 +2468,9 @@ function saveNewDep(){
     hrsNew:parseFloat(document.getElementById('dm-hrsnew')?.value)||null,
   });
   sv();closeM('dep-modal');
-  if(curV==='despliegues')renderDeps();else if(curV==='operativos')renderOps();
-  renderDash();updBadges();
+  if(curV==='despliegues'||curV==='dashboard')renderDeps();
+  renderOps();renderDash();updBadges();
+  if(curV!=='despliegues')setV('despliegues'); // navigate to deps to show new one
 }
 
 // ─── MODULE PICKER ─────────────────────────────────────
@@ -3043,19 +3060,62 @@ function togChk(key,item,checked){
 // ═══ CATALOGS ════════════════════════════════════════
 function setCatTab(t){
   curCatTab=t;
+  // Update tab active state
   document.querySelectorAll('.cat-tab').forEach(el=>el.classList.remove('active'));
   const tabEl=document.querySelector(`.cat-tab[onclick*="'${t}'"]`);if(tabEl)tabEl.classList.add('active');
-  document.querySelectorAll('.cat-panel').forEach(el=>el.style.display='none');
-  const panel=document.getElementById('cat-'+t);if(panel)panel.style.display='block';
+  // Show/hide panels using ONLY class (avoid inline style conflicts)
+  document.querySelectorAll('.cat-panel').forEach(el=>{
+    el.classList.remove('cat-panel-visible');
+    el.style.removeProperty('display');
+  });
+  const panel=document.getElementById('cat-'+t);
+  if(panel){panel.classList.add('cat-panel-visible');}
+  // Render content
   const renders={modulos:renderMds,categorias:renderCatMods,modalidades:renderModDeps,fases:renderPhases,implTimes:renderImplTimes,complejidad:renderCxs,billingTypes:renderBTs,riesgos:renderRisks,aplicativos:renderAps,tipos:renderTps,launchers:renderLaunchers};
-  if(renders[t])renders[t]();
+  if(renders[t]){try{renders[t]();}catch(e){console.error('setCatTab render error:',t,e);}}
 }
+
+function reloadCatsFromSupabase(){
+  if(!supabase){renderCats();return;}
+  setSyncStatus('↺ Cargando catálogos...','#1B4FD8');
+  supabase.from('ops_data').select('key,value').eq('key','cats').then(function(res){
+    if(res.data&&res.data[0]&&res.data[0].value){
+      const rc=res.data[0].value||{};
+      Object.keys(rc).forEach(k=>{if(Array.isArray(rc[k])&&rc[k].length>0)cats[k]=rc[k];});
+      localStorage.setItem('ct27',JSON.stringify(cats));
+    }
+    // ensure base data
+    if(!cats.ap||!cats.ap.length)cats.ap=BASE_AP.map(x=>Object.assign({},x));
+    if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
+    if(!cats.modal||!cats.modal.length)cats.modal=BASE_MODAL.map(x=>Object.assign({},x));
+    if(!cats.risk||!cats.risk.length)cats.risk=BASE_RISK.map(x=>Object.assign({},x));
+    if(!cats.implTimes||!cats.implTimes.length)cats.implTimes=BASE_IMPL_TIMES.map(x=>Object.assign({},x));
+    if(!cats.phases||!cats.phases.length)cats.phases=BASE_PHASES.map(x=>Object.assign({},x));
+    if(!cats.catmod||!cats.catmod.length)cats.catmod=BASE_CATMOD.map(x=>Object.assign({},x));
+    if(!cats.billingTypes||!cats.billingTypes.length)cats.billingTypes=BASE_BILLING_TYPES.map(x=>Object.assign({},x));
+    if(!cats.complexity||!cats.complexity.length)cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
+    if(!cats.launchers||!cats.launchers.length)cats.launchers=BASE_LAUNCHERS.map(x=>Object.assign({},x));
+    if(!cats.tp)cats.tp=[];
+    renderCats();
+    setSyncStatus('✓ Catálogos actualizados','#0F7E4F');
+    setTimeout(()=>setSyncStatus(''),2000);
+  }).catch(function(){renderCats();setSyncStatus('','');});
+}
+
 function renderCats(){
-  popAllSelects();
+  // Ensure base data is loaded before rendering (guards also in each render fn)
+  if(!cats.ap||!cats.ap.length)cats.ap=BASE_AP.map(x=>Object.assign({},x));
+  if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
+  if(!cats.modal||!cats.modal.length)cats.modal=BASE_MODAL.map(x=>Object.assign({},x));
+  if(!cats.risk||!cats.risk.length)cats.risk=BASE_RISK.map(x=>Object.assign({},x));
+  if(!cats.implTimes||!cats.implTimes.length)cats.implTimes=BASE_IMPL_TIMES.map(x=>Object.assign({},x));
+  if(!cats.phases||!cats.phases.length)cats.phases=BASE_PHASES.map(x=>Object.assign({},x));
+  if(!cats.catmod||!cats.catmod.length)cats.catmod=BASE_CATMOD.map(x=>Object.assign({},x));
+  if(!cats.billingTypes||!cats.billingTypes.length)cats.billingTypes=BASE_BILLING_TYPES.map(x=>Object.assign({},x));
+  if(!cats.complexity||!cats.complexity.length)cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
+  if(!cats.launchers||!cats.launchers.length)cats.launchers=BASE_LAUNCHERS.map(x=>Object.assign({},x));
+  if(!cats.tp)cats.tp=[];
   setCatTab(curCatTab);
-  // Populate tp-ap dropdown for types (no longer needed but keep for compat)
-  const tpAp=document.getElementById('tp-ap');
-  if(tpAp)tpAp.innerHTML='<option value="">Sin asociar</option>'+(cats.ap||[]).map(a=>`<option>${esc(a.name)}</option>`).join('');
 }
 function renderMds(){
   const el=document.getElementById('md-tbody');if(!el)return;
@@ -3461,6 +3521,27 @@ function saveLauncher(){
 function popAllSelects(){
   popLauncherSelects();
   popClSelects();
+  // Fill dep modalidad filter (ftd) with cats.modal
+  const ftd=document.getElementById('ftd');
+  if(ftd){
+    const cur=ftd.value;
+    const mods=cats.modal&&cats.modal.length?cats.modal:BASE_MODAL;
+    ftd.innerHTML='<option value="">Todas las modalidades</option>'+mods.map(m=>`<option value="${esc(m.name)}">${m.icon||''} ${esc(m.name)}</option>`).join('');
+    if(cur)ftd.value=cur;
+  }
+  // Fill tl-modal (timeline modalidad) 
+  const tlMod=document.getElementById('tl-modal');
+  if(tlMod&&tlMod.options.length<=1){
+    const mods=cats.modal&&cats.modal.length?cats.modal:BASE_MODAL;
+    mods.forEach(m=>{const o=document.createElement('option');o.value=m.name;o.textContent=(m.icon||'')+' '+m.name;tlMod.appendChild(o);});
+  }
+  // Fill f-rol in usuarios
+  const fRol=document.getElementById('f-rol');
+  if(fRol&&roles.length){
+    const cur=fRol.value;
+    fRol.innerHTML='<option value="">Todos los roles</option>'+roles.map(r=>`<option value="${r.id}">${r.icon||''} ${esc(r.name)}</option>`).join('');
+    if(cur)fRol.value=cur;
+  }
 }
 
 function popLauncherSelects(){
@@ -3861,8 +3942,8 @@ function subscribeRealtime(){
   supabase.channel('ops_changes').on('postgres_changes',{event:'*',schema:'public',table:'ops_data'},function(payload){
     if(payload.new&&payload.new.key){
       const k=payload.new.key,v=payload.new.value;
-      if(k==='deps'){deps=v;localStorage.setItem('od27',JSON.stringify(v));}
-      else if(k==='cls'){cls=v;localStorage.setItem('oc27',JSON.stringify(v));}
+      if(k==='deps'){if(!_saving){deps=v;localStorage.setItem('od27',JSON.stringify(v));}}
+      else if(k==='cls'){if(!_saving){cls=v;localStorage.setItem('oc27',JSON.stringify(v));}}
       else if(k==='cats'){
         const rc=v||{};
         Object.keys(rc).forEach(ck=>{if(Array.isArray(rc[ck])&&rc[ck].length>0)cats[ck]=rc[ck];});
@@ -3962,7 +4043,15 @@ function bootApp(){
       if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
       renderCurrentView();updBadges();updTrashBadge();
       // Push initial data to Supabase if cobros/contratos empty
-      sv(); // always push deps/cls/cats
+      // Only push cats if it has actual data (avoid overwriting Supabase with empty cats)
+      if(cats.ap&&cats.ap.length>0) sv();
+      else { // save only deps and cls, not cats
+        const ts=new Date().toISOString();
+        supabase.from('ops_data').upsert({key:'deps',value:deps,updated_at:ts}).catch(()=>{});
+        supabase.from('ops_data').upsert({key:'cls',value:cls,updated_at:ts}).catch(()=>{});
+        localStorage.setItem('od27',JSON.stringify(deps));
+        localStorage.setItem('oc27',JSON.stringify(cls));
+      }
       svCont();
       svCobros();
       svTrash();
