@@ -332,8 +332,9 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="s-sec">Configuración</div>
     <div class="s-item" onclick="setV('catalogos')" id="nav-catalogos"><span>🗂</span> Catálogos</div>
     <div class="s-item" onclick="setV('manual')" id="nav-manual"><span>📖</span> Manual de Uso</div>
+    <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v2.7 · 30 Mar 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v3.0 · 30 Mar 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -342,6 +343,9 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="tb-l"><h1 id="tb-t">Dashboard Ejecutivo</h1><span id="tb-s">Resumen operativo · Clipp · Marzo 2026</span></div>
     <div class="tb-r">
       <span id="sync-status" style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px"></span>
+      <button class="btn btn-g btn-sm" onclick="exportFullBackup()" title="Descargar respaldo completo JSON">💾 Backup</button>
+      <button class="btn btn-g btn-sm" onclick="document.getElementById('import-file').click()" title="Restaurar desde backup JSON">📂 Restaurar</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(this)">
       <button class="btn btn-g btn-sm" onclick="exportCSV()">⬇ CSV</button>
       <button class="btn btn-g btn-sm" onclick="doLogout()" title="Cerrar sesión" style="color:#DC2626;border-color:#FECDD3">⏻ Salir</button>
       <button class="btn btn-p btn-sm" id="btn-new" style="display:none" onclick="openAdd()">+ Nuevo</button>
@@ -351,6 +355,8 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
     <!-- ══ DASHBOARD ══ -->
     <div id="view-dashboard" class="view active">
+      <!-- ALERTS PANEL -->
+      <div id="dash-alerts" style="margin-bottom:14px"></div>
       <div class="kpi-grid" id="kpi-grid"></div>
       <!-- Time KPIs -->
       <div class="kpi-grid-2" id="kpi-time"></div>
@@ -1348,6 +1354,16 @@ input[type=date].ei{cursor:pointer;min-width:110px}
   </div>
 </div>
 
+<!-- PAPELERA MODAL -->
+<div class="modal-ov" id="trash-modal" style="align-items:center;justify-content:center">
+  <div class="modal" style="max-width:700px;width:95vw;max-height:85vh;overflow-y:auto">
+    <div class="m-title"><span>🗑 Papelera — Elementos eliminados</span><button class="m-close" onclick="closeM('trash-modal')">✕</button></div>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Los elementos aquí se conservan 30 días. Puedes restaurarlos o eliminarlos permanentemente.</div>
+    <div id="trash-body"></div>
+    <div class="m-actions"><button class="btn btn-g" onclick="closeM('trash-modal')">Cerrar</button></div>
+  </div>
+</div>
+
 <!-- CONFIRM -->
 <div class="modal-ov" id="conf-modal" style="align-items:center;justify-content:center">
   <div class="modal" style="max-width:380px;width:90vw">
@@ -1617,6 +1633,83 @@ function svCobros2(){
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function isD(s){return/^\d{4}-\d{2}-\d{2}$/.test(s||'');}
+
+// ── PAPELERA (Soft Delete) ──
+let trash = JSON.parse(localStorage.getItem('trash_v1'))||[];
+function svTrash(){localStorage.setItem('trash_v1',JSON.stringify(trash));if(typeof supabase!=='undefined'&&supabase)supabase.from('ops_data').upsert({key:'trash',value:trash,updated_at:new Date().toISOString()}).catch(()=>{});}
+
+function softDelete(tipo, id, nombre){
+  // Move item to trash instead of permanent delete
+  let item = null;
+  if(tipo==='dep'){ item=deps.find(d=>d.id===id); if(item){deps=deps.filter(d=>d.id!==id);sv();} }
+  else if(tipo==='cl'){ item=cls.find(c=>c.id===id); if(item){cls=cls.filter(c=>c.id!==id);sv();} }
+  else if(tipo==='cont'){ item=contratos.find(c=>c.id===id); if(item){contratos=contratos.filter(c=>c.id!==id);svCont();} }
+  else if(tipo==='cobro'){ item=cobros.find(c=>c.id==id); if(item){cobros=cobros.filter(c=>c.id!=id);svCobros();} }
+  if(!item) return;
+  trash.push({tipo, id, nombre:nombre||'Sin nombre', item:JSON.parse(JSON.stringify(item)), deletedAt:new Date().toISOString()});
+  // Purge items older than 30 days
+  const cutoff = Date.now() - 30*24*60*60*1000;
+  trash = trash.filter(t=>new Date(t.deletedAt).getTime() > cutoff);
+  svTrash();
+  updTrashBadge();
+  renderCurrentView(); renderDash(); updBadges();
+}
+
+function restoreFromTrash(idx){
+  const entry = trash[idx];
+  if(!entry) return;
+  if(entry.tipo==='dep'){ deps.push(entry.item); sv(); }
+  else if(entry.tipo==='cl'){ cls.push(entry.item); sv(); }
+  else if(entry.tipo==='cont'){ contratos.push(entry.item); svCont(); }
+  else if(entry.tipo==='cobro'){ cobros.push(entry.item); svCobros(); }
+  trash.splice(idx,1);
+  svTrash(); updTrashBadge();
+  renderTrashBody(); renderCurrentView(); renderDash(); updBadges();
+  alert('✅ "'+entry.nombre+'" restaurado correctamente.');
+}
+
+function permanentDelete(idx){
+  const entry = trash[idx];
+  if(!entry) return;
+  if(!confirm('¿Eliminar permanentemente "'+entry.nombre+'"? No se puede deshacer.')) return;
+  trash.splice(idx,1);
+  svTrash(); updTrashBadge(); renderTrashBody();
+}
+
+function updTrashBadge(){
+  const badge = document.getElementById('trash-count');
+  if(badge){ badge.textContent=trash.length; badge.style.display=trash.length?'inline':'none'; }
+}
+
+function openTrash(){
+  renderTrashBody();
+  document.getElementById('trash-modal').classList.add('open');
+}
+
+function renderTrashBody(){
+  const el = document.getElementById('trash-body');
+  if(!el) return;
+  if(!trash.length){ el.innerHTML='<div style="text-align:center;padding:30px;color:var(--subtle)">La papelera está vacía ✓</div>'; return; }
+  const tipoLabel={dep:'Despliegue',cl:'Cliente',cont:'Contrato',cobro:'Cobro'};
+  const tipoColor={dep:'#1B4FD8',cl:'#0F7E4F',cont:'#B45309',cobro:'#5B21B6'};
+  el.innerHTML=`<table class="cont-table"><thead><tr><th>Tipo</th><th>Nombre</th><th>Eliminado</th><th>Acciones</th></tr></thead><tbody>
+    ${[...trash].reverse().map((t,i)=>{
+      const realIdx = trash.length-1-i;
+      const col=tipoColor[t.tipo]||'#637087';
+      const ago = Math.round((Date.now()-new Date(t.deletedAt).getTime())/(1000*60*60));
+      const agoStr = ago<1?'hace momentos':ago<24?`hace ${ago}h`:`hace ${Math.floor(ago/24)}d`;
+      return`<tr>
+        <td><span style="background:${col}20;color:${col};padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">${tipoLabel[t.tipo]||t.tipo}</span></td>
+        <td style="font-weight:600">${esc(t.nombre)}</td>
+        <td style="font-size:12px;color:var(--muted)">${agoStr}</td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-g btn-sm" onclick="restoreFromTrash(${realIdx})">↩ Restaurar</button>
+          <button class="btn btn-sm" style="background:#FEF2F2;color:#DC2626;border:1px solid #FECDD3;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11.5px" onclick="permanentDelete(${realIdx})">🗑 Borrar</button>
+        </td>
+      </tr>`;
+    }).join('')}
+  </tbody></table>`;
+}
 function fmtD(d){if(!d||!isD(d))return'';const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 const EL='✅ Listo';
 const ESTADOS=['✅ Listo','🔧 En proceso','🆕 Por iniciar','🆕 Capacitación'];
@@ -1802,6 +1895,7 @@ function renderDash(){
   const bCi={};allF.forEach(d=>{const k=(d.ci||'Sin ciudad').trim();bCi[k]=(bCi[k]||0)+1;});barB('ch-city',Object.entries(bCi).sort((a,b)=>b[1]-a[1]));
   const bTp={};allF.forEach(d=>{const k=d.tp.replace(/[🆕🔄⚙️]/g,'').trim();bTp[k]=(bTp[k]||0)+1;});barB('ch-type',Object.entries(bTp).sort((a,b)=>b[1]-a[1]));
   updBadges();
+  renderDashAlerts();
 }
 function clearDashF(){['sf','st','sf-ln'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});renderDash();}
 
@@ -2794,10 +2888,8 @@ function delCat(type,id,name){
 function confDel(store,id,name){
   document.getElementById('del-n').textContent=name;
   document.getElementById('del-btn').onclick=()=>{
-    if(store==='dep'){deps=deps.filter(d=>d.id!==id);sv();closeM('conf-modal');if(curV==='despliegues')renderDeps();else if(curV==='operativos')renderOps();renderDash();}
-    else if(store==='cont'){contratos=contratos.filter(c=>c.id!==id);svCont();closeM('conf-modal');renderContratos();renderCobranzas();}
-    else{cls=cls.filter(c=>c.id!==id);sv();closeM('conf-modal');renderCls();renderInact();}
-    updBadges();
+    closeM('conf-modal');
+    softDelete(store, id, name);
   };
   document.getElementById('conf-modal').classList.add('open');
 }
@@ -3954,6 +4046,7 @@ function loadFromSupabase(){
         if(row.key==='contratos'){ contratos=row.value;localStorage.setItem('ct_v1',JSON.stringify(contratos)); changed=true; }
         if(row.key==='cobros'){ cobros=row.value;      localStorage.setItem('cobros_v1',JSON.stringify(cobros)); changed=true; }
         if(row.key==='checklists'){ checklists=row.value; localStorage.setItem('chk_v1',JSON.stringify(checklists)); changed=true; }
+        if(row.key==='trash'){ trash=row.value; localStorage.setItem('trash_v1',JSON.stringify(trash)); changed=true; }
       });
       return changed;
     });
@@ -4023,6 +4116,7 @@ function bootApp(){
     var scont=JSON.parse(localStorage.getItem('ct_v1')); if(scont&&scont.length) contratos=scont;
     var scob=JSON.parse(localStorage.getItem('cobros_v1')); if(scob) cobros=scob;
     var schk=JSON.parse(localStorage.getItem('chk_v1')); if(schk) checklists=schk;
+    var strash=JSON.parse(localStorage.getItem('trash_v1')); if(strash) trash=strash;
   }catch(e){}
 
   // 2. Migrations
@@ -4049,7 +4143,7 @@ function bootApp(){
   }catch(e){ console.warn('Migration:',e); }
 
   // 3. Render immediately with local data
-  renderDash(); updBadges();
+  renderDash(); updBadges(); updTrashBadge();
 
   // 4. If Supabase connected: load fresh data, then start realtime
   if(supabase){
@@ -4065,6 +4159,152 @@ function bootApp(){
       setSyncStatus('○ Sin datos en nube','#B45309');
     });
   }
+}
+
+// ════════════════════════════════════════════════
+// 1. BACKUP / RESTORE COMPLETO
+// ════════════════════════════════════════════════
+function exportFullBackup(){
+  const backup = {
+    version: '2.7',
+    exportedAt: new Date().toISOString(),
+    deps, cls, cats, contratos, cobros, checklists, trash
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+  a.download = 'ops_center_backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  showSync(true, 'Backup descargado ✓');
+}
+
+function importBackup(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.deps || !data.cls){ alert('❌ Archivo inválido. Debe ser un backup del Ops Center.'); return; }
+      if(!confirm('⚠️ Esto REEMPLAZARÁ todos los datos actuales con el backup.\n\nFecha del backup: '+data.exportedAt+'\n\n¿Continuar?')) return;
+      deps = data.deps||deps;
+      cls  = data.cls||cls;
+      cats = data.cats||cats;
+      contratos = data.contratos||contratos;
+      cobros = data.cobros||cobros;
+      checklists = data.checklists||checklists;
+      trash = data.trash||trash;
+      sv(); svCont(); svCobros(); svTrash();
+      renderCurrentView(); renderDash(); updBadges(); updTrashBadge();
+      alert('✅ Backup restaurado correctamente.\nVersión: '+(data.version||'?')+' · Exportado: '+data.exportedAt);
+    }catch(err){
+      alert('❌ Error al leer el backup: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = ''; // reset input
+}
+
+// ════════════════════════════════════════════════
+// 2. AUTO ATRASADO + ALERTAS EN DASHBOARD
+// ════════════════════════════════════════════════
+function runAutoAtrasado(){
+  // Mark cobros as atrasado if pending for more than 15 days past month end
+  const now = new Date();
+  let changed = false;
+  cobros.forEach(cb => {
+    if(cb.estado !== 'pendiente') return;
+    const [y, m] = cb.mes.split('-').map(Number);
+    const monthEnd = new Date(y, m, 0); // last day of that month
+    const daysPast = Math.floor((now - monthEnd) / (1000*60*60*24));
+    if(daysPast > 15){ cb.estado = 'atrasado'; changed = true; }
+  });
+  if(changed){ svCobros(); }
+}
+
+function renderDashAlerts(){
+  runAutoAtrasado();
+  const el = document.getElementById('dash-alerts');
+  if(!el) return;
+
+  const alerts = [];
+
+  // Cobros atrasados
+  const atrasados = cobros.filter(cb => cb.estado === 'atrasado');
+  if(atrasados.length){
+    const monto = atrasados.reduce((s,cb)=>s+(cb.montoFinal||0),0);
+    alerts.push({
+      level:'danger', icon:'🔴',
+      msg:`<strong>${atrasados.length} cobro${atrasados.length>1?'s':''} atrasado${atrasados.length>1?'s':''}</strong> · $${monto.toLocaleString()} sin cobrar`,
+      action:"setV('cobranzas')", actionLabel:'Ver Cobranzas'
+    });
+  }
+
+  // Despliegues sin avance en más de 14 días
+  const now = new Date();
+  const stalled = deps.filter(d => {
+    if(d.es==='✅ Listo'||d.es==='🆕 Por iniciar') return false;
+    if(!isD(d.fi)) return false;
+    const days = Math.floor((now - new Date(d.fi+'T12:00:00'))/(1000*60*60*24));
+    return days > 14 && d.fase < 3;
+  });
+  if(stalled.length){
+    alerts.push({
+      level:'warn', icon:'🟡',
+      msg:`<strong>${stalled.length} despliegue${stalled.length>1?'s':''} sin avance</strong> en más de 14 días`,
+      action:"setV('despliegues')", actionLabel:'Ver Despliegues'
+    });
+  }
+
+  // Clientes operativos sin contrato
+  const opSinContrato = deps.filter(d=>d.es==='✅ Listo').filter(d=>{
+    const cl = cls.find(c=>c.id===d.cid||c.nm===d.c);
+    const cont = contratos.find(c=>c.clienteId===(cl?.id)||c.cliente===d.c);
+    return !cont;
+  });
+  if(opSinContrato.length){
+    alerts.push({
+      level:'warn', icon:'🟡',
+      msg:`<strong>${opSinContrato.length} cliente${opSinContrato.length>1?'s':''} operativo${opSinContrato.length>1?'s':''} sin contrato</strong> — no se generarán cobros`,
+      action:"setV('contratos')", actionLabel:'Crear Contratos'
+    });
+  }
+
+  // Cobros pendientes del mes actual
+  const mes = new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
+  const pendMes = cobros.filter(cb=>cb.mes===mes&&cb.estado==='pendiente');
+  if(pendMes.length){
+    const monto = pendMes.reduce((s,cb)=>s+(cb.montoFinal||0),0);
+    alerts.push({
+      level:'info', icon:'🔵',
+      msg:`<strong>${pendMes.length} cobro${pendMes.length>1?'s':''} pendiente${pendMes.length>1?'s':''}</strong> este mes · $${monto.toLocaleString()}`,
+      action:"setV('cobranzas')", actionLabel:'Ver Cobranzas'
+    });
+  }
+
+  // Papelera con elementos
+  if(trash.length){
+    alerts.push({
+      level:'info', icon:'🗑',
+      msg:`<strong>${trash.length} elemento${trash.length>1?'s':''} en la papelera</strong>`,
+      action:'openTrash()', actionLabel:'Ver Papelera'
+    });
+  }
+
+  if(!alerts.length){ el.innerHTML=''; return; }
+
+  const colors = {danger:'#FFF1F2', warn:'#FFFBEB', info:'#EFF6FF'};
+  const borders = {danger:'#FECDD3', warn:'#FDE68A', info:'#BFDBFE'};
+  const texts = {danger:'#BE123C', warn:'#B45309', info:'#1D4ED8'};
+
+  el.innerHTML = `<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:4px">
+    ${alerts.map(a=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:${colors[a.level]};border:1px solid ${borders[a.level]};border-radius:10px">
+        <span style="font-size:16px;flex-shrink:0">${a.icon}</span>
+        <span style="flex:1;font-size:13px;color:${texts[a.level]}">${a.msg}</span>
+        <button onclick="${a.action}" style="background:${texts[a.level]};color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit">${a.actionLabel} →</button>
+      </div>`).join('')}
+  </div>`;
 }
 
 // ── Auto-check existing session on page load ──
