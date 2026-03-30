@@ -306,6 +306,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
         🚀 Entrar en modo demo
       </button>
       <div style="font-size:11px;color:#94A3B8;margin-top:6px">Los datos se guardan solo en este navegador</div>
+    <div id="li-debug" style="font-size:10px;color:#94A3B8;margin-top:4px;display:none"></div>
     </div>
   </div>
 </div>
@@ -2892,13 +2893,16 @@ function doLogin(){
   loadSupabase().then(()=>{
     try{
       // Supabase v2.49+ supports sb_publishable_ keys
-      supabase = window.supabase.createClient(SB_URL, SB_KEY, {
+      // Note: sb_publishable_ keys work with supabase-js v2.49+
+      var clientOpts = {
         auth:{
           autoRefreshToken:true,
           persistSession:true,
-          detectSessionInUrl:false
+          detectSessionInUrl:false,
+          storageKey:'clipp_ops_session'
         }
-      });
+      };
+      supabase = window.supabase.createClient(SB_URL, SB_KEY, clientOpts);
       supabase.auth.signInWithPassword({email:email, password:pass})
         .then(function(res){
           if(res.error){
@@ -2921,19 +2925,39 @@ function doLogin(){
       err.textContent='Error iniciando Supabase: '+e.message;
       btn.disabled=false; btn.textContent='Ingresar';
     }
-  }).catch(function(){
-    err.textContent='Sin conexión a internet. Usa modo demo.';
+  }).catch(function(e){
+    console.error('CDN load error:', e);
+    err.textContent='Error cargando librería. Intenta de nuevo o usa modo demo.';
     btn.disabled=false; btn.textContent='Ingresar';
   });
 }
 
 function loadSupabase(){
-  return new Promise((resolve,reject)=>{
-    if(window.supabase){ resolve(); return; }
-    const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js';
-    s.onload=resolve; s.onerror=reject;
-    document.head.appendChild(s);
+  return new Promise(function(resolve,reject){
+    if(window.supabase && typeof window.supabase.createClient==='function'){ resolve(); return; }
+    // Try multiple CDNs
+    var cdns=[
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js',
+      'https://unpkg.com/@supabase/supabase-js@2.49.4/dist/umd/supabase.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/umd/supabase.min.js'
+    ];
+    var idx=0;
+    var dbg=document.getElementById('li-debug');
+    if(dbg){dbg.style.display='block';dbg.textContent='Cargando librería...';}
+    function tryNext(){
+      if(idx>=cdns.length){reject(new Error('All CDNs failed'));return;}
+      var s=document.createElement('script');
+      s.src=cdns[idx++];
+      s.onload=function(){
+        if(window.supabase && typeof window.supabase.createClient==='function'){
+          if(dbg)dbg.textContent='Librería cargada ✓';
+          resolve();
+        } else tryNext();
+      };
+      s.onerror=tryNext;
+      document.head.appendChild(s);
+    }
+    tryNext();
   });
 }
 
@@ -2993,7 +3017,7 @@ function bootApp(){
   // Check for existing Supabase session
   loadSupabase().then(function(){
     try{
-      const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false}});
+      const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false,storageKey:'clipp_ops_session'}});
       sb.auth.getSession().then(function(res){
         if(res.data&&res.data.session){
           supabase=sb;
