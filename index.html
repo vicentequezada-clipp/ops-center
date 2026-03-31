@@ -336,7 +336,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v4.6 · 30 Mar 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v4.7 · 30 Mar 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -894,239 +894,245 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <!-- ══ CATÁLOGOS ══ -->
     <div id="view-catalogos" class="view">
       <div class="sec-hdr">
-        <div><div class="sec-title">🗂 Gestión de Catálogos</div><div class="sec-sub">Aplicativos, Tipos, Módulos, Launchers y más</div></div>
-        <button class="btn btn-g btn-sm" onclick="reloadCatsFromSupabase()" title="Recargar datos del servidor">🔄 Recargar</button>
-      </div>
-      <div class="cat-tabs">
-        <div class="cat-tab active" onclick="setCatTab('modulos')">⚙️ Módulos</div>
-        <div class="cat-tab" onclick="setCatTab('categorias')">🏷 Categorías</div>
-        <div class="cat-tab" onclick="setCatTab('modalidades')">🚀 Modalidades</div>
-        <div class="cat-tab" onclick="setCatTab('fases')">📍 Fases</div>
-        <div class="cat-tab" onclick="setCatTab('implTimes')">⏱ T. Implementación</div>
-        <div class="cat-tab" onclick="setCatTab('complejidad')">🎯 Complejidad</div>
-        <div class="cat-tab" onclick="setCatTab('billingTypes')">💰 Tipos de Cobro</div>
-        <div class="cat-tab" onclick="setCatTab('riesgos')">🚦 Estados de Riesgo</div>
-        <div class="cat-tab" onclick="setCatTab('aplicativos')">🖥 Aplicativos</div>
-        <div class="cat-tab" onclick="setCatTab('tipos')">🏷 Tipos de Cliente</div>
-    <div class="cat-tab" onclick="setCatTab('launchers')" id="nav-cat-launchers">👤 Launchers</div>
-      </div>
-      <!-- CATEGORÍAS DE MÓDULOS -->
-      <div class="cat-panel" id="cat-categorias" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Las <strong>Categorías</strong> agrupan los módulos en la tabla de catálogo y en el selector de módulos. Puedes crear las que necesites.</p>
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="cm-icon" placeholder="💬" style="max-width:70px"></div>
-          <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="cm-cname" placeholder="Ej: Integración"></div>
-          <div class="fr"><label class="fl">Color</label>
-            <select class="cat-input" id="cm-col">
-              <option value="#1B4FD8">🔵 Azul</option><option value="#0F7E4F">🟢 Verde</option>
-              <option value="#B45309">🟡 Ámbar</option><option value="#5B21B6">🟣 Violeta</option>
-              <option value="#BE123C">🔴 Rojo</option><option value="#0891B2">🩵 Celeste</option>
-            </select>
-          </div>
-          <button class="btn btn-p btn-sm" onclick="saveCatmod()">+ Agregar</button>
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Ícono</th><th>Nombre</th><th>Color</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="cm-tbody"></tbody>
-        </table></div></div>
+        <div><div class="sec-title">🗂 Gestión de Catálogos</div>
+        <div class="sec-sub">Configura valores maestros del sistema · los cambios se reflejan en toda la app</div></div>
       </div>
 
-      <!-- MÓDULOS -->
-      <div class="cat-panel" id="cat-modulos" style="display:block">
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Nombre del Módulo</label><input class="cat-input" id="md-name" placeholder="Ej: Bot WA Normal"></div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="md-desc" placeholder="Descripción breve"></div>
-          <div class="fr"><label class="fl">Categoría</label>
-            <select class="cat-input" id="md-cat"></select>
-          </div>
-          <button class="btn btn-p btn-sm" onclick="saveMd()">+ Agregar</button>
+      <!-- CSS-ONLY TABS via radio buttons trick replaced with simple sections -->
+      <!-- Each section is always visible, collapsible -->
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>⚙️ Módulos</span><span class="cat-section-arrow">▾</span>
         </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Nombre</th><th>Descripción</th><th>Categoría</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="md-tbody"></tbody>
-        </table></div></div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="md-name" placeholder="Ej: Bot WA Normal"></div>
+            <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="md-desc" placeholder="Descripción breve"></div>
+            <div class="fr"><label class="fl">Categoría</label><select class="cat-input" id="md-cat"></select></div>
+            <button class="btn btn-p btn-sm" onclick="saveMd()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Nombre</th><th>Descripción</th><th>Categoría</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="md-tbody"></tbody>
+          </table></div>
+        </div>
       </div>
-      <!-- APLICATIVOS -->
-      <div class="cat-panel" id="cat-aplicativos" style="display:none">
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="ap-name" placeholder="Ej: Clipp"></div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="ap-desc" placeholder="Descripción"></div>
-          <div class="fr"><label class="fl">Color</label>
-            <select class="cat-input" id="ap-color">
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>🏷 Categorías de Módulos</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="cm-icon" placeholder="💬" style="max-width:70px"></div>
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="cm-cname" placeholder="Ej: Bot / Mensajería"></div>
+            <select class="cat-input" id="cm-col" style="max-width:130px">
+              <option value="#1B4FD8">🔵 Azul</option><option value="#0F7E4F">🟢 Verde</option>
+              <option value="#B45309">🟡 Ámbar</option><option value="#5B21B6">🟣 Violeta</option>
+            </select>
+            <button class="btn btn-p btn-sm" onclick="saveCatmod()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Nombre</th><th>Descripción</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="cm-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>🖥 Aplicativos</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="ap-name" placeholder="Ej: Clipp"></div>
+            <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="ap-desc" placeholder="Descripción"></div>
+            <select class="cat-input" id="ap-color" style="max-width:130px">
               <option value="#1B4FD8">🔵 Azul</option><option value="#0F7E4F">🟢 Verde</option>
               <option value="#B45309">🟡 Ámbar</option><option value="#5B21B6">🟣 Violeta</option>
               <option value="#BE123C">🔴 Rojo</option><option value="#0369A1">🩵 Celeste</option>
             </select>
+            <button class="btn btn-p btn-sm" onclick="saveAp()">+ Agregar</button>
           </div>
-          <button class="btn btn-p btn-sm" onclick="saveAp()">+ Agregar</button>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Nombre</th><th>Descripción</th><th>Color</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="ap-tbody"></tbody>
+          </table></div>
         </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Nombre</th><th>Descripción</th><th>Color</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="ap-tbody"></tbody>
-        </table></div></div>
-      </div>
-      <!-- MODALIDADES DE DESPLIEGUE -->
-      <div class="cat-panel" id="cat-modalidades" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Las <strong>Modalidades</strong> son la categoría del despliegue (ej: Cliente Nuevo, Update). Aparecen en la columna <strong>Modalidad</strong> de la tabla de despliegues.</p>
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="mo-dep-name" placeholder="Ej: Cliente Nuevo"></div>
-          <div class="fr"><label class="fl">Ícono (emoji)</label><input class="cat-input" id="mo-dep-icon" placeholder="Ej: 🆕" style="max-width:90px"></div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="mo-dep-desc" placeholder="Descripción breve"></div>
-          <button class="btn btn-p btn-sm" onclick="saveModDep()">+ Agregar</button>
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Modalidad</th><th>Descripción</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="mo-dep-tbody"></tbody>
-        </table></div></div>
-      </div>
-      <!-- LAUNCHERS -->
-      <div class="cat-panel" id="cat-launchers" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Los <strong>Launchers</strong> son los responsables de implementar y dar seguimiento a los despliegues. Aparecen en todos los módulos de seguimiento.</p>
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Nombre completo</label><input class="cat-input" id="ln-name" placeholder="Ej: María López"></div>
-          <div class="fr"><label class="fl">Email</label><input class="cat-input" id="ln-email" placeholder="maria@clipp.com" type="email"></div>
-          <div class="fr"><label class="fl">Notas</label><input class="cat-input" id="ln-notas" placeholder="Rol o área"></div>
-          <button class="btn btn-p btn-sm" onclick="saveLauncher()">+ Agregar</button>
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Nombre</th><th>Email</th><th>Notas</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="ln-tbody"></tbody>
-        </table></div></div>
       </div>
 
-      <!-- TIPOS DE CLIENTE -->
-      <!-- FASES DE IMPLEMENTACIÓN -->
-      <div class="cat-panel" id="cat-fases" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Las <strong>Fases</strong> representan el progreso de cada despliegue. Puedes avanzar o retroceder la fase directamente desde la tabla de Despliegues con los botones ▶ ◀.</p>
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="ph-icon" placeholder="🚀" style="max-width:70px"></div>
-          <div class="fr"><label class="fl">Nombre de la Fase</label><input class="cat-input" id="ph-name" placeholder="Ej: Pruebas"></div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="ph-desc" placeholder="Qué ocurre en esta fase"></div>
-          <button class="btn btn-p btn-sm" onclick="savePhase()">+ Agregar</button>
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>🏷 Tipos de Cliente</span><span class="cat-section-arrow">▾</span>
         </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th style="width:40px">Orden</th><th>Ícono</th><th>Nombre</th><th>Descripción</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="ph-tbody"></tbody>
-        </table></div></div>
-      </div>
-      <!-- TIEMPOS DE IMPLEMENTACIÓN -->
-      <div class="cat-panel" id="cat-implTimes" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Tiempos estándar por paquete de módulos. Se usan como referencia en la <strong>Estrategia de Despliegue</strong>.</p>
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Descripción del Paquete</label><input class="cat-input" id="it-name" placeholder="Ej: Bot + CallCenter + App Cliente"></div>
-          <div class="fr"><label class="fl">Semanas</label><input class="cat-input" id="it-weeks" type="number" min="1" placeholder="2" style="max-width:80px"></div>
-          <div class="fr"><label class="fl">Notas</label><input class="cat-input" id="it-desc" placeholder="Condiciones especiales..."></div>
-          <div class="fr"><label class="fl">Color</label><select class="cat-input" id="it-color">
-            <option value="#0F7E4F">🟢 Verde</option><option value="#B45309">🟡 Ámbar</option>
-            <option value="#BE123C">🔴 Rojo</option><option value="#5B21B6">🟣 Violeta</option>
-          </select></div>
-          <button class="btn btn-p btn-sm" onclick="saveImplTime()">+ Agregar</button>
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Paquete</th><th>Semanas</th><th>Notas</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="it-tbody"></tbody>
-        </table></div></div>
-      </div>
-      <!-- NIVELES DE COMPLEJIDAD -->
-      <div class="cat-panel" id="cat-complejidad" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">
-          Define los <strong>niveles de complejidad</strong> de despliegue. Cada nivel tiene un <strong>peso</strong> que afecta el cálculo de capacidad operativa y una lista de <strong>módulos disparadores</strong> — si el cliente tiene alguno de esos módulos, se asigna ese nivel automáticamente.<br>
-          <span style="font-size:11.5px;color:var(--blue)">💡 El sistema aplica el nivel de mayor prioridad cuyos módulos coincidan. Si no hay coincidencia, aplica el primer nivel.</span>
-        </p>
-        <div class="cat-add-row" style="flex-wrap:wrap;gap:10px">
-          <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="cx-icon" placeholder="🟢" style="max-width:70px"></div>
-          <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="cx-name" placeholder="Ej: Básico"></div>
-          <div class="fr"><label class="fl">Color</label>
-            <select class="cat-input" id="cx-color">
-              <option value="#0F7E4F">🟢 Verde</option>
-              <option value="#B45309">🟡 Ámbar</option>
-              <option value="#BE123C">🔴 Rojo</option>
-              <option value="#5B21B6">🟣 Violeta</option>
-              <option value="#1B4FD8">🔵 Azul</option>
-            </select>
-          </div>
-          <div class="fr"><label class="fl">Peso capacidad</label><input class="cat-input" id="cx-peso" type="number" step="0.1" min="0.1" max="10" placeholder="Ej: 1.0" style="max-width:80px"></div>
-          <div class="fr"><label class="fl">Prioridad (1=más alta)</label><input class="cat-input" id="cx-prio" type="number" min="1" max="99" placeholder="1" style="max-width:70px"></div>
-          <div class="fr" style="flex:2;min-width:280px">
-            <label class="fl">Módulos disparadores <span style="font-weight:400;color:var(--subtle)">(todos deben estar presentes — coincidencia exacta)</span></label>
-            <select class="cat-input" id="cx-mods" multiple style="height:90px;min-height:90px"></select>
-            <div style="font-size:10.5px;color:var(--subtle);margin-top:3px">Ctrl+clic para seleccionar varios</div>
-          </div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="cx-desc" placeholder="Descripción breve"></div>
-          <button class="btn btn-p btn-sm" onclick="saveCx()" style="align-self:flex-end">+ Agregar</button>
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr>
-            <th>Nivel</th><th>Peso cap.</th><th>Prioridad</th><th>Módulos disparadores</th><th>Descripción</th><th style="width:90px">Acciones</th>
-          </tr></thead>
-          <tbody id="cx-tbody"></tbody>
-        </table></div></div>
-      </div>
-
-      <!-- TIPOS DE COBRO -->
-      <div class="cat-panel" id="cat-billingTypes" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Define los <strong>tipos de componente de cobro</strong> disponibles. Cada contrato puede mezclar varios tipos. Estos tipos aparecen al crear o editar contratos.</p>
-        <div class="cat-add-row" style="flex-wrap:wrap;gap:10px">
-          <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="bt-icon" placeholder="💬" style="max-width:70px"></div>
-          <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="bt-name" placeholder="Ej: Por Bot WA"></div>
-          <div class="fr"><label class="fl">Tipo (clave)</label><input class="cat-input" id="bt-tipo" placeholder="Ej: bot_wa" style="max-width:120px"></div>
-          <div class="fr"><label class="fl">Unidad</label><input class="cat-input" id="bt-unit" placeholder="Ej: bot/mes" style="max-width:110px"></div>
-          <div class="fr" style="flex:2"><label class="fl">Descripción</label><input class="cat-input" id="bt-desc" placeholder="Descripción breve"></div>
-          <button class="btn btn-p btn-sm" onclick="saveBillingType()">+ Agregar</button>
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Tipo</th><th>Clave</th><th>Unidad</th><th>Descripción</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="bt-tbody"></tbody>
-        </table></div></div>
-      </div>
-
-      <!-- ESTADOS DE RIESGO -->
-      <div class="cat-panel" id="cat-riesgos" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Define los umbrales de riesgo para <strong>Cobranzas</strong> y <strong>Contratos</strong>. El sistema calcula automáticamente el estado según el % del mínimo contratado que el cliente está cumpliendo.</p>
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="rk-name" placeholder="Ej: Alerta"></div>
-          <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="rk-icon" placeholder="⚠️" style="max-width:70px"></div>
-          <div class="fr"><label class="fl">% Mínimo (desde)</label><input class="cat-input" id="rk-pct" type="number" min="0" max="100" placeholder="70" style="max-width:80px"></div>
-          <div class="fr"><label class="fl">Color</label><select class="cat-input" id="rk-color">
-            <option value="#0F7E4F">🟢 Verde (OK)</option><option value="#B45309">🟡 Ámbar (Alerta)</option>
-            <option value="#BE123C">🔴 Rojo (Crítico)</option><option value="#5B21B6">🟣 Violeta</option>
-          </select></div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="rk-desc" placeholder="Descripción del estado"></div>
-          <button class="btn btn-p btn-sm" onclick="saveRisk()">+ Agregar</button>
-        </div>
-        <div style="background:var(--blue-l);border:1px solid var(--blue-m);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:12.5px;color:var(--blue)">
-          💡 <strong>Cómo funciona:</strong> Si un cliente tiene 80% de sus conductores activos respecto al mínimo contratado, el sistema busca el estado cuyo "% Mínimo desde" sea ≤ 80 y aplica el de mayor umbral coincidente.
-        </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Estado</th><th>Ícono</th><th>% Mínimo desde</th><th>Descripción</th><th>Vista Previa</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="rk-tbody"></tbody>
-        </table></div></div>
-      </div>
-
-      </div>
-
-      <!-- TIPOS DE CLIENTE -->
-      <div class="cat-panel" id="cat-tipos" style="display:none">
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Los <strong>Tipos de Cliente</strong> son etiquetas libres que asignas a tus clientes para clasificarlos (ej: Taxi Convencional, Ejecutivo, Moto, Empresas, etc). Se seleccionan en la ficha de cada cliente.</p>
-        <div class="cat-add-row">
-          <div class="fr"><label class="fl">Nombre / Etiqueta</label><input class="cat-input" id="tp-name" placeholder="Ej: Taxi Convencional"></div>
-          <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="tp-desc" placeholder="Descripción breve"></div>
-          <div class="fr"><label class="fl">Color</label>
-            <select class="cat-input" id="tp-color">
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Nombre / Etiqueta</label><input class="cat-input" id="tp-name" placeholder="Ej: Taxi Convencional"></div>
+            <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="tp-desc" placeholder="Descripción breve"></div>
+            <select class="cat-input" id="tp-color" style="max-width:130px">
               <option value="#1B4FD8">🔵 Azul</option><option value="#0F7E4F">🟢 Verde</option>
               <option value="#B45309">🟡 Ámbar</option><option value="#5B21B6">🟣 Violeta</option>
               <option value="#BE123C">🔴 Rojo</option><option value="#0891B2">🩵 Celeste</option>
             </select>
+            <button class="btn btn-p btn-sm" onclick="saveTp()">+ Agregar</button>
           </div>
-          <button class="btn btn-p btn-sm" onclick="saveTp()">+ Agregar</button>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Tipo / Etiqueta</th><th>Descripción</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="tp-tbody"></tbody>
+          </table></div>
         </div>
-        <div class="card"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Tipo / Etiqueta</th><th>Descripción</th><th style="width:90px">Acciones</th></tr></thead>
-          <tbody id="tp-tbody"></tbody>
-        </table></div></div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>🚀 Modalidades de Despliegue</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="mo-dep-icon" placeholder="🆕" style="max-width:70px"></div>
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="mo-dep-name" placeholder="Ej: Cliente Nuevo"></div>
+            <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="mo-dep-desc" placeholder="Descripción breve"></div>
+            <button class="btn btn-p btn-sm" onclick="saveModDep()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Modalidad</th><th>Descripción</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="mo-dep-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>👤 Launchers</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Nombre completo</label><input class="cat-input" id="ln-name" placeholder="Ej: Betty Palacios"></div>
+            <div class="fr"><label class="fl">Email</label><input class="cat-input" id="ln-email" placeholder="betty@clipp.com" type="email"></div>
+            <div class="fr"><label class="fl">Notas</label><input class="cat-input" id="ln-notas" placeholder="Rol o área"></div>
+            <button class="btn btn-p btn-sm" onclick="saveLauncher()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Notas</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="ln-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>🎯 Complejidad</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="cx-icon" placeholder="🟢" style="max-width:70px"></div>
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="cx-name" placeholder="Básico"></div>
+            <select class="cat-input" id="cx-color" style="max-width:130px">
+              <option value="#0F7E4F">🟢 Verde</option><option value="#B45309">🟡 Ámbar</option>
+              <option value="#BE123C">🔴 Rojo</option><option value="#5B21B6">🟣 Violeta</option>
+            </select>
+            <div class="fr"><label class="fl">Peso</label><input class="cat-input" id="cx-peso" type="number" step="0.1" min="0.5" value="1.0" style="max-width:80px"></div>
+            <div class="fr"><label class="fl">Prioridad</label><input class="cat-input" id="cx-prio" type="number" min="1" value="3" style="max-width:80px"></div>
+            <button class="btn btn-p btn-sm" onclick="saveCx()">+ Agregar</button>
+          </div>
+          <div class="fr" style="margin-bottom:12px">
+            <label class="fl">Módulos disparadores</label>
+            <select class="cat-input" id="cx-mods" multiple style="height:80px"></select>
+            <p style="font-size:11px;color:var(--muted);margin:2px 0">Ctrl+clic para seleccionar varios</p>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Nivel</th><th>Peso</th><th>Prioridad</th><th>Módulos disparadores</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="cx-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>📍 Fases de Implementación</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="ph-icon" placeholder="🚀" style="max-width:70px"></div>
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="ph-name" placeholder="Ej: Kick-off"></div>
+            <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="ph-desc" placeholder="Qué se hace"></div>
+            <button class="btn btn-p btn-sm" onclick="savePhase()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Orden</th><th>Ícono</th><th>Nombre</th><th>Descripción</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="ph-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>⏱ Tiempos de Implementación</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Nombre del paquete</label><input class="cat-input" id="it-name" placeholder="Bot WA + App Conductor"></div>
+            <div class="fr"><label class="fl">Semanas</label><input class="cat-input" id="it-weeks" type="number" min="1" placeholder="2" style="max-width:80px"></div>
+            <select class="cat-input" id="it-color" style="max-width:130px">
+              <option value="#0F7E4F">🟢 Verde</option><option value="#B45309">🟡 Ámbar</option>
+              <option value="#BE123C">🔴 Rojo</option>
+            </select>
+            <div class="fr"><label class="fl">Notas</label><input class="cat-input" id="it-desc" placeholder="Descripción"></div>
+            <button class="btn btn-p btn-sm" onclick="saveImplTime()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Paquete</th><th>Semanas</th><th>Notas</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="it-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>💰 Tipos de Cobro</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="bt-icon" placeholder="👤" style="max-width:70px"></div>
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="bt-name" placeholder="Por Conductor"></div>
+            <div class="fr"><label class="fl">Clave</label><input class="cat-input" id="bt-tipo" placeholder="conductor" style="max-width:110px"></div>
+            <div class="fr"><label class="fl">Unidad</label><input class="cat-input" id="bt-unit" placeholder="conductor/mes" style="max-width:120px"></div>
+            <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="bt-desc" placeholder="Descripción breve"></div>
+            <button class="btn btn-p btn-sm" onclick="saveBillingType()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Tipo</th><th>Clave</th><th>Unidad</th><th>Descripción</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="bt-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="cat-section">
+        <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span>🚦 Estados de Riesgo</span><span class="cat-section-arrow">▾</span>
+        </div>
+        <div class="cat-section-body">
+          <div class="cat-add-row">
+            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="rk-name" placeholder="Ej: Alerta"></div>
+            <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="rk-icon" placeholder="⚠️" style="max-width:70px"></div>
+            <div class="fr"><label class="fl">% Mínimo</label><input class="cat-input" id="rk-pct" type="number" min="0" max="100" placeholder="70" style="max-width:80px"></div>
+            <select class="cat-input" id="rk-color" style="max-width:140px">
+              <option value="#0F7E4F">🟢 Verde (OK)</option><option value="#B45309">🟡 Ámbar (Alerta)</option>
+              <option value="#BE123C">🔴 Rojo (Crítico)</option>
+            </select>
+            <div class="fr"><label class="fl">Descripción</label><input class="cat-input" id="rk-desc" placeholder="Descripción del estado"></div>
+            <button class="btn btn-p btn-sm" onclick="saveRisk()">+ Agregar</button>
+          </div>
+          <div class="tbl-wrap"><table class="cat-table">
+            <thead><tr><th>Estado</th><th>Ícono</th><th>% Mínimo</th><th>Descripción</th><th>Vista Previa</th><th style="width:80px">Acciones</th></tr></thead>
+            <tbody id="rk-tbody"></tbody>
+          </table></div>
+        </div>
       </div>
 
     </div>
+
     <!-- ══ USUARIOS Y ROLES ══ -->
     <div id="view-usuarios" class="view">
       <div class="sec-hdr">
@@ -3109,7 +3115,7 @@ function reloadCatsFromSupabase(){
 }
 
 function renderCats(){
-  // Ensure base data is loaded before rendering (guards also in each render fn)
+  // Ensure base data
   if(!cats.ap||!cats.ap.length)cats.ap=BASE_AP.map(x=>Object.assign({},x));
   if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
   if(!cats.modal||!cats.modal.length)cats.modal=BASE_MODAL.map(x=>Object.assign({},x));
@@ -3121,7 +3127,22 @@ function renderCats(){
   if(!cats.complexity||!cats.complexity.length)cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
   if(!cats.launchers||!cats.launchers.length)cats.launchers=BASE_LAUNCHERS.map(x=>Object.assign({},x));
   if(!cats.tp)cats.tp=[];
-  setCatTab(curCatTab);
+  // Open the first section by default if none open
+  const sections=document.querySelectorAll('.cat-section');
+  const hasOpen=Array.from(sections).some(s=>s.classList.contains('open'));
+  if(!hasOpen&&sections.length>0)sections[0].classList.add('open');
+  // Render all tbodies
+  try{renderMds();}catch(e){}
+  try{renderCatMods();}catch(e){}
+  try{renderAps();}catch(e){}
+  try{renderTps();}catch(e){}
+  try{renderModDeps();}catch(e){}
+  try{renderLaunchers();}catch(e){}
+  try{renderCxs();}catch(e){}
+  try{renderPhases();}catch(e){}
+  try{renderImplTimes();}catch(e){}
+  try{renderBTs();}catch(e){}
+  try{renderRisks();}catch(e){}
 }
 function renderMds(){
   const el=document.getElementById('md-tbody');if(!el)return;
