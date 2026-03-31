@@ -33,14 +33,16 @@
   background:var(--bg);
   box-shadow:var(--sh);
   overflow:auto;
-}
+;max-height:70vh}
 #tbl-d{
-  width:100%;
-  min-width:1980px;
+  width:max-content;
+  min-width:100%;
   border-collapse:separate;
   border-spacing:0;
-  table-layout:fixed;
+  table-layout:auto;
 }
+#tbl-o,#tbl-i,#tbl-c{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;table-layout:auto;}
+
 #tbl-d thead th{
   position:sticky;
   top:0;
@@ -308,7 +310,8 @@ table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
 thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
 .col-r{position:absolute;right:0;top:0;height:100%;width:6px;cursor:col-resize;z-index:2}
 .col-r:hover,.col-r.on{background:var(--blue);opacity:.4}
-td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:visible}
+td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:visible;
+  white-space:nowrap}
 tr:hover td{background:#FAFBFD}
 tr:last-child td{border-bottom:none}
 /* INLINE EDIT */
@@ -506,6 +509,9 @@ input[type=date].ei{cursor:pointer;min-width:110px}
   .deploy-subnav{padding:5px}
   .deploy-tab-btn{padding:9px 12px}
 }
+
+/* Allow wrapping in specific cells */
+.cell-wrap,.cl-mods-ro,.mt,.dep-note{white-space:normal;word-break:break-word;min-width:120px}
 </style>
 </head>
 <body>
@@ -527,7 +533,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="login-err" id="li-err"></div>
     <div class="login-status" id="li-status"></div>
     <div style="margin-top:16px;border-top:1px solid #E4E9F0;padding-top:14px">
-      <button onclick="enterDemo()"
+      <button onclick="document.getElementById('li-email').value='demo@clipp.com';document.getElementById('li-pass').value='demo';doLogin();"
         style="background:none;border:1.5px solid #E4E9F0;border-radius:8px;padding:9px 18px;font-size:13px;color:#637087;cursor:pointer;width:100%;font-family:inherit;transition:all .2s"
         onmouseover="this.style.borderColor='#1B4FD8';this.style.color='#1B4FD8'"
         onmouseout="this.style.borderColor='#E4E9F0';this.style.color='#637087'">
@@ -563,7 +569,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.0 · 31 Mar 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.1 · 31 Mar 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -1057,7 +1063,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.0</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.1</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
 
       <!-- REFERENCE TABLE -->
       <div class="card" style="margin-bottom:16px">
@@ -1183,7 +1189,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       <!-- CSS-ONLY TABS via radio buttons trick replaced with simple sections -->
       <!-- Each section is always visible, collapsible -->
 
-      <div class="cat-section">
+      <div class="cat-section open">
         <div class="cat-section-hdr" onclick="this.parentElement.classList.toggle('open')">
           <span>⚙️ Módulos</span><span class="cat-section-arrow">▾</span>
         </div>
@@ -2020,11 +2026,15 @@ function sv(){
   sessionStorage.setItem('clipp_authed','1');
   if(supabase){
     const ts=new Date().toISOString();
-    Promise.all([
+    Promise.allSettled([
       supabase.from('ops_data').upsert({key:'deps',value:deps,updated_at:ts}),
       supabase.from('ops_data').upsert({key:'cls',value:cls,updated_at:ts}),
       supabase.from('ops_data').upsert({key:'cats',value:cats,updated_at:ts}),
-    ]).then(()=>showSync(true,'Guardado')).catch(e=>showSync(false,'Error'));
+    ]).then(results=>{
+      const failed=results.filter(r=>r.status==='rejected');
+      if(failed.length) showSync(false,'Error al guardar');
+      else showSync(true,'Guardado');
+    });
   }
 }
 function svCont2(){
@@ -2044,7 +2054,7 @@ function svTrash(){
 
 // ═══ BACKUP / RESTORE ════════════════════════════════
 function exportFullBackup(){
-  const data={version:'5.0',exportedAt:new Date().toISOString(),deps,cls,cats,contratos,cobros,checklists,trash};
+  const data={version:'5.1',exportedAt:new Date().toISOString(),deps,cls,cats,contratos,cobros,checklists,trash};
   const a=document.createElement('a');
   a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
   a.download='ops_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
@@ -2135,7 +2145,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · Marzo 2026'],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.0'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.1'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -2750,7 +2760,10 @@ function depRowViewOps(d){
 }
 function depRowReadOps(d){
   const row = depRowRead(d);
-  return row.replace(/onclick=\"depEnterEdit\\([^\"]+\"/, `onclick="depEnterEdit(${d.id},'ops')"`);
+  return row.replace(
+    `onclick="depEnterEdit(${d.id})"`,
+    `onclick="depEnterEdit(${d.id},'ops')"`
+  );
 }
 
 // ═══ RENDER DEPS / OPS / INACT ═══════════════════════
@@ -4279,26 +4292,41 @@ function loadSupabase(){
     tryNext();
   });
 }
+function safeStartApp(){
+  var overlay=document.getElementById('login-overlay');
+  var err=document.getElementById('li-err');
+  var status=document.getElementById('li-status');
+  if(err) err.textContent='';
+  if(status) status.textContent='Cargando sistema...';
+  if(overlay) overlay.classList.add('hidden');
+  try{
+    bootApp();
+    if(status) status.textContent='';
+    return true;
+  }catch(e){
+    console.error('bootApp error',e);
+    try{
+      renderDash();updBadges();updTrashBadge();setV('dashboard');
+      if(status) status.textContent='Entró con carga parcial';
+      return true;
+    }catch(e2){
+      console.error('fallbackStart error',e2);
+      if(err) err.textContent='Ingresó pero falló la carga inicial: '+e.message;
+      if(status) status.textContent='';
+      if(overlay) overlay.classList.remove('hidden');
+      return false;
+    }
+  }
+}
 function enterDemo(){
   try{
     _currentUser={email:'demo@clipp.com',id:'demo-user',user_metadata:{name:'Demo'}};
     sessionStorage.setItem('clipp_authed','1');
     sessionStorage.setItem('clipp_demo','1');
-    var err=document.getElementById('li-err'); if(err) err.textContent='';
-    var status=document.getElementById('li-status'); if(status) status.textContent='Modo demo activo';
-    document.getElementById('login-overlay').classList.add('hidden');
-    bootAppSafe();
+    safeStartApp();
   }catch(e){
     console.error('Demo login error',e);
     var err=document.getElementById('li-err'); if(err) err.textContent='No se pudo iniciar modo demo: '+e.message;
-  }
-}
-function bootAppSafe(){
-  try{ bootApp(); }
-  catch(e){
-    console.error('bootApp error',e);
-    var err=document.getElementById('li-err'); if(err) err.textContent='Error al cargar la app: '+e.message;
-    document.getElementById('login-overlay').classList.remove('hidden');
   }
 }
 function doLogin(){
@@ -4306,8 +4334,9 @@ function doLogin(){
   const pass=document.getElementById('li-pass').value;
   const btn=document.getElementById('li-btn');
   const err=document.getElementById('li-err');
+  const status=document.getElementById('li-status');
   if(!email||!pass){err.textContent='Ingresa email y contraseña';return;}
-  btn.disabled=true;btn.textContent='Ingresando...';err.textContent='';
+  btn.disabled=true;btn.textContent='Ingresando...';err.textContent=''; if(status) status.textContent='';
   if(email==='demo@clipp.com' || (email==='demo' && pass==='demo')){
     enterDemo();
     btn.disabled=false;btn.textContent='Ingresar';
@@ -4324,8 +4353,8 @@ function doLogin(){
         supabase=sb;
         _currentUser=res.data.user;
         sessionStorage.setItem('clipp_authed','1');
-        document.getElementById('login-overlay').classList.add('hidden');
-        bootAppSafe();
+        safeStartApp();
+        btn.disabled=false;btn.textContent='Ingresar';
       }).catch(function(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='Ingresar';});
     }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='Ingresar';}
   }).catch(function(){err.textContent='Sin conexión. Usa "🚀 Modo demo".';btn.disabled=false;btn.textContent='Ingresar';});
@@ -4826,7 +4855,7 @@ function subscribeRealtime(){
 }
 function bootApp(){
   // DATA RESET: force reload when version changes
-  var DATA_VERSION='v5.0_demo_fix';
+  var DATA_VERSION='v5.2_stable';
   var _needDepsClear=localStorage.getItem('data_version')!==DATA_VERSION;
   if(_needDepsClear){
     // Reset only deps and contracts — keep clients (oc27) and cats (ct27)
@@ -4937,7 +4966,7 @@ if(location.search.includes('demo=1')){
         if(res.data&&res.data.session){
           supabase=sb;_currentUser=res.data.session.user;
           document.getElementById('login-overlay').classList.add('hidden');
-          bootAppSafe();
+          safeStartApp();
         }
       });
     }catch(e){}
