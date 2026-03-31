@@ -292,6 +292,24 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 .tag-red{background:var(--red-l);color:var(--red)}
 .tag-violet{background:var(--violet-l);color:var(--violet)}
 .divider-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--border);padding-bottom:6px;margin:18px 0 12px}
+/* HOTFIX V4 — tablas de despliegues */
+#tbl-d,#tbl-o{table-layout:fixed}
+#tbl-d td,#tbl-o td{overflow:hidden}
+.dep-cell{display:block;width:100%;max-width:100%;overflow:hidden}
+.dep-cell .ei,.dep-cell select.ei{width:100%;min-width:0;max-width:100%}
+.dep-actions{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.dep-phase{display:flex;align-items:center;gap:6px;min-width:0}
+.dep-phase .phase-wrap{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dep-link{display:flex;align-items:center;gap:4px;min-width:0}
+.dep-link .ei{width:100%}
+.dep-date{display:flex;align-items:center}
+.dep-date .ei{min-width:0!important}
+.dep-mods{min-width:0;max-width:100%;overflow:hidden}
+.dep-mods .cl-mods-ro{max-width:100%;overflow:hidden}
+.dep-note{min-width:0}
+.dep-empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.dep-empty .emoji{font-size:32px;margin-bottom:8px}
+
 </style>
 </head>
 <body>
@@ -1733,6 +1751,22 @@ let cobCharts={trend:null,pie:null};
 // ═══ UTILS ═══════════════════════════════════════════
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function isD(s){return/^\d{4}-\d{2}-\d{2}$/.test(s||'');}
+function normalizeDateInput(v){
+  if(!v) return '';
+  if(v instanceof Date && !isNaN(v)) return v.toISOString().slice(0,10);
+  let s=String(v).trim();
+  if(!s) return '';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const lat = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(lat) return `${lat[3]}-${lat[2]}-${lat[1]}`;
+  const jsDate = new Date(s);
+  if(!isNaN(jsDate)) return jsDate.toISOString().slice(0,10);
+  return '';
+}
+function safeArr(v){ return Array.isArray(v) ? v : []; }
+function numOrBlank(v){ return v===0 || v ? v : ''; }
 function fmtD(s){if(!isD(s))return s||'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;}
 function setSyncStatus(msg,color){const el=document.getElementById('sync-status');if(el){el.textContent=msg;el.style.color=color||'var(--muted)';}}
 function showSync(ok,msg){setSyncStatus((ok?'✓ ':'✗ ')+msg,ok?'#0F7E4F':'#DC2626');setTimeout(()=>setSyncStatus(''),3000);}
@@ -2133,34 +2167,41 @@ function togDep(){
 
 // ═══ DEP ROW ═════════════════════════════════════════
 function depRow(d){
-  const _modals=cats.modal&&cats.modal.length?cats.modal:BASE_MODAL;
+  const _modals=(cats.modal&&cats.modal.length)?cats.modal:BASE_MODAL;
   const modAps=_modals.map(m=>`<option ${d.tp===(m.icon+' '+m.name)||d.tp===m.name?'selected':''}>${m.icon||''} ${m.name}</option>`).join('');
   const esOpts=ESTADOS.map(e=>`<option ${d.es===e?'selected':''}>${e}</option>`).join('');
   const _lns=LAUNCHERS().length?LAUNCHERS():BASE_LAUNCHERS.map(l=>l.name);
   const lnOpts=_lns.map(l=>`<option ${d.ln===l?'selected':''}>${l}</option>`).join('');
-  const cl=cls.find(c=>c.id===d.cid)||null;
-  const moHtml=d.mo.length?d.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'<span style="color:var(--subtle);font-size:11px">—</span>';
-  return`<tr>
+  const moList=safeArr(d.mo);
+  const moHtml=moList.length
+    ? moList.map(m=>`<span class="mt">${esc(m)}</span>`).join('')
+    : '<span style="color:var(--subtle);font-size:11px">—</span>';
+
+  const fi=normalizeDateInput(d.fi);
+  const fd=normalizeDateInput(d.fd);
+  const fe=normalizeDateInput(d.fe);
+
+  return `<tr>
     <td style="color:var(--subtle);font-family:'DM Mono',monospace;font-size:11px">${String(d.id).padStart(2,'0')}</td>
-    <td style="font-weight:600;min-width:120px">${esc(d.c)}</td>
-    <td style="font-size:12px">${esc(d.pa||'')}</td>
-    <td style="font-size:12px">${esc(d.ci||'')}</td>
-    <td><select class="ei" onchange="uD(${d.id},'tp',this.value)">${modAps}</select></td>
-    <td><select class="ei" onchange="uDEs(${d.id},this.value)">${esOpts}</select></td>
-    <td style="white-space:nowrap">${phaseBadge(d)}<button class="icon-btn" onclick="advanceFase(${d.id})" title="Avanzar">▶</button><button class="icon-btn" onclick="backFase(${d.id})" title="Retroceder">◀</button></td>
-    <td>${complexBadge(d)}</td>
-    <td><div class="cl-mods-ro" onclick="openMO(${d.id},'dep')" style="cursor:pointer;min-width:120px" title="Clic para editar módulos">${moHtml||'<span style=\"color:var(--subtle);font-size:11px\">+ módulos</span>'}</div></td>
-    <td><select class="ei" onchange="uD(${d.id},'ln',this.value)">${lnOpts}</select></td>
-    <td><input type="date" class="ei" style="min-width:115px" value="${d.fi||''}" onchange="uD(${d.id},'fi',this.value)"></td>
-    <td><input type="date" class="ei" style="min-width:115px" value="${d.fd||''}" onchange="uD(${d.id},'fd',this.value)"></td>
-    <td><input type="date" class="ei" style="min-width:115px" value="${d.fe||''}" onchange="uD(${d.id},'fe',this.value)"></td>
-    <td>${diasBadge(d)}</td>
-    <td><input class="ei" style="min-width:140px" value="${esc(d.pe||'')}" placeholder="Pendientes..." onchange="uD(${d.id},'pe',this.value)"></td>
-    <td><input type="number" class="ei" style="width:60px" value="${d.hrsOp||''}" placeholder="—" onchange="uD(${d.id},'hrsOp',this.value)"></td>
-    <td><input type="number" class="ei" style="width:60px" value="${d.hrsNew||''}" placeholder="—" onchange="uD(${d.id},'hrsNew',this.value)"></td>
-    <td><input class="ei" style="min-width:140px" value="${esc(d.no||'')}" placeholder="Notas..." onchange="uD(${d.id},'no',this.value)"></td>
-    <td>${d.lk?`<a href="${esc(d.lk)}" target="_blank" class="icon-btn" title="Abrir">🔗</a>`:''}<input class="ei" style="width:80px" value="${esc(d.lk||'')}" placeholder="URL" onchange="uD(${d.id},'lk',this.value)"></td>
-    <td style="white-space:nowrap"><button class="icon-btn del" onclick="confDel('dep',${d.id},'${esc(d.c)}')">🗑</button></td>
+    <td style="font-weight:600">${esc(d.c||'')}</td>
+    <td>${esc(d.pa||'')}</td>
+    <td>${esc(d.ci||'')}</td>
+    <td><div class="dep-cell"><select class="ei" onchange="uD(${d.id},'tp',this.value)">${modAps}</select></div></td>
+    <td><div class="dep-cell"><select class="ei" onchange="uDEs(${d.id},this.value)">${esOpts}</select></div></td>
+    <td><div class="dep-phase"><span class="phase-wrap">${phaseBadge(d)||'—'}</span><span class="dep-actions"><button class="icon-btn" onclick="advanceFase(${d.id})" title="Avanzar">▶</button><button class="icon-btn" onclick="backFase(${d.id})" title="Retroceder">◀</button></span></div></td>
+    <td>${complexBadge(d)||'—'}</td>
+    <td><div class="dep-mods"><div class="cl-mods-ro" onclick="openMO(${d.id},'dep')" style="cursor:pointer" title="Clic para editar módulos">${moHtml}</div></div></td>
+    <td><div class="dep-cell"><select class="ei" onchange="uD(${d.id},'ln',this.value)">${lnOpts}</select></div></td>
+    <td><div class="dep-date"><input type="date" class="ei" value="${fi}" onchange="uD(${d.id},'fi',this.value)"></div></td>
+    <td><div class="dep-date"><input type="date" class="ei" value="${fd}" onchange="uD(${d.id},'fd',this.value)"></div></td>
+    <td><div class="dep-date"><input type="date" class="ei" value="${fe}" onchange="uD(${d.id},'fe',this.value)"></div></td>
+    <td>${diasBadge({...d,fi,fd,fe})}</td>
+    <td><div class="dep-cell"><input class="ei" value="${esc(d.pe||'')}" placeholder="Pendientes..." onchange="uD(${d.id},'pe',this.value)"></div></td>
+    <td><div class="dep-cell"><input type="number" class="ei" value="${numOrBlank(d.hrsOp)}" placeholder="—" onchange="uD(${d.id},'hrsOp',this.value)"></div></td>
+    <td><div class="dep-cell"><input type="number" class="ei" value="${numOrBlank(d.hrsNew)}" placeholder="—" onchange="uD(${d.id},'hrsNew',this.value)"></div></td>
+    <td><div class="dep-note"><div class="dep-cell"><input class="ei" value="${esc(d.no||'')}" placeholder="Notas..." onchange="uD(${d.id},'no',this.value)"></div></div></td>
+    <td><div class="dep-link">${d.lk?`<a href="${esc(d.lk)}" target="_blank" class="icon-btn" title="Abrir">🔗</a>`:''}<input class="ei" value="${esc(d.lk||'')}" placeholder="URL" onchange="uD(${d.id},'lk',this.value)"></div></td>
+    <td><div class="dep-actions"><button class="icon-btn del" onclick="confDel('dep',${d.id},'${esc(d.c||'')}')">🗑</button></div></td>
   </tr>`;
 }
 function uD(id,f,v){const d=deps.find(x=>x.id===id);if(!d)return;d[f]=v;sv();if(curV==='despliegues')renderDeps();else if(curV==='operativos')renderOps();}
@@ -2184,24 +2225,36 @@ function backFase(id){
 
 // ═══ RENDER DEPS / OPS / INACT ═══════════════════════
 function renderDeps(){
-  // If deps is empty but Supabase connected, might be stale — try a quick fetch
   depTH('th-d');
-  const s=(document.getElementById('sd')?.value||'').toLowerCase();
-  const fL=document.getElementById('fld')?.value||'';
-  const from=document.getElementById('fdd')?.value||'',to=document.getElementById('ftd')?.value||'';
-  const f=deps.filter(d=>{
-    if(d.es===EL)return false;
-    if(s&&!d.c.toLowerCase().includes(s)&&!(d.ci||'').toLowerCase().includes(s))return false;
-    if(fL&&d.ln!==fL)return false;if(from&&d.fi&&d.fi<from)return false;if(to&&d.fi&&d.fi>to)return false;
+  const s=(document.getElementById('sd')?.value||'').toLowerCase().trim();
+  const fState=document.getElementById('fsd')?.value||'';
+  const fModal=document.getElementById('ftd')?.value||'';
+  const fLauncher=document.getElementById('fld')?.value||'';
+
+  const filtered=deps.filter(d=>{
+    if(d.es===EL) return false;
+    const cliente=(d.c||'').toLowerCase();
+    const ciudad=(d.ci||'').toLowerCase();
+    if(s && !cliente.includes(s) && !ciudad.includes(s)) return false;
+    if(fState && d.es!==fState) return false;
+    if(fModal){
+      const norm=(v)=>String(v||'').replace(/[^\w\sáéíóúÁÉÍÓÚüÜñÑ-]/g,'').trim().toLowerCase();
+      if(norm(d.tp)!==norm(fModal)) return false;
+    }
+    if(fLauncher && d.ln!==fLauncher) return false;
     return true;
   });
-  const cd=document.getElementById('cd');if(cd)cd.textContent=`${f.length} de ${deps.filter(d=>d.es!==EL).length}`;
+
+  const totalActivos=deps.filter(d=>d.es!==EL).length;
+  const cd=document.getElementById('cd');
+  if(cd) cd.textContent=`${filtered.length} de ${totalActivos}`;
+
   const tb=document.getElementById('dtb');
-  if(tb)tb.innerHTML=f.length?f.map(depRow).join(''):`<tr><td colspan="20" style="text-align:center;padding:40px;color:var(--muted)">
-    <div style="font-size:32px;margin-bottom:8px">🚀</div>
-    <div style="font-weight:600;margin-bottom:4px">Sin despliegues activos</div>
-    <div style="font-size:12px">Crea uno con el botón <strong>+ Nuevo</strong> arriba a la derecha</div>
-  </td></tr>`;
+  if(!tb) return;
+
+  tb.innerHTML = filtered.length
+    ? filtered.map(depRow).join('')
+    : `<tr><td colspan="20"><div class="dep-empty"><div class="emoji">🚀</div><div style="font-weight:700;margin-bottom:4px">Sin despliegues activos</div><div style="font-size:12px">Ajusta filtros o crea un nuevo despliegue.</div></div></td></tr>`;
 }
 function renderOps(){
   depTH('th-o');
@@ -2215,7 +2268,8 @@ function renderOps(){
     return true;
   });
   const co=document.getElementById('co');if(co)co.textContent=`${f.length} de ${deps.filter(d=>d.es===EL).length}`;
-  const tb=document.getElementById('otb');if(tb)tb.innerHTML=f.map(depRow).join('');
+  const tb=document.getElementById('otb');
+  if(tb)tb.innerHTML=f.length ? f.map(depRow).join('') : `<tr><td colspan="20"><div class="dep-empty"><div class="emoji">✅</div><div style="font-weight:700;margin-bottom:4px">Sin clientes operativos</div><div style="font-size:12px">Aún no hay despliegues finalizados para este filtro.</div></div></td></tr>`;
 }
 function renderInact(){
   const f=cls.filter(c=>c.es==='deshabilitado'||c.es==='perdido');
@@ -4288,31 +4342,38 @@ function renderCapacidad(){
   const hrsActivo=parseFloat(document.getElementById('cap-hca')?.value)||8;
   const hrsNuevo=parseFloat(document.getElementById('cap-hcn')?.value)||24;
   const totalDisponibles=opsCount*hrsDia*diasMes;
+
   const operativos=deps.filter(d=>d.es===EL);
-  const enDespliegue=deps.filter(d=>d.es!==EL);
-  const escenarioMap={mod:{label:'Moderado',nuevos:3},agr:{label:'Agresivo',nuevos:8},ag:{label:'Agresivo',nuevos:8},est:{label:'Estabilización',nuevos:0}};
-  const sc=escenarioMap[curScenario]||escenarioMap.mod;
+  const desplieguesActivos=deps.filter(d=>d.es!==EL);
+
+  const escenarioMap={
+    mod:{label:'Moderado',nuevos:3},
+    agr:{label:'Agresivo',nuevos:8},
+    ag:{label:'Agresivo',nuevos:8},
+    est:{label:'Estabilización',nuevos:0}
+  };
   if(curScenario==='ag') curScenario='agr';
+  const sc=escenarioMap[curScenario]||escenarioMap.mod;
 
   const baseConsumido=operativos.reduce((sum,d)=>sum+(parseFloat(d.hrsOp)||hrsActivo),0);
-  const capacidadMaxClientes=Math.floor(totalDisponibles/Math.max(1,hrsActivo));
+  const usoActual=Math.round((baseConsumido/Math.max(totalDisponibles,1))*100);
+  const capacidadMaxClientes=Math.floor(totalDisponibles/Math.max(hrsActivo,1));
   const margenHoras=Math.max(0,totalDisponibles-baseConsumido);
-  const nuevosPosibles=Math.max(0,Math.floor(margenHoras/Math.max(1,hrsNuevo)));
-  const usoActual=Math.round((baseConsumido/Math.max(1,totalDisponibles))*100);
+  const nuevosPosiblesHoy=Math.floor(margenHoras/Math.max(hrsNuevo,1));
+
+  const stat=document.getElementById('cap-stat');
+  if(stat) stat.textContent=`${operativos.length} operativos · ${desplieguesActivos.length} en despliegue`;
 
   const capKpis=document.getElementById('cap-kpis');
   if(capKpis){
     const kpis=[
-      ['👥 Clientes Operativos',operativos.length,'activos','#1B4FD8'],
+      ['👥 Clientes Operativos',operativos.length,'base actual','#1B4FD8'],
       ['⏱ Horas Consumidas',`${baseConsumido}h`,`de ${totalDisponibles}h disponibles`,'#0F7E4F'],
       ['📊 Uso Actual',`${usoActual}%`,usoActual>=85?'riesgo alto':usoActual>=65?'alerta':'saludable','#B45309'],
-      ['🚀 Escenario',`${sc.label}`,`+${sc.nuevos} nuevos/mes`,'#5B21B6']
+      ['🚀 Nuevos Posibles',nuevosPosiblesHoy,`escenario ${sc.label.toLowerCase()}`,'#5B21B6']
     ];
     capKpis.innerHTML=kpis.map(([l,v,n,c])=>`<div class="kpi" style="--ac:${c}"><div class="kpi-lbl">${l}</div><div class="kpi-val" style="color:${c}">${v}</div><div class="kpi-note">${n}</div></div>`).join('');
   }
-
-  const stat=document.getElementById('cap-stat');
-  if(stat) stat.textContent=`${operativos.length} operativos · ${enDespliegue.length} en despliegue`;
 
   ['mod','agr','est'].forEach(s=>{
     const b=document.getElementById('sc-'+s);
@@ -4331,24 +4392,33 @@ function renderCapacidad(){
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
           <div><strong>${capacidadMaxClientes}</strong><br><span style="color:var(--muted)">máx. clientes activos</span></div>
-          <div><strong>${nuevosPosibles}</strong><br><span style="color:var(--muted)">nuevos despliegues posibles</span></div>
+          <div><strong>${nuevosPosiblesHoy}</strong><br><span style="color:var(--muted)">nuevos despliegues posibles hoy</span></div>
         </div>
       </div>`;
   }
 
-  const months=['M1','M2','M3','M4','M5','M6'];
-  let activos=operativos.length;
+  const monthLabels=[];
   const rows=[];
   const consSerie=[];
   const dispSerie=[];
-  months.forEach((m,idx)=>{
-    const nuevos=sc.nuevos;
+  const today=new Date();
+  let activos=operativos.length;
+
+  for(let i=0;i<6;i++){
+    const dt=new Date(today.getFullYear(), today.getMonth()+i, 1);
+    const monthLabel=dt.toLocaleDateString('es-EC',{month:'short',year:'2-digit'}).replace('.','');
+    const nuevos=i===0 ? 0 : sc.nuevos;
     const consumidas=(activos*hrsActivo)+(nuevos*hrsNuevo);
-    const uso=Math.round((consumidas/Math.max(1,totalDisponibles))*100);
-    const posibles=Math.max(0,Math.floor(Math.max(0,totalDisponibles-(activos*hrsActivo))/Math.max(1,hrsNuevo)));
+    const uso=Math.round((consumidas/Math.max(totalDisponibles,1))*100);
+    const posibles=Math.max(0,Math.floor(Math.max(0,totalDisponibles-(activos*hrsActivo))/Math.max(hrsNuevo,1)));
     const estado=uso>=85?['🔴 Riesgo','#DC2626']:uso>=65?['🟠 Alerta','#B45309']:['🟢 Saludable','#0F7E4F'];
+
+    monthLabels.push(monthLabel);
+    consSerie.push(consumidas);
+    dispSerie.push(totalDisponibles);
+
     rows.push(`<tr>
-      <td>${m}</td>
+      <td>${monthLabel}</td>
       <td style="text-align:center">${activos}</td>
       <td style="text-align:center">${nuevos}</td>
       <td style="text-align:center">${consumidas}h</td>
@@ -4357,22 +4427,21 @@ function renderCapacidad(){
       <td><span style="background:${estado[1]}15;color:${estado[1]};padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700">${estado[0]}</span></td>
       <td style="text-align:center">${posibles}</td>
     </tr>`);
-    consSerie.push(consumidas);
-    dispSerie.push(totalDisponibles);
     activos += nuevos;
-  });
+  }
+
   const tb=document.getElementById('cap-tbody');
   if(tb) tb.innerHTML=rows.join('');
 
   const clientsTb=document.getElementById('cap-clients-tbody');
   if(clientsTb){
-    clientsTb.innerHTML=operativos.length ? operativos.map(d=>{
-      const cx=(cats.complexity||[]).find(c=> (d.cx&&c.name===d.cx) || (c.mods && String(c.mods).split(',').some(m=>Array.isArray(d.mo)&&d.mo.includes(m.trim()))));
+    clientsTb.innerHTML = operativos.length ? operativos.map(d=>{
+      const cx=(cats.complexity||[]).find(c=>c.name===d.cx);
       const peso=Number(cx?.peso)||1;
-      const hrs = parseFloat(d.hrsOp)||Math.round(hrsActivo*peso);
+      const hrs=parseFloat(d.hrsOp)||Math.round(hrsActivo*peso);
       return `<tr>
         <td style="font-weight:600">${esc(d.c||'')}</td>
-        <td>${esc(d.es||'')}</td>
+        <td>${esc(d.ln||'—')}</td>
         <td>${esc(cx?.name||d.cx||'Base')}</td>
         <td style="text-align:center">${peso}</td>
         <td style="text-align:center;font-weight:700">${hrs}h</td>
@@ -4381,17 +4450,27 @@ function renderCapacidad(){
     }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--subtle)">Sin clientes operativos</td></tr>';
   }
 
+  let chartHost=document.getElementById('cap-chart-svg');
   const canvas=document.getElementById('cap-chart');
   if(canvas){
-    canvas.outerHTML=`<div id="cap-chart-svg"></div>`;
+    const wrapper=canvas.parentElement;
+    if(wrapper){
+      wrapper.innerHTML='<div id="cap-chart-svg"></div>';
+      chartHost=document.getElementById('cap-chart-svg');
+    }
   }
-  renderSimpleLineChart('cap-chart-svg', months, [
-    {label:'Horas disponibles', data:dispSerie, color:'#1B4FD8'},
-    {label:'Horas consumidas', data:consSerie, color:'#B45309'}
-  ]);
+  if(chartHost){
+    renderSimpleLineChart('cap-chart-svg', monthLabels, [
+      {label:'Horas disponibles', data:dispSerie, color:'#1B4FD8'},
+      {label:'Horas consumidas', data:consSerie, color:'#B45309'}
+    ]);
+  }
 }
 
-function setScenario(sc){ curScenario=sc; renderCapacidad(); }
+function setScenario(sc){
+  curScenario = sc==='ag' ? 'agr' : sc;
+  renderCapacidad();
+}
 
 window.addEventListener('load', function(){
   try{ renderCats(); }catch(e){ console.warn('load renderCats', e); }
