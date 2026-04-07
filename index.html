@@ -27,13 +27,7 @@
 #sync-badge.err{background:#DC2626}
 
 /* ==== Despliegues Activos v10 ==== */
-#view-despliegues .tbl-wrap{
-  border:1px solid var(--border);
-  border-radius:18px;
-  background:var(--bg);
-  box-shadow:var(--sh);
-  overflow:auto;
-;max-height:70vh}
+#view-despliegues .tbl-wrap{border:1px solid var(--border);border-radius:10px;background:var(--bg);box-shadow:var(--sh);overflow-x:auto;overflow-y:auto;max-height:72vh;position:relative}
 #tbl-d{
   width:max-content;
   min-width:100%;
@@ -42,6 +36,7 @@
   table-layout:fixed;
 }
 #tbl-o,#tbl-i,#tbl-c{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
+#tbl-c thead th{position:sticky;top:0;z-index:2;overflow:hidden;background:#f8fafc}
 
 #tbl-d thead th{
   position:sticky;
@@ -226,13 +221,7 @@
 .dep-col-hours{width:80px;text-align:center}
 .dep-col-notes{width:200px}
 .dep-col-link{width:150px}
-.dep-col-actions{width:80px;text-align:center}
-@media (max-width: 1280px){
-  #tbl-d{ min-width:1900px; }
-}
-
-</style>
-<style>
+.dep-col-actions{widt
 :root{
   --bg:#fff;--bg2:#F7F9FC;--border:#E4E9F0;--border2:#CBD5E1;
   --text:#0D1B2E;--muted:#637087;--subtle:#A0AEC0;
@@ -309,7 +298,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);backgro
 .fcnt{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
 .clear-link{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600}
 /* TABLE */
-.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);background:var(--bg)}
+.tbl-wrap{border:1px solid var(--border);border-radius:10px;background:var(--bg);box-shadow:var(--sh);overflow-x:auto;overflow-y:auto;max-height:72vh;position:relative}
 table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
 thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
 .col-r{position:absolute;right:0;top:0;height:100%;width:6px;cursor:col-resize;z-index:2}
@@ -360,7 +349,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 .chip-dep{background:var(--blue-l);color:var(--blue)}
 /* CLIENT READ ROW */
 .cl-ro{font-size:12.5px;color:var(--text);padding:2px 4px}
-.cl-mods-ro{display:flex;flex-wrap:wrap;gap:3px;align-items:flex-start;max-width:220px;white-space:normal;overflow:visible}
+.cl-mods-ro{display:flex;flex-wrap:wrap;gap:3px;align-items:flex-start;max-width:220px;white-space:normal;overflow:visible;overflow:visible;white-space:normal;text-overflow:clip}
 /* SECTION */
 .sec-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
 .sec-title{font-size:18px;font-weight:700}.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
@@ -523,10 +512,19 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
 .col-r{position:absolute;right:0;top:0;height:100%;width:7px;cursor:col-resize;z-index:3}
 .col-r:hover{background:rgba(27,79,216,.25);border-radius:2px}
-thead th{position:relative;overflow:hidden}
+
 body.col-dragging,body.col-dragging *{cursor:col-resize!important;user-select:none!important}
 
 /* ── Celdas tabla Clientes ─────────────────────────── */
+.cl-num{color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace;text-align:center}
+.cl-name{font-weight:600;cursor:pointer;color:var(--blue)}
+.cl-txt{font-size:12.5px}
+.cl-date{font-size:12px;white-space:nowrap}
+.cl-note{font-size:12px;color:var(--muted)}
+.cl-act{text-align:center;overflow:visible}
+.cl-tag{background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:12px;font-size:11.5px;white-space:nowrap;display:inline-block}
+.cl-bot-n{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:12px;font-size:11px;white-space:nowrap;display:inline-block}
+.cl-bot-c{background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:12px;font-size:11px;white-space:nowrap;display:inline-block}
 .cl-num{color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace;text-align:center;width:36px}
 .cl-name{font-weight:600;cursor:pointer;color:var(--blue);overflow:hidden;text-overflow:ellipsis}
 .cl-txt{font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
@@ -534,6 +532,7 @@ body.col-dragging,body.col-dragging *{cursor:col-resize!important;user-select:no
 .cl-note{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .cl-act{white-space:nowrap;overflow:visible;text-align:center}
 .cl-tag{background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:12px;font-size:11.5px;white-space:nowrap}
+ckground:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:12px;font-size:11.5px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -591,13 +590,13 @@ body.col-dragging,body.col-dragging *{cursor:col-resize!important;user-select:no
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.1 · 31 Mar 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.3 · 07 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <div class="tb-l"><h1 id="tb-t">Dashboard Ejecutivo</h1><span id="tb-s">Resumen operativo · Clipp · Marzo 2026</span></div>
+    <div class="tb-l"><h1 id="tb-t">Dashboard Ejecutivo</h1><span id="tb-s">Resumen operativo · Clipp · Abril 2026</span></div>
     <div class="tb-r">
       <span id="sync-status" style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px"></span>
       <button class="btn btn-g btn-sm" onclick="exportFullBackup()" title="Descargar respaldo completo JSON">💾 Backup</button>
@@ -730,20 +729,20 @@ body.col-dragging,body.col-dragging *{cursor:col-resize!important;user-select:no
       </div>
       <div class="tbl-wrap">
         <table id="tbl-c"><thead><tr>
-          <th style="width:36px">#<div class="col-r"></div></th>
-          <th style="width:150px">Cliente<div class="col-r"></div></th>
-          <th style="width:100px">País<div class="col-r"></div></th>
+          <th style="width:40px">#<div class="col-r"></div></th>
+          <th style="width:160px">Cliente<div class="col-r"></div></th>
+          <th style="width:90px">País<div class="col-r"></div></th>
           <th style="width:100px">Ciudad<div class="col-r"></div></th>
           <th style="width:110px">Aplicativo<div class="col-r"></div></th>
           <th style="width:110px">Tipo<div class="col-r"></div></th>
           <th style="width:120px">Bot WA<div class="col-r"></div></th>
-          <th style="width:115px">Estado<div class="col-r"></div></th>
+          <th style="width:110px">Estado<div class="col-r"></div></th>
           <th style="width:115px">F. Confirmación<div class="col-r"></div></th>
-          <th style="min-width:200px">Módulos<div class="col-r"></div></th>
-          <th style="width:90px">Complej.<div class="col-r"></div></th>
+          <th style="width:220px">Módulos<div class="col-r"></div></th>
+          <th style="width:85px">Complej.<div class="col-r"></div></th>
           <th style="width:120px">Contacto<div class="col-r"></div></th>
-          <th style="width:125px">Tel / Email<div class="col-r"></div></th>
-          <th style="width:155px">WhatsApp<div class="col-r"></div></th>
+          <th style="width:120px">Tel / Email<div class="col-r"></div></th>
+          <th style="width:150px">WhatsApp<div class="col-r"></div></th>
           <th style="width:150px">Notas<div class="col-r"></div></th>
           <th style="width:72px">Acciones</th>
         </tr></thead><tbody id="ctb"></tbody></table>
@@ -1087,7 +1086,7 @@ body.col-dragging,body.col-dragging *{cursor:col-resize!important;user-select:no
 
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.1</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.3</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
 
       <!-- REFERENCE TABLE -->
       <div class="card" style="margin-bottom:16px">
@@ -2183,7 +2182,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.1'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.3'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -2940,18 +2939,20 @@ function renderCls(){
     const moHtml=(c.mo||[]).map(m=>`<span class="mt">${esc(m)}</span>`).join('');
     return`<tr>
       <td class="cl-num">${String(idx+1).padStart(2,'0')}</td>
-      <td class="cl-name" onclick="openClSummary(${c.id})">${esc(c.nm)}</td>
+      <td class="cl-name" onclick="openClSummary(${c.id})" title="${esc(c.nm)}">${esc(c.nm)}</td>
       <td class="cl-txt">${esc(c.pa||'—')}</td>
       <td class="cl-txt">${esc(c.ci||'—')}</td>
       <td class="cl-txt">${esc(c.ap||'—')}</td>
       <td>${c.tp?`<span class="cl-tag">${esc(c.tp)}</span>`:''}</td>
+      <td>${c.bot==='normal'?'<span class="cl-bot-n">🤖 Normal</span>':c.bot==='coexistencia'?'<span class="cl-bot-c">🔄 Coex.</span>':''}</td>
       <td>${esChip(c.es)}</td>
       <td class="cl-date">${fmtD(c.fconf)}</td>
       <td><div class="cl-mods-ro">${moHtml||'—'}</div></td>
       <td>${cx}</td>
-      <td class="cl-txt">${esc(c.co||'—')}</td>
-      <td class="cl-txt">${esc(c.ph||'—')}</td>
-      <td class="cl-note" title="${esc(c.no||'')}">${esc((c.no||'').slice(0,80))}</td>
+      <td class="cl-txt" title="${esc(c.co||'')}">${esc(c.co||'—')}</td>
+      <td class="cl-txt" title="${esc(c.ph||'')}">${esc(c.ph||'—')}</td>
+      <td>${waLinks(c.wh)}</td>
+      <td class="cl-note" title="${esc(c.no||'')}">${esc((c.no||'').slice(0,60))}</td>
       <td class="cl-act">
         <button class="icon-btn edit" onclick="editCl(${c.id})">✏️</button>
         <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')">🗑</button>
