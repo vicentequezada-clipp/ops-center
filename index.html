@@ -39,14 +39,15 @@
   min-width:100%;
   border-collapse:separate;
   border-spacing:0;
-  table-layout:auto;
+  table-layout:fixed;
 }
-#tbl-o,#tbl-i,#tbl-c{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;table-layout:auto;}
+#tbl-o,#tbl-i,#tbl-c{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
 
 #tbl-d thead th{
   position:sticky;
   top:0;
   z-index:2;
+  overflow:hidden;
   background:#f8fafc;
   color:var(--muted);
   font-size:11px;
@@ -119,7 +120,9 @@
   text-overflow:ellipsis;
   white-space:nowrap;
   color:var(--muted);
-  font-size:12.5px;
+  font-size:12px;
+  line-height:1.4;
+  padding:1px 0;
 }
 .dep-link{
   display:inline-flex;
@@ -207,22 +210,23 @@
   gap:6px;
   flex-wrap:wrap;
 }
-.dep-col-client{width:220px}
-.dep-col-country{width:92px}
-.dep-col-city{width:110px}
-.dep-col-modalidad{width:150px}
-.dep-col-estado{width:150px}
-.dep-col-fase{width:170px}
-.dep-col-cx{width:115px}
-.dep-col-mods{width:230px}
-.dep-col-launcher{width:150px}
-.dep-col-date{width:118px}
-.dep-col-days{width:78px}
+.dep-col-id{width:44px;text-align:center}
+.dep-col-client{width:200px}
+.dep-col-country{width:88px}
+.dep-col-city{width:100px}
+.dep-col-modalidad{width:140px}
+.dep-col-estado{width:145px}
+.dep-col-fase{width:160px}
+.dep-col-cx{width:110px}
+.dep-col-mods{width:220px}
+.dep-col-launcher{width:140px}
+.dep-col-date{width:105px}
+.dep-col-days{width:68px;text-align:center}
 .dep-col-pending{width:170px}
-.dep-col-hours{width:92px}
-.dep-col-notes{width:180px}
-.dep-col-link{width:160px}
-.dep-col-actions{width:92px}
+.dep-col-hours{width:80px;text-align:center}
+.dep-col-notes{width:200px}
+.dep-col-link{width:150px}
+.dep-col-actions{width:80px;text-align:center}
 @media (max-width: 1280px){
   #tbl-d{ min-width:1900px; }
 }
@@ -310,8 +314,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
 thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
 .col-r{position:absolute;right:0;top:0;height:100%;width:6px;cursor:col-resize;z-index:2}
 .col-r:hover,.col-r.on{background:var(--blue);opacity:.4}
-td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:visible;
-  white-space:nowrap}
+td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 tr:hover td{background:#FAFBFD}
 tr:last-child td{border-bottom:none}
 /* INLINE EDIT */
@@ -357,7 +360,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 .chip-dep{background:var(--blue-l);color:var(--blue)}
 /* CLIENT READ ROW */
 .cl-ro{font-size:12.5px;color:var(--text);padding:2px 4px}
-.cl-mods-ro{display:flex;flex-wrap:wrap;gap:3px;align-items:flex-start;max-width:220px}
+.cl-mods-ro{display:flex;flex-wrap:wrap;gap:3px;align-items:flex-start;max-width:220px;white-space:normal;overflow:visible}
 /* SECTION */
 .sec-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
 .sec-title{font-size:18px;font-weight:700}.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
@@ -512,6 +515,25 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
 /* Allow wrapping in specific cells */
 .cell-wrap,.cl-mods-ro,.mt,.dep-note{white-space:normal;word-break:break-word;min-width:120px}
+
+/* ── Excepciones de overflow ── */
+.dep-actions, td.dep-actions{overflow:visible;white-space:nowrap}
+.dep-modules{white-space:normal;overflow:visible}
+.cl-mods-ro{white-space:normal;overflow:visible;text-overflow:clip}
+
+.col-r{position:absolute;right:0;top:0;height:100%;width:7px;cursor:col-resize;z-index:3}
+.col-r:hover{background:rgba(27,79,216,.25);border-radius:2px}
+thead th{position:relative;overflow:hidden}
+body.col-dragging,body.col-dragging *{cursor:col-resize!important;user-select:none!important}
+
+/* ── Celdas tabla Clientes ─────────────────────────── */
+.cl-num{color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace;text-align:center;width:36px}
+.cl-name{font-weight:600;cursor:pointer;color:var(--blue);overflow:hidden;text-overflow:ellipsis}
+.cl-txt{font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
+.cl-date{font-size:12px;white-space:nowrap}
+.cl-note{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.cl-act{white-space:nowrap;overflow:visible;text-align:center}
+.cl-tag{background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:12px;font-size:11.5px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -714,12 +736,14 @@ input[type=date].ei{cursor:pointer;min-width:110px}
           <th style="width:100px">Ciudad<div class="col-r"></div></th>
           <th style="width:110px">Aplicativo<div class="col-r"></div></th>
           <th style="width:110px">Tipo<div class="col-r"></div></th>
+          <th style="width:120px">Bot WA<div class="col-r"></div></th>
           <th style="width:115px">Estado<div class="col-r"></div></th>
           <th style="width:115px">F. Confirmación<div class="col-r"></div></th>
           <th style="min-width:200px">Módulos<div class="col-r"></div></th>
           <th style="width:90px">Complej.<div class="col-r"></div></th>
           <th style="width:120px">Contacto<div class="col-r"></div></th>
           <th style="width:125px">Tel / Email<div class="col-r"></div></th>
+          <th style="width:155px">WhatsApp<div class="col-r"></div></th>
           <th style="width:150px">Notas<div class="col-r"></div></th>
           <th style="width:72px">Acciones</th>
         </tr></thead><tbody id="ctb"></tbody></table>
@@ -1503,12 +1527,26 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       <div class="fr"><label class="fl">Aplicativo</label><select class="fld" id="cm-ap"></select></div>
       <div class="fr"><label class="fl">Tipo de Cliente</label><select class="fld" id="cm-tp"></select></div>
     </div>
+    <div class="fr2">
+      <div class="fr"><label class="fl">Bot de WhatsApp</label>
+        <select class="fld" id="cm-bot">
+          <option value="">Sin Bot WA</option>
+          <option value="normal">🤖 Normal</option>
+          <option value="coexistencia">🔄 Coexistencia</option>
+        </select>
+      </div>
+      <div class="fr"></div>
+    </div>
     <div class="fr"><label class="fl">Módulos Activos</label>
       <div class="bp" id="cm-mods" style="flex-wrap:wrap;gap:5px;max-height:110px;overflow-y:auto;padding:4px 0"></div>
     </div>
     <div class="fr2">
       <div class="fr"><label class="fl">Contacto</label><input class="fld" id="cm-co" placeholder="Nombre contacto"></div>
       <div class="fr"><label class="fl">Tel / Email</label><input class="fld" id="cm-ph" placeholder="+593..."></div>
+    </div>
+    <div class="fr">
+      <label class="fl">📱 WhatsApp (separados por coma si hay varios)</label>
+      <input class="fld" id="cm-wh" placeholder="+593987654321, +593912345678">
     </div>
     <div class="fr2">
       <div class="fr"><label class="fl">📅 Fecha Confirmación del Cliente</label><input type="date" class="fld" id="cm-fconf" title="Cuándo se concretó que trabaja con nosotros"></div>
@@ -2178,6 +2216,11 @@ function setV(v){
     usuarios:renderUsuarios
   };
   if(actions[v])actions[v]();
+  setTimeout(function(){
+    ['tbl-c','tbl-cont','tbl-cob'].forEach(function(id){
+      var t=document.getElementById(id);if(t)addColResizers(t);
+    });
+  },50);
 }
 function renderCurrentView(){setV(curV);}
 function openAdd(){
@@ -2438,6 +2481,8 @@ function depTH(headerId){
       }
     });
   }
+  // Restaurar anchos guardados
+  const tbl=el.closest('table'); if(tbl) applyCW(tbl);
 }
 
 function togDep(){
@@ -2791,6 +2836,7 @@ function renderDeps(){
         <div class="dep-empty-title">Sin despliegues activos</div>
         <div style="font-size:12px">No hay registros que coincidan con los filtros actuales.</div>
       </td></tr>`;
+  applyColWidths(document.getElementById('tbl-d'));
 }
 function renderOps(){
 
@@ -2816,6 +2862,9 @@ function renderOps(){
         <div class="dep-empty-title">Sin clientes operativos</div>
         <div style="font-size:12px">No hay registros operativos que coincidan con los filtros actuales.</div>
       </td></tr>`;
+  applyColWidths(document.getElementById('tbl-o'));
+
+  applyCW(document.getElementById('tbl-o'));
 }
 function renderInact(){
   const f=cls.filter(c=>c.es==='deshabilitado'||c.es==='perdido');
@@ -2840,6 +2889,9 @@ function renderInact(){
       <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')" title="Eliminar">🗑</button>
     </td>
   </tr>`;}).join(''):`<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes inactivos</td></tr>`;
+  applyColWidths(document.getElementById('tbl-i'));
+
+  applyCW(document.getElementById('tbl-i'));
 }
 
 
@@ -2860,6 +2912,14 @@ function popClSelects(){
   const mdCatF=document.getElementById('md-cat-f');
   if(mdCatF){const cur=mdCatF.value;mdCatF.innerHTML='<option value="">Todas</option>'+(cats.catmod||[]).map(c=>`<option>${esc(c.name)}</option>`).join('');mdCatF.value=cur;}
 }
+
+function waLinks(wh){
+  if(!wh||!wh.length)return '';
+  return wh.map(function(n){
+    var num=(n||'').replace(/[^0-9]/g,'');
+    return '<a href="https://wa.me/'+num+'" target="_blank" style="display:inline-flex;align-items:center;gap:3px;color:#25D366;text-decoration:none;font-size:12px;white-space:nowrap;margin-right:4px">📱 '+esc(n)+'</a>';
+  }).join('');
+}
 function renderCls(){
   const s=(document.getElementById('sc')?.value||'').toLowerCase();
   const fAp=document.getElementById('fac')?.value||'';
@@ -2879,24 +2939,28 @@ function renderCls(){
     const cx=complexBadge({mo:c.mo});
     const moHtml=(c.mo||[]).map(m=>`<span class="mt">${esc(m)}</span>`).join('');
     return`<tr>
-      <td style="color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace">${String(idx+1).padStart(2,'0')}</td>
-      <td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="openClSummary(${c.id})">${esc(c.nm)}</td>
-      <td>${esc(c.pa||'')}</td><td>${esc(c.ci||'')}</td>
-      <td>${esc(c.ap||'')}</td>
-      <td>${c.tp?`<span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:12px;font-size:11.5px">${esc(c.tp)}</span>`:''}</td>
+      <td class="cl-num">${String(idx+1).padStart(2,'0')}</td>
+      <td class="cl-name" onclick="openClSummary(${c.id})">${esc(c.nm)}</td>
+      <td class="cl-txt">${esc(c.pa||'—')}</td>
+      <td class="cl-txt">${esc(c.ci||'—')}</td>
+      <td class="cl-txt">${esc(c.ap||'—')}</td>
+      <td>${c.tp?`<span class="cl-tag">${esc(c.tp)}</span>`:''}</td>
       <td>${esChip(c.es)}</td>
-      <td style="font-size:12px">${fmtD(c.fconf)}</td>
+      <td class="cl-date">${fmtD(c.fconf)}</td>
       <td><div class="cl-mods-ro">${moHtml||'—'}</div></td>
       <td>${cx}</td>
-      <td style="font-size:12px">${esc(c.co||'')}</td>
-      <td style="font-size:12px">${esc(c.ph||'')}</td>
-      <td style="font-size:11.5px;color:var(--muted);max-width:120px">${esc((c.no||'').slice(0,40))}</td>
-      <td style="white-space:nowrap">
+      <td class="cl-txt">${esc(c.co||'—')}</td>
+      <td class="cl-txt">${esc(c.ph||'—')}</td>
+      <td class="cl-note" title="${esc(c.no||'')}">${esc((c.no||'').slice(0,80))}</td>
+      <td class="cl-act">
         <button class="icon-btn edit" onclick="editCl(${c.id})">✏️</button>
         <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')">🗑</button>
       </td>
     </tr>`;
-  }).join(''):`<tr><td colspan="14" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes. Prueba cambiar los filtros.</td></tr>`;
+  }).join(''):`<tr><td colspan="16" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes. Prueba cambiar los filtros.</td></tr>`;
+  applyColWidths(document.getElementById('tbl-c'));
+
+  applyCW(document.getElementById('tbl-c'));
 }
 
 // ─── CLIENT MODAL ─────────────────────────────────────
@@ -2919,9 +2983,10 @@ function togCM(m,el){clMods.has(m)?clMods.delete(m):clMods.add(m);el.classList.t
 function openAddCl(){
   editClId=null;dOpen=false;
   document.getElementById('clm-t').textContent='Nuevo Cliente';
-  ['cm-nm','cm-pa','cm-ci','cm-co','cm-ph','cm-no','cm-fconf'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['cm-nm','cm-pa','cm-ci','cm-co','cm-ph','cm-wh','cm-no','cm-fconf'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   popClModal();mkCMods([]);
   document.getElementById('cm-es').value='activo';
+  var _b2=document.getElementById('cm-bot');if(_b2)_b2.value='';
   document.getElementById('cl-modal').classList.add('open');
 }
 function editCl(id){
@@ -2933,6 +2998,8 @@ function editCl(id){
   document.getElementById('cm-ci').value=c.ci||'';
   document.getElementById('cm-co').value=c.co||'';
   document.getElementById('cm-ph').value=c.ph||'';
+  var _whe=document.getElementById('cm-wh');if(_whe)_whe.value=(c.wh||[]).join(', ');
+  var _bote=document.getElementById('cm-bot');if(_bote)_bote.value=c.bot||'';
   document.getElementById('cm-no').value=c.no||'';
   document.getElementById('cm-fconf').value=c.fconf||'';
   document.getElementById('cm-es').value=c.es||'activo';
@@ -2952,7 +3019,10 @@ function saveCl(){
     nm,pa:document.getElementById('cm-pa').value.trim(),ci:document.getElementById('cm-ci').value.trim(),
     ap:document.getElementById('cm-ap').value,tp:document.getElementById('cm-tp').value,
     mo:[...clMods],co:document.getElementById('cm-co').value.trim(),
-    ph:document.getElementById('cm-ph').value.trim(),no:document.getElementById('cm-no').value.trim(),
+    ph:document.getElementById('cm-ph').value.trim(),
+    wh:(document.getElementById('cm-wh')?document.getElementById('cm-wh').value.split(',').map(function(s){return s.trim();}).filter(Boolean):[]),
+    bot:document.getElementById('cm-bot')?document.getElementById('cm-bot').value:'',
+    no:document.getElementById('cm-no').value.trim(),
     fconf:document.getElementById('cm-fconf').value,es:document.getElementById('cm-es').value
   };
   if(editClId){
@@ -3955,6 +4025,11 @@ function renderCats(){
   const failed=[];
   renderers.forEach(([name,fn])=>{ try{fn();}catch(err){failed.push(name);console.error('Render catálogo falló:',name,err);} });
   if(failed.length) showCatalogError('Se cargó Catálogos, pero fallaron estas secciones: '+failed.join(', ')+'. Revisa la consola para el detalle.');
+  // Apply col resizers to catalog tables
+  document.querySelectorAll('#view-catalogos .cat-table').forEach(function(t){
+    if(!t.id)t.id='cat-tbl-'+Math.random().toString(36).slice(2,7);
+    addColResizers(t);
+  });
 }
 function renderMds(){
   const el=document.getElementById('md-tbody');if(!el)return;
@@ -4361,14 +4436,49 @@ function doLogin(){
 }
 
 // ═══ COLUMN RESIZE ══════════════════════════════════
+// ── COL RESIZE + PERSISTENCIA ────────────────────────────────
+const _CW = {};  // cache de anchos: {tblId_colIdx: 'px'}
+function _cwKey(th){
+  const tbl = th.closest('table');
+  const idx  = Array.from(th.parentElement.children).indexOf(th);
+  return (tbl ? tbl.id : 'tbl') + '_' + idx;
+}
+function saveCW(){
+  try{ localStorage.setItem('_colW', JSON.stringify(_CW)); }catch(e){}
+}
+function loadCW(){
+  try{
+    const s = JSON.parse(localStorage.getItem('_colW') || '{}');
+    Object.assign(_CW, s);
+  }catch(e){}
+}
+function applyCW(tblEl){
+  if(!tblEl) return;
+  tblEl.querySelectorAll('thead th').forEach((th, i)=>{
+    const k = tblEl.id + '_' + i;
+    if(_CW[k]) th.style.width = _CW[k];
+  });
+}
 function initColResize(e){
-  const th=e.target.closest('th');if(!th)return;
-  const startX=e.clientX,startW=th.offsetWidth;
+  const th = e.target.closest('th'); if(!th) return;
+  const startX = e.clientX, startW = th.offsetWidth;
   e.preventDefault();
-  function onMove(ev){th.style.width=(startW+ev.clientX-startX)+'px';}
-  function onUp(){document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
-  document.addEventListener('mousemove',onMove);
-  document.addEventListener('mouseup',onUp);
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+  function onMove(ev){
+    const w = Math.max(40, startW + ev.clientX - startX) + 'px';
+    th.style.width = w;
+    _CW[_cwKey(th)] = w;
+  }
+  function onUp(){
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    saveCW();
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
 }
 
 
@@ -4854,8 +4964,11 @@ function subscribeRealtime(){
   }).subscribe();
 }
 function bootApp(){
+  // Restore saved column widths
+  ['tbl-d','tbl-o','tbl-i','tbl-c'].forEach(function(id){applyColWidths(document.getElementById(id));});
+
   // DATA RESET: force reload when version changes
-  var DATA_VERSION='v5.2_stable';
+  var DATA_VERSION='v5.3_stable';
   var _needDepsClear=localStorage.getItem('data_version')!==DATA_VERSION;
   if(_needDepsClear){
     // Reset only deps and contracts — keep clients (oc27) and cats (ct27)
