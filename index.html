@@ -512,6 +512,11 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
 /* Allow wrapping in specific cells */
 .cell-wrap,.cl-mods-ro,.mt,.dep-note{white-space:normal;word-break:break-word;min-width:120px}
+
+/* ── Dashboard quick filters ──────────────────────── */
+.dash-qf-btn{padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--muted);font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.dash-qf-btn:hover{background:var(--blue-l);color:var(--blue);border-color:var(--blue)}
+.dash-qf-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 </style>
 </head>
 <body>
@@ -596,13 +601,22 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       <div class="kpi-grid" id="kpi-grid"></div>
       <!-- Time KPIs -->
       <div class="kpi-grid-2" id="kpi-time"></div>
-      <div class="filter-bar">
-        <label>📅 Filtrar estadísticas por período:</label>
+      <div class="filter-bar" style="flex-wrap:wrap;gap:8px">
+        <label style="font-weight:700;font-size:12px">📅 Período:</label>
+        <!-- Filtros rápidos -->
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="dash-qf-btn" id="qf-cm"  onclick="dashQF('mes-actual')">Mes actual</button>
+          <button class="dash-qf-btn" id="qf-pm"  onclick="dashQF('mes-pasado')">Mes pasado</button>
+          <button class="dash-qf-btn" id="qf-t3"  onclick="dashQF('trim-actual')">Trim. actual</button>
+          <button class="dash-qf-btn" id="qf-ya"  onclick="dashQF('ano-actual')">Año actual</button>
+          <button class="dash-qf-btn" id="qf-yp"  onclick="dashQF('ano-pasado')">Año pasado</button>
+          <button class="dash-qf-btn" id="qf-all" onclick="dashQF('todo')">Todo</button>
+        </div>
         <label style="font-size:12px;color:var(--muted)">Desde</label>
-        <input type="date" class="fi" id="sf" onchange="renderDash()">
+        <input type="date" class="fi" id="sf" onchange="renderDash()" style="width:140px">
         <label style="font-size:12px;color:var(--muted)">Hasta</label>
-        <input type="date" class="fi" id="st" onchange="renderDash()">
-        <select class="fi" id="sf-ln" onchange="renderDash()">
+        <input type="date" class="fi" id="st" onchange="renderDash()" style="width:140px">
+        <select class="fi" id="sf-ln" onchange="renderDash()" style="min-width:150px">
           <option value="">Todos los launchers</option>
         </select>
         <span class="clear-link" onclick="clearDashF()">× Limpiar</span>
@@ -2175,7 +2189,7 @@ function setV(v){
   }
   popAllSelects();
   const actions={
-    dashboard:renderDash,
+    dashboard:function(){var sf=document.getElementById('sf');if(sf&&!sf.value)dashQF('mes-actual');else renderDash();},
     despliegues:()=>{renderDeps();renderDash();},
     operativos:()=>{renderOps();},
     inactivos:renderInact,
@@ -2373,44 +2387,153 @@ function barB(id,data){
   const mx=Math.max(...data.map(d=>d[1]),1);
   el.innerHTML=data.map(([l,v],i)=>`<div class="bar-item"><div class="bar-lbl">${esc(l)}</div><div class="bar-track"><div class="bar-fill" style="width:${v/mx*100}%;background:${C6[i%6]}"></div></div><div class="bar-cnt">${v}</div></div>`).join('');
 }
+
+// ── Dashboard quick filters ──────────────────────────
+function dashQF(preset){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const ymd=(y,m,d)=>`${y}-${pad(m)}-${pad(d)}`;
+  var from='',to='';
+  if(preset==='mes-actual'){
+    from=ymd(now.getFullYear(),now.getMonth()+1,1);
+    to=ymd(now.getFullYear(),now.getMonth()+1,new Date(now.getFullYear(),now.getMonth()+1,0).getDate());
+  } else if(preset==='mes-pasado'){
+    var pm=new Date(now.getFullYear(),now.getMonth()-1,1);
+    from=ymd(pm.getFullYear(),pm.getMonth()+1,1);
+    to=ymd(pm.getFullYear(),pm.getMonth()+1,new Date(pm.getFullYear(),pm.getMonth()+1,0).getDate());
+  } else if(preset==='trim-actual'){
+    var q=Math.floor(now.getMonth()/3);
+    from=ymd(now.getFullYear(),q*3+1,1);
+    var lm=q*3+3;
+    to=ymd(now.getFullYear(),lm,new Date(now.getFullYear(),lm,0).getDate());
+  } else if(preset==='ano-actual'){
+    from=ymd(now.getFullYear(),1,1);
+    to=ymd(now.getFullYear(),12,31);
+  } else if(preset==='ano-pasado'){
+    from=ymd(now.getFullYear()-1,1,1);
+    to=ymd(now.getFullYear()-1,12,31);
+  } else if(preset==='todo'){
+    from=''; to='';
+  }
+  var sfEl=document.getElementById('sf');
+  var stEl=document.getElementById('st');
+  if(sfEl)sfEl.value=from;
+  if(stEl)stEl.value=to;
+  // Mark active button
+  document.querySelectorAll('.dash-qf-btn').forEach(function(b){b.classList.remove('active');});
+  var map={'mes-actual':'qf-cm','mes-pasado':'qf-pm','trim-actual':'qf-t3','ano-actual':'qf-ya','ano-pasado':'qf-yp','todo':'qf-all'};
+  var btn=document.getElementById(map[preset]);
+  if(btn)btn.classList.add('active');
+  renderDash();
+}
 function renderDash(){
   popAllSelects();
-  const from=document.getElementById('sf')?.value,to=document.getElementById('st')?.value,fLn=document.getElementById('sf-ln')?.value||'';
-  const allF=deps.filter(d=>!fLn||d.ln===fLn);
-  const t=allF.length,li=allF.filter(d=>d.es===EL).length,pr=allF.filter(d=>d.es==='🔧 En proceso').length;
-  const ini=allF.filter(d=>d.es==='🆕 Por iniciar').length,cap=allF.filter(d=>d.es==='🆕 Capacitación').length;
+  // Marcar botón activo si las fechas coinciden con un preset
+  _dashMarkActiveBtn();
+  const from=document.getElementById('sf')?.value||'';
+  const to=document.getElementById('st')?.value||'';
+  const fLn=document.getElementById('sf-ln')?.value||'';
+
+  // TODOS los deps filtrados por launcher Y por fechas (usando fi o fe)
+  const filtered=deps.filter(d=>{
+    if(fLn&&d.ln!==fLn)return false;
+    // Incluir si tiene alguna fecha dentro del rango
+    const dates=[d.fi,d.fe,d.fd].filter(Boolean);
+    if(!from&&!to)return true; // sin filtro de fecha
+    // Incluir dep si su fecha de inicio O entrega cae en el rango
+    const inRange=dates.some(dt=>{
+      if(from&&dt<from)return false;
+      if(to&&dt>to)return false;
+      return true;
+    });
+    return inRange;
+  });
+
+  const t=filtered.length;
+  const li=filtered.filter(d=>d.es===EL).length;
+  const pr=filtered.filter(d=>d.es==='🔧 En proceso').length;
+  const ini=filtered.filter(d=>d.es==='🆕 Por iniciar').length;
+  const cap=filtered.filter(d=>d.es==='🆕 Capacitación').length;
+
   const kpiEl=document.getElementById('kpi-grid');
   if(kpiEl)kpiEl.innerHTML=[
-    ['Total Despliegues',t,'Todos los registros','#1B4FD8'],
+    ['Total Despliegues',t,from||to?'En el período seleccionado':'Todos los registros','#1B4FD8'],
     ['Operativos',li,`${t?Math.round(li/t*100):0}% completados`,'#0F7E4F'],
     ['En Proceso',pr,'Implementación activa','#2563EB'],
     ['Por Iniciar',ini,'Pendiente de arranque','#B45309'],
     ['Capacitación',cap,'En training','#5B21B6']
   ].map(([l,v,n,c])=>`<div class="kpi" style="--ac:${c}"><div class="kpi-lbl">${l}</div><div class="kpi-val" style="color:${c}">${v}</div><div class="kpi-note">${n}</div></div>`).join('');
-  const completed=deps.filter(d=>isD(d.fi)&&isD(d.fe));
-  const timesData=completed.filter(d=>{
-    if(from&&d.fe<from)return false;if(to&&d.fe>to)return false;if(fLn&&d.ln!==fLn)return false;return true;
-  }).map(d=>Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/(1000*60*60*24)));
+
+  // Tiempos — solo deps con fi y fe en rango
+  const completed=filtered.filter(d=>isD(d.fi)&&isD(d.fe));
+  const timesData=completed.map(d=>Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/(1000*60*60*24)));
   const avg=timesData.length?Math.round(timesData.reduce((a,b)=>a+b,0)/timesData.length):0;
-  const mn=timesData.length?Math.min(...timesData):0,mx2=timesData.length?Math.max(...timesData):0;
+  const mn=timesData.length?Math.min(...timesData):0;
+  const mx=timesData.length?Math.max(...timesData):0;
   const kpiT=document.getElementById('kpi-time');
-  if(kpiT)kpiT.innerHTML=[['⚡ Más rápida',mn+'d','Entrega más veloz','#0F7E4F'],['⌚ Promedio',avg+'d','Promedio entregas','#1B4FD8'],['🐢 Más lenta',mx2+'d','Entrega más larga','#B45309']].map(([l,v,n,c])=>`<div class="kpi" style="--ac:${c}"><div class="kpi-lbl">${l}</div><div class="kpi-val" style="color:${c}">${v}</div><div class="kpi-note">${n}</div></div>`).join('');
-  const ranged=allF.filter(d=>isD(d.fe)&&(!from||d.fe>=from)&&(!to||d.fe<=to));
-  const mE=Object.entries(ranged.reduce((a,d)=>{const k=d.fe.slice(0,7);a[k]=(a[k]||0)+1;return a;},{})).sort();
+  if(kpiT)kpiT.innerHTML=[
+    ['⚡ Más rápida',mn+'d','Entrega más veloz','#0F7E4F'],
+    ['⌚ Promedio',avg+'d','Promedio entregas','#1B4FD8'],
+    ['🐢 Más lenta',mx+'d','Entrega más larga','#B45309']
+  ].map(([l,v,n,c])=>`<div class="kpi" style="--ac:${c}"><div class="kpi-lbl">${l}</div><div class="kpi-val" style="color:${c}">${v}</div><div class="kpi-note">${n}</div></div>`).join('');
+
+  // Gráfico por mes — agrupado por fe
   const mN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const withFe=filtered.filter(d=>isD(d.fe));
+  const mE=Object.entries(withFe.reduce((a,d)=>{const k=d.fe.slice(0,7);a[k]=(a[k]||0)+1;return a;},{})).sort();
   const mxM=Math.max(...mE.map(e=>e[1]),1);
   const chMonth=document.getElementById('ch-month');
-  if(chMonth)chMonth.innerHTML=mE.length?mE.map(([ym,v])=>{const[y,m]=ym.split('-');return`<div class="bar-item"><div class="bar-lbl">${mN[+m-1]||m} ${y}</div><div class="bar-track"><div class="bar-fill" style="width:${v/mxM*100}%;background:#0F7E4F"></div></div><div class="bar-cnt">${v}</div></div>`;}).join(''):'<p style="color:var(--subtle);font-size:12px;padding:8px 0">Sin entregas en el período</p>';
-  const cntEl=document.getElementById('dash-cnt');if(cntEl)cntEl.textContent=ranged.length?`${ranged.length} entregas en período`:'';
+  if(chMonth)chMonth.innerHTML=mE.length
+    ?mE.map(([ym,v])=>{const[y,m]=ym.split('-');return`<div class="bar-item"><div class="bar-lbl">${mN[+m-1]||m} ${y}</div><div class="bar-track"><div class="bar-fill" style="width:${v/mxM*100}%;background:#0F7E4F"></div></div><div class="bar-cnt">${v}</div></div>`;}).join('')
+    :'<p style="color:var(--subtle);font-size:12px;padding:8px 0">Sin entregas en el período</p>';
+
+  const cntEl=document.getElementById('dash-cnt');
+  if(cntEl)cntEl.textContent=from||to?`${filtered.length} registros en período`:'';
+
+  // Barras — filtradas por período
   barB('ch-status',[['✅ Operativos',li],['🔧 En Proceso',pr],['🆕 Por Iniciar',ini],['📚 Capacitación',cap]]);
-  const bL={};allF.forEach(d=>{bL[d.ln]=(bL[d.ln]||0)+1;});barB('ch-launcher',Object.entries(bL).sort((a,b)=>b[1]-a[1]));
-  const bC={};allF.forEach(d=>{bC[d.pa||'?']=(bC[d.pa||'?']||0)+1;});barB('ch-country',Object.entries(bC).sort((a,b)=>b[1]-a[1]));
-  const bCi={};allF.forEach(d=>{const k=(d.ci||'Sin ciudad').trim();bCi[k]=(bCi[k]||0)+1;});barB('ch-city',Object.entries(bCi).sort((a,b)=>b[1]-a[1]));
-  const bTp={};allF.forEach(d=>{const k=(d.tp||'Sin tipo').replace(/[🆕🔄⚙️]/g,'').trim();bTp[k]=(bTp[k]||0)+1;});barB('ch-type',Object.entries(bTp).sort((a,b)=>b[1]-a[1]));
+  const bL={};filtered.forEach(d=>{bL[d.ln]=(bL[d.ln]||0)+1;});barB('ch-launcher',Object.entries(bL).sort((a,b)=>b[1]-a[1]));
+  const bC={};filtered.forEach(d=>{bC[d.pa||'?']=(bC[d.pa||'?']||0)+1;});barB('ch-country',Object.entries(bC).sort((a,b)=>b[1]-a[1]));
+  const bCi={};filtered.forEach(d=>{const k=(d.ci||'Sin ciudad').trim();bCi[k]=(bCi[k]||0)+1;});barB('ch-city',Object.entries(bCi).sort((a,b)=>b[1]-a[1]));
+  const bTp={};filtered.forEach(d=>{const k=(d.tp||'Sin tipo').replace(/[🆕🔄⚙️]/g,'').trim();bTp[k]=(bTp[k]||0)+1;});barB('ch-type',Object.entries(bTp).sort((a,b)=>b[1]-a[1]));
   updBadges();
   renderDashAlerts();
 }
-function clearDashF(){['sf','st','sf-ln'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});renderDash();}
+
+// Marca el botón activo según las fechas actuales
+function _dashMarkActiveBtn(){
+  var sf=document.getElementById('sf')?.value||'';
+  var st=document.getElementById('st')?.value||'';
+  var now=new Date();
+  var pad=function(n){return String(n).padStart(2,'0');};
+  var ymd=function(y,m,d){return y+'-'+pad(m)+'-'+pad(d);};
+  var presets={
+    'qf-cm': [ymd(now.getFullYear(),now.getMonth()+1,1), ymd(now.getFullYear(),now.getMonth()+1,new Date(now.getFullYear(),now.getMonth()+1,0).getDate())],
+    'qf-pm': (function(){var p=new Date(now.getFullYear(),now.getMonth()-1,1);return[ymd(p.getFullYear(),p.getMonth()+1,1),ymd(p.getFullYear(),p.getMonth()+1,new Date(p.getFullYear(),p.getMonth()+1,0).getDate())];}()),
+    'qf-ya': [ymd(now.getFullYear(),1,1), ymd(now.getFullYear(),12,31)],
+    'qf-yp': [ymd(now.getFullYear()-1,1,1), ymd(now.getFullYear()-1,12,31)],
+    'qf-all':['','']
+  };
+  document.querySelectorAll('.dash-qf-btn').forEach(function(b){b.classList.remove('active');});
+  Object.entries(presets).forEach(function(e){
+    if(e[1][0]===sf&&e[1][1]===st){
+      var btn=document.getElementById(e[0]);if(btn)btn.classList.add('active');
+    }
+  });
+}
+
+function clearDashF(){
+  var sf=document.getElementById('sf');
+  var st=document.getElementById('st');
+  var ln=document.getElementById('sf-ln');
+  if(sf)sf.value='';
+  if(st)st.value='';
+  if(ln)ln.value='';
+  document.querySelectorAll('.dash-qf-btn').forEach(function(b){b.classList.remove('active');});
+  var allBtn=document.getElementById('qf-all');
+  if(allBtn)allBtn.classList.add('active');
+  renderDash();
+}
 
 // ═══ DEP TABLE HEADER ════════════════════════════════
 
