@@ -4964,20 +4964,10 @@ function subscribeRealtime(){
   }).subscribe();
 }
 function bootApp(){
-  // Restore saved column widths
-  ['tbl-d','tbl-o','tbl-i','tbl-c'].forEach(function(id){applyColWidths(document.getElementById(id));});
-
-  // DATA RESET: force reload when version changes
+  // DATA VERSION — solo para tracking, nunca borra datos del usuario
   var DATA_VERSION='v5.3_stable';
-  var _needDepsClear=localStorage.getItem('data_version')!==DATA_VERSION;
-  if(_needDepsClear){
-    // Reset only deps and contracts — keep clients (oc27) and cats (ct27)
-    deps=[];localStorage.removeItem('od27');
-    contratos=[];localStorage.removeItem('ct_v1');
-    cobros=[];localStorage.removeItem('cobros_v1');
-    checklists={};localStorage.removeItem('chk_v1');
-    localStorage.setItem('data_version',DATA_VERSION);
-  }
+  var _needDepsClear=false; // NEVER auto-clear production data
+  localStorage.setItem('data_version',DATA_VERSION);
   // Load from localStorage
   try{
     var sd=JSON.parse(localStorage.getItem('od27'));if(sd&&sd.length)deps=sd;
@@ -4988,8 +4978,8 @@ function bootApp(){
     var schk=JSON.parse(localStorage.getItem('chk_v1'));if(schk)checklists=schk;
     var strash=JSON.parse(localStorage.getItem('trash_v1'));if(strash)trash=strash;
   }catch(e){}
-  // Migrate cls from BC if empty or outdated
-  if(!cls.length||cls.length!==BC.length){
+  // Migrate cls from BC ONLY if completely empty (Supabase will override this)
+  if(!cls.length){
     cls=BC.map(function(c){return Object.assign({},c,{mo:Array.isArray(c.mo)?c.mo.slice():[]});});
   }
   // Migrate deps from BD if empty
@@ -5012,22 +5002,22 @@ function bootApp(){
   // Render
   renderDash();updBadges();updTrashBadge();
   setV('dashboard');
+  // Restore column widths after tables are rendered
+  setTimeout(function(){
+    ['tbl-d','tbl-o','tbl-i','tbl-c'].forEach(function(id){
+      var t=document.getElementById(id);if(t)applyCW(t);
+    });
+  },50);
 
   // Sync with Supabase
   if(supabase){
     setSyncStatus('↺ Cargando...','#1B4FD8');
     loadFromSupabase().then(function(){
-      // If cls from Supabase is empty or outdated, push the BC data up
-      if(!cls.length||cls.length!==BC.length){
+      // If cls from Supabase is completely empty, use BC as fallback
+      if(!cls.length){
         cls=BC.map(function(c){return Object.assign({},c,{mo:Array.isArray(c.mo)?c.mo.slice():[]});});
       }
-      // If version changed, clear stale deps/contracts from Supabase
-      if(_needDepsClear){
-        deps=[];contratos=[];cobros=[];
-        supabase.from('ops_data').upsert({key:'deps',value:[],updated_at:new Date().toISOString()}).catch(()=>{});
-        supabase.from('ops_data').upsert({key:'contratos',value:[],updated_at:new Date().toISOString()}).catch(()=>{});
-        supabase.from('ops_data').upsert({key:'cobros',value:[],updated_at:new Date().toISOString()}).catch(()=>{});
-      }
+      // (version-based clear disabled — never auto-delete production data)
       // Re-migrate cats in case Supabase had older version without new keys
       if(!cats.launchers||!cats.launchers.length)cats.launchers=BASE_LAUNCHERS.map(x=>Object.assign({},x));
       if(!cats.ap||!cats.ap.length)cats.ap=BASE_AP.map(x=>Object.assign({},x));
@@ -5040,16 +5030,10 @@ function bootApp(){
       if(!cats.risk||!cats.risk.length)cats.risk=BASE_RISK.map(x=>Object.assign({},x));
       if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
       renderCurrentView();updBadges();updTrashBadge();
-      // Push initial data to Supabase if cobros/contratos empty
-      // Only push cats if it has actual data (avoid overwriting Supabase with empty cats)
-      if(cats.ap&&cats.ap.length>0) sv();
-      else { // save only deps and cls, not cats
-        const ts=new Date().toISOString();
-        supabase.from('ops_data').upsert({key:'deps',value:deps,updated_at:ts}).catch(()=>{});
-        supabase.from('ops_data').upsert({key:'cls',value:cls,updated_at:ts}).catch(()=>{});
-        localStorage.setItem('od27',JSON.stringify(deps));
-        localStorage.setItem('oc27',JSON.stringify(cls));
-      }
+      // Save to localStorage (don't push to Supabase on load — only on user action)
+      localStorage.setItem('od27',JSON.stringify(deps));
+      localStorage.setItem('oc27',JSON.stringify(cls));
+      localStorage.setItem('ct27',JSON.stringify(cats));
       svCont();
       svCobros();
       svTrash();
