@@ -714,12 +714,14 @@ input[type=date].ei{cursor:pointer;min-width:110px}
           <th style="width:100px">Ciudad<div class="col-r"></div></th>
           <th style="width:110px">Aplicativo<div class="col-r"></div></th>
           <th style="width:110px">Tipo<div class="col-r"></div></th>
+          <th style="width:120px">Bot WA<div class="col-r"></div></th>
           <th style="width:115px">Estado<div class="col-r"></div></th>
           <th style="width:115px">F. Confirmación<div class="col-r"></div></th>
           <th style="min-width:200px">Módulos<div class="col-r"></div></th>
           <th style="width:90px">Complej.<div class="col-r"></div></th>
           <th style="width:120px">Contacto<div class="col-r"></div></th>
-          <th style="width:125px">Tel / Email<div class="col-r"></div></th>
+          <th style="width:120px">Tel / Email<div class="col-r"></div></th>
+          <th style="width:150px">WhatsApp<div class="col-r"></div></th>
           <th style="width:150px">Notas<div class="col-r"></div></th>
           <th style="width:72px">Acciones</th>
         </tr></thead><tbody id="ctb"></tbody></table>
@@ -1509,6 +1511,16 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="fr2">
       <div class="fr"><label class="fl">Contacto</label><input class="fld" id="cm-co" placeholder="Nombre contacto"></div>
       <div class="fr"><label class="fl">Tel / Email</label><input class="fld" id="cm-ph" placeholder="+593..."></div>
+    </div>
+    <div class="fr2">
+      <div class="fr"><label class="fl">📱 WhatsApp (separar varios con coma)</label><input class="fld" id="cm-wh" placeholder="+593987654321, +593912345678"></div>
+      <div class="fr"><label class="fl">🤖 Bot de WhatsApp</label>
+        <select class="fld" id="cm-bot">
+          <option value="">Sin Bot WA</option>
+          <option value="normal">🤖 Normal</option>
+          <option value="coexistencia">🔄 Coexistencia</option>
+        </select>
+      </div>
     </div>
     <div class="fr2">
       <div class="fr"><label class="fl">📅 Fecha Confirmación del Cliente</label><input type="date" class="fld" id="cm-fconf" title="Cuándo se concretó que trabaja con nosotros"></div>
@@ -2860,6 +2872,13 @@ function popClSelects(){
   const mdCatF=document.getElementById('md-cat-f');
   if(mdCatF){const cur=mdCatF.value;mdCatF.innerHTML='<option value="">Todas</option>'+(cats.catmod||[]).map(c=>`<option>${esc(c.name)}</option>`).join('');mdCatF.value=cur;}
 }
+function waLinks(wh){
+  if(!wh||!wh.length)return '';
+  return wh.map(function(n){
+    var clean=n.replace(/[^0-9]/g,'');
+    return '<a href="https://wa.me/'+clean+'" target="_blank" style="color:#25D366;text-decoration:none;white-space:nowrap;font-size:12px" title="WhatsApp: '+esc(n)+'">📱 '+esc(n)+'</a>';
+  }).join(' ');
+}
 function renderCls(){
   const s=(document.getElementById('sc')?.value||'').toLowerCase();
   const fAp=document.getElementById('fac')?.value||'';
@@ -2884,12 +2903,14 @@ function renderCls(){
       <td>${esc(c.pa||'')}</td><td>${esc(c.ci||'')}</td>
       <td>${esc(c.ap||'')}</td>
       <td>${c.tp?`<span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:12px;font-size:11.5px">${esc(c.tp)}</span>`:''}</td>
+      <td>${c.bot==='normal'?'<span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:12px;font-size:11px">🤖 Normal</span>':c.bot==='coexistencia'?'<span style="background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:12px;font-size:11px">🔄 Coexistencia</span>':''}</td>
       <td>${esChip(c.es)}</td>
       <td style="font-size:12px">${fmtD(c.fconf)}</td>
       <td><div class="cl-mods-ro">${moHtml||'—'}</div></td>
       <td>${cx}</td>
       <td style="font-size:12px">${esc(c.co||'')}</td>
       <td style="font-size:12px">${esc(c.ph||'')}</td>
+      <td>${waLinks(c.wh)}</td>
       <td style="font-size:11.5px;color:var(--muted);max-width:120px">${esc((c.no||'').slice(0,40))}</td>
       <td style="white-space:nowrap">
         <button class="icon-btn edit" onclick="editCl(${c.id})">✏️</button>
@@ -2919,9 +2940,10 @@ function togCM(m,el){clMods.has(m)?clMods.delete(m):clMods.add(m);el.classList.t
 function openAddCl(){
   editClId=null;dOpen=false;
   document.getElementById('clm-t').textContent='Nuevo Cliente';
-  ['cm-nm','cm-pa','cm-ci','cm-co','cm-ph','cm-no','cm-fconf'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['cm-nm','cm-pa','cm-ci','cm-co','cm-ph','cm-wh','cm-no','cm-fconf'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   popClModal();mkCMods([]);
   document.getElementById('cm-es').value='activo';
+  var _b=document.getElementById('cm-bot');if(_b)_b.value='';
   document.getElementById('cl-modal').classList.add('open');
 }
 function editCl(id){
@@ -2933,6 +2955,8 @@ function editCl(id){
   document.getElementById('cm-ci').value=c.ci||'';
   document.getElementById('cm-co').value=c.co||'';
   document.getElementById('cm-ph').value=c.ph||'';
+  var _whEl=document.getElementById('cm-wh');if(_whEl)_whEl.value=(c.wh||[]).join(', ');
+  var _botEl=document.getElementById('cm-bot');if(_botEl)_botEl.value=c.bot||'';
   document.getElementById('cm-no').value=c.no||'';
   document.getElementById('cm-fconf').value=c.fconf||'';
   document.getElementById('cm-es').value=c.es||'activo';
@@ -2952,7 +2976,10 @@ function saveCl(){
     nm,pa:document.getElementById('cm-pa').value.trim(),ci:document.getElementById('cm-ci').value.trim(),
     ap:document.getElementById('cm-ap').value,tp:document.getElementById('cm-tp').value,
     mo:[...clMods],co:document.getElementById('cm-co').value.trim(),
-    ph:document.getElementById('cm-ph').value.trim(),no:document.getElementById('cm-no').value.trim(),
+    ph:document.getElementById('cm-ph').value.trim(),
+    wh:(document.getElementById('cm-wh')?.value||'').split(',').map(s=>s.trim()).filter(Boolean),
+    bot:document.getElementById('cm-bot')?.value||'',
+    no:document.getElementById('cm-no').value.trim(),
     fconf:document.getElementById('cm-fconf').value,es:document.getElementById('cm-es').value
   };
   if(editClId){
