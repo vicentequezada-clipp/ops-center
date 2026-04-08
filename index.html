@@ -1734,8 +1734,11 @@ input[type=date].ei{cursor:pointer;min-width:110px}
       </div>
       <div class="fr" style="margin:0;min-width:90px"><label class="fl" style="font-size:10.5px">Nombre (etiq.)</label>
         <input class="fld" id="comp-nombre" placeholder="Ej: Conductor" style="font-size:12.5px"></div>
-      <div class="fr" style="margin:0;min-width:80px" id="comp-precio-wrap"><label class="fl" style="font-size:10.5px">Precio ($)</label>
-        <input type="number" class="fld" id="comp-precio" value="15" min="0" style="font-size:12.5px" oninput="updateContratoPreview()"></div>
+      <div class="fr" style="margin:0;min-width:80px" id="comp-precio-wrap">
+        <label class="fl" style="font-size:10.5px">Precio ($)</label>
+        <input type="number" class="fld" id="comp-precio" value="15" min="0" style="font-size:12.5px" oninput="updateContratoPreview()">
+        <span id="comp-unidad-lbl" style="font-size:10px;color:var(--muted);display:block;margin-top:2px"></span>
+      </div>
       <div class="fr" style="margin:0;min-width:75px" id="comp-min-wrap"><label class="fl" style="font-size:10.5px">Mínimo</label>
         <input type="number" class="fld" id="comp-minimo" value="0" min="0" style="font-size:12.5px" oninput="updateContratoPreview()"></div>
       <div class="fr" style="margin:0;min-width:70px" id="comp-cant-wrap"><label class="fl" style="font-size:10.5px">Cantidad</label>
@@ -2296,44 +2299,86 @@ function phaseBadge(dep){
 // ═══ BILLING ENGINE ══════════════════════════════════
 function calcFactura(contrato, mes, activosOverride){
   if(!contrato)return{total:0,neto:0,descMonto:0,desglose:[]};
-  const actCond=activosOverride?.conductores??contrato.conductoresActivos??0;
-  const actVeh=activosOverride?.vehiculos??contrato.vehiculosActivos??0;
-  const actBot=activosOverride?.bots??contrato.botsActivos??0;
-  const comps=contrato.componentes||[];
-  let total=0,desglose=[];
-  if(comps.length>0){
+  const actCond = activosOverride?.conductores ?? contrato.conductoresActivos ?? 0;
+  const actVeh  = activosOverride?.vehiculos   ?? contrato.vehiculosActivos   ?? 0;
+  const actBot  = activosOverride?.bots        ?? contrato.botsActivos        ?? 0;
+  const comps   = contrato.componentes || [];
+  let total = 0, desglose = [];
+
+  if(comps.length > 0){
     comps.forEach(comp=>{
-      let monto=0,detalle='';
-      if(comp.tipo==='conductor'){
-        const usar=Math.max(actCond,comp.minimo||0);
-        monto=usar*comp.precio;detalle=`${usar} cond × $${comp.precio}`;
-      }else if(comp.tipo==='vehiculo'){
-        const usar=Math.max(actVeh,comp.minimo||0);
-        monto=usar*comp.precio;detalle=`${usar} veh × $${comp.precio}`;
-      }else if(comp.tipo==='bot_wa'){
-        const usar=actBot>0?actBot:(contrato.botsActivos||comp.cantidad||1);
-        monto=usar*comp.precio;detalle=`${usar} bot × $${comp.precio}`;
-      }else if(comp.tipo==='fijo'||comp.tipo==='minimo'){
-        monto=comp.precio;detalle=`Cobro fijo`;
-      }else if(comp.tipo==='setup'){
-        // Only charge setup once (first month) - skip for recurring calculation
-        monto=0;detalle='Setup (único)';
-      }else{
-        const cant=comp.cantidad||1;monto=cant*comp.precio;detalle=`${cant} × $${comp.precio}`;
+      let monto = 0, detalle = '';
+      const tipo = comp.tipo || '';
+
+      if(tipo === 'conductor'){
+        const usar = Math.max(actCond, comp.minimo || 0);
+        monto = usar * comp.precio;
+        detalle = `${usar} conductores × $${comp.precio}`;
+
+      } else if(tipo === 'vehiculo'){
+        const usar = Math.max(actVeh, comp.minimo || 0);
+        monto = usar * comp.precio;
+        detalle = `${usar} vehículos × $${comp.precio}`;
+
+      } else if(tipo === 'bot_wa'){
+        const usar = Math.max(actBot, comp.minimo || 0, comp.cantidad || 1);
+        monto = usar * comp.precio;
+        detalle = `${usar} bots × $${comp.precio}`;
+
+      } else if(tipo === 'fijo' || tipo === 'minimo'){
+        monto = comp.precio;
+        detalle = `${comp.nombre || 'Cobro fijo'}: $${comp.precio}`;
+
+      } else if(tipo === 'setup'){
+        // Pago único — incluir en el cálculo total (cobra una vez)
+        const cant = comp.cantidad || 1;
+        monto = cant * comp.precio;
+        detalle = `Setup × ${cant}: $${monto} (único)`;
+
+      } else if(tipo === 'deposito'){
+        const cant = comp.cantidad || 1;
+        monto = cant * comp.precio;
+        detalle = `Depósito × ${cant}: $${monto} (reembolsable)`;
+
+      } else if(tipo === 'modulo'){
+        const cant = comp.cantidad || 1;
+        monto = cant * comp.precio;
+        detalle = `${comp.nombre || 'Módulo'} × ${cant}: $${monto}`;
+
+      } else {
+        // Tipo personalizado del catálogo del usuario
+        const cant = comp.cantidad || 1;
+        const usar = comp.minimo ? Math.max(cant, comp.minimo) : cant;
+        monto = usar * comp.precio;
+        detalle = `${comp.nombre || tipo} × ${usar}: $${monto}`;
       }
-      total+=monto;
-      desglose.push({nombre:comp.nombre||comp.tipo,monto,detalle});
+
+      total += monto;
+      desglose.push({nombre: comp.nombre || tipo, tipo, monto, detalle});
     });
-  }else{
-    // Legacy billing
-    const mod=contrato.modalidad||'conductor';
-    const px=contrato.precio||0,mv=contrato.minV||0,mc=contrato.minC||0;
-    if(mod==='conductor'){const usar=Math.max(actCond,mc);total=usar*px;desglose.push({nombre:'Por conductor',monto:total,detalle:`${usar} × $${px}`});}
-    else if(mod==='vehiculo'){const usar=Math.max(actVeh,mv);total=usar*px;desglose.push({nombre:'Por vehículo',monto:total,detalle:`${usar} × $${px}`});}
-    else{const usar=Math.max(actCond+actVeh,mc+mv);total=usar*px;desglose.push({nombre:'Mixto',monto:total,detalle:`${usar} × $${px}`});}
+
+  } else {
+    // Legacy billing (contratos sin componentes)
+    const mod = contrato.modalidad || 'conductor';
+    const px = contrato.precio || 0;
+    const mv = contrato.minV || 0;
+    const mc = contrato.minC || 0;
+    if(mod === 'conductor'){
+      const usar = Math.max(actCond, mc);
+      total = usar * px;
+      desglose.push({nombre:'Por conductor', monto:total, detalle:`${usar} × $${px}`});
+    } else if(mod === 'vehiculo'){
+      const usar = Math.max(actVeh, mv);
+      total = usar * px;
+      desglose.push({nombre:'Por vehículo', monto:total, detalle:`${usar} × $${px}`});
+    } else {
+      const usar = Math.max(actCond + actVeh, mc + mv);
+      total = usar * px;
+      desglose.push({nombre:'Mixto', monto:total, detalle:`${usar} × $${px}`});
+    }
   }
-  const descPct=0,descMonto=0;
-  return{total,neto:total,descPct,descMonto,desglose};
+
+  return{total, neto:total, descPct:0, descMonto:0, desglose};
 }
 
 // ═══ AUTO-ATRASADO & ALERTS ═══════════════════════════
@@ -3202,7 +3247,8 @@ function openAddDep(){
   if(cliSel)cliSel.innerHTML='<option value="">— Seleccionar cliente —</option>'+cls.filter(c=>c.es==='activo').map(c=>`<option value="${c.id}">${esc(c.nm)} — ${esc(c.ci||c.pa||'')}</option>`).join('');
   ['dm-pa','dm-ci','dm-fi','dm-fid','dm-fe','dm-p','dm-n','dm-hrsop','dm-hrsnew'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   const tpSel=document.getElementById('dm-tp');
-  if(tpSel)tpSel.innerHTML=(cats.modal||[]).map(m=>`<option value="${esc(m.name)}">${m.icon||''} ${esc(m.name)}</option>`).join('');
+  const _mods=cats.modal&&cats.modal.length?cats.modal:BASE_MODAL;
+  if(tpSel)tpSel.innerHTML=_mods.map(m=>`<option value="${esc(m.name)}">${m.icon||''} ${esc(m.name)}</option>`).join('');
   popLauncherSelects();
   document.getElementById('dep-modal').classList.add('open');
 }
@@ -3698,7 +3744,10 @@ function renderContratos(){
     const comps=c.componentes||[];
     const botComp=comps.find(comp=>comp.tipo==='bot_wa');
     const compBadges=comps.length?comps.map(comp=>`<span class="tag" style="font-size:10.5px">${esc(comp.nombre||comp.tipo)}: $${comp.precio}${comp.minimo?' (mín '+comp.minimo+')':''}</span>`).join(' '):'<span style="color:var(--subtle);font-size:11px">Legacy</span>';
-    const prev=calcFactura(c,'',{});
+    // Calcular con mínimos para mostrar estimado base (no 0)
+    const _caEst=c.conductoresActivos||Math.max(0,...(c.componentes||[]).map(x=>x.minimo||0),c.minC||0);
+    const _vaEst=c.vehiculosActivos||c.minV||0;
+    const prev=calcFactura(c,'',{conductores:_caEst,vehiculos:_vaEst,bots:c.botsActivos||0});
     const estBadge=`<span style="background:#ECFDF5;color:#0F7E4F;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">✅ ${esc(c.es||'activo')}</span>`;
     const botInfo=botComp?`${botComp.cantidad||1} × $${botComp.precio}`:'—';
     return`<tr>
@@ -3723,44 +3772,107 @@ function initContModal(){
 }
 function updateCompFields(){
   const tipo=document.getElementById('comp-tipo')?.value||'';
-  const minWrap=document.getElementById('comp-min-wrap');
-  const cantWrap=document.getElementById('comp-cant-wrap');
-  if(minWrap)minWrap.style.display=['conductor','vehiculo','bot_wa','minimo'].includes(tipo)?'':'none';
-  if(cantWrap)cantWrap.style.display=['bot_wa','modulo'].includes(tipo)?'':'none';
+  const minWrap  = document.getElementById('comp-min-wrap');
+  const cantWrap = document.getElementById('comp-cant-wrap');
+  const pxWrap   = document.getElementById('comp-precio-wrap');
+  const unidadLbl= document.getElementById('comp-unidad-lbl');
+
+  // Tipos que usan mínimo (número de unidades mínimas garantizadas)
+  const tieneMin  = ['conductor','vehiculo','bot_wa','minimo'].includes(tipo);
+  // Tipos que usan cantidad explícita
+  const tieneCant = ['bot_wa','modulo','setup','deposito'].includes(tipo);
+  // Tipos sin precio variable (fijo siempre)
+  const sinPrecio = [];
+
+  if(minWrap)  minWrap.style.display  = tieneMin  ? '' : 'none';
+  if(cantWrap) cantWrap.style.display = tieneCant ? '' : 'none';
+
   const bt=(cats.billingTypes||BASE_BILLING_TYPES).find(t=>t.tipo===tipo);
+
+  // Auto-rellenar nombre si está vacío
   const nEl=document.getElementById('comp-nombre');
-  if(nEl&&!nEl.value&&bt)nEl.value=bt.name;
+  if(nEl && !nEl.value && bt) nEl.value = bt.name;
+
+  // Mostrar unidad debajo del precio
+  if(unidadLbl) unidadLbl.textContent = bt ? bt.unidad||'' : '';
+
+  // Reset minimo a 0 si no aplica
+  if(!tieneMin){ const mEl=document.getElementById('comp-minimo'); if(mEl) mEl.value=0; }
+  if(!tieneCant){ const cEl=document.getElementById('comp-cant'); if(cEl) cEl.value=1; }
 }
 function addContComp(){
-  const tipo=document.getElementById('comp-tipo')?.value||'';
-  const nombre=document.getElementById('comp-nombre')?.value.trim()||tipo;
-  const precio=parseFloat(document.getElementById('comp-precio')?.value)||0;
-  const minimo=parseInt(document.getElementById('comp-minimo')?.value)||0;
-  const cantidad=parseInt(document.getElementById('comp-cant')?.value)||1;
-  _contComps.push({tipo,nombre,precio,minimo,cantidad});
-  document.getElementById('comp-nombre').value='';
-  document.getElementById('comp-precio').value=15;
-  document.getElementById('comp-minimo').value=0;
-  document.getElementById('comp-cant').value=1;
-  renderContComps();updateContratoPreview();
+  const tipo    = document.getElementById('comp-tipo')?.value || '';
+  const allBT   = cats.billingTypes && cats.billingTypes.length ? cats.billingTypes : BASE_BILLING_TYPES;
+  const bt      = allBT.find(t=>t.tipo===tipo) || {};
+  const nombre  = document.getElementById('comp-nombre')?.value.trim() || bt.name || tipo;
+  const precio  = parseFloat(document.getElementById('comp-precio')?.value) || 0;
+  const tieneMin  = ['conductor','vehiculo','bot_wa','minimo'].includes(tipo);
+  const tieneCant = ['bot_wa','modulo','setup','deposito'].includes(tipo);
+  const minimo  = tieneMin  ? (parseInt(document.getElementById('comp-minimo')?.value) || 0) : 0;
+  const cantidad= tieneCant ? (parseInt(document.getElementById('comp-cant')?.value)   || 1) : 1;
+  if(!tipo){ alert('Selecciona un tipo de cobro'); return; }
+  _contComps.push({tipo, nombre, precio, minimo, cantidad});
+  // Reset campos
+  const nEl=document.getElementById('comp-nombre'); if(nEl) nEl.value='';
+  const pEl=document.getElementById('comp-precio'); if(pEl) pEl.value=15;
+  const mEl=document.getElementById('comp-minimo'); if(mEl) mEl.value=0;
+  const cEl=document.getElementById('comp-cant');   if(cEl) cEl.value=1;
+  renderContComps();
+  updateContratoPreview();
 }
 function removeContComp(idx){_contComps.splice(idx,1);renderContComps();updateContratoPreview();}
 function renderContComps(){
-  const el=document.getElementById('cont-comps');if(!el)return;
-  if(!_contComps.length){el.innerHTML='<div style="padding:10px;text-align:center;color:var(--subtle);font-size:12px;border:1.5px dashed var(--border);border-radius:8px">Agrega al menos un tipo de cobro</div>';return;}
-  el.innerHTML=`<div style="overflow-x:auto"><table class="cont-table"><thead><tr><th>Tipo</th><th>Etiqueta</th><th>Precio</th><th>Mínimo</th><th>Cantidad</th><th style="width:50px"></th></tr></thead><tbody>${_contComps.map((comp,i)=>{
-    const bt=(cats.billingTypes||BASE_BILLING_TYPES).find(t=>t.tipo===comp.tipo)||{icon:'💰',name:comp.tipo};
-    return`<tr><td><span class="tag tag-blue" style="font-size:11px">${bt.icon||''} ${esc(bt.name||comp.tipo)}</span></td><td>${esc(comp.nombre)}</td><td style="font-weight:600">$${comp.precio}</td><td style="color:var(--muted)">${comp.minimo||'—'}</td><td style="color:var(--muted)">${comp.cantidad>1?comp.cantidad:'—'}</td><td><button class="icon-btn del" onclick="removeContComp(${i})">✕</button></td></tr>`;
+  const el=document.getElementById('cont-comps'); if(!el)return;
+  if(!_contComps.length){
+    el.innerHTML='<div style="padding:10px;text-align:center;color:var(--subtle);font-size:12px;border:1.5px dashed var(--border);border-radius:8px">Agrega al menos un tipo de cobro</div>';
+    return;
+  }
+  const allBT = cats.billingTypes && cats.billingTypes.length ? cats.billingTypes : BASE_BILLING_TYPES;
+  el.innerHTML=`<div style="overflow-x:auto"><table class="cont-table"><thead><tr>
+    <th>Tipo</th><th>Etiqueta</th><th>Precio</th><th>Mínimo</th><th>Cantidad</th><th>Fórmula</th><th style="width:40px"></th>
+  </tr></thead><tbody>${_contComps.map((comp,i)=>{
+    const bt = allBT.find(t=>t.tipo===comp.tipo) || {icon:'💰', name:comp.tipo, unidad:''};
+    const tieneMin  = ['conductor','vehiculo','bot_wa','minimo'].includes(comp.tipo);
+    const tieneCant = ['bot_wa','modulo','setup','deposito'].includes(comp.tipo);
+    const minStr  = tieneMin  && comp.minimo ? comp.minimo : '—';
+    const cantStr = tieneCant && comp.cantidad > 1 ? comp.cantidad : '—';
+    // Fórmula resumen
+    let formula = '';
+    if(comp.tipo==='conductor'||comp.tipo==='vehiculo')
+      formula = `max(activos,${comp.minimo||0}) × $${comp.precio}`;
+    else if(comp.tipo==='fijo'||comp.tipo==='minimo')
+      formula = `$${comp.precio} fijo`;
+    else if(comp.tipo==='setup')
+      formula = `$${comp.precio} × ${comp.cantidad||1} (único)`;
+    else if(comp.tipo==='bot_wa')
+      formula = `max(bots,${comp.minimo||1}) × $${comp.precio}`;
+    else
+      formula = `${comp.cantidad||1} × $${comp.precio}`;
+    return`<tr>
+      <td><span class="tag tag-blue" style="font-size:11px">${bt.icon||''} ${esc(bt.name||comp.tipo)}</span></td>
+      <td style="font-size:12.5px">${esc(comp.nombre)}</td>
+      <td style="font-weight:700">$${comp.precio}<span style="font-size:10px;color:var(--muted)"> /${bt.unidad||'mes'}</span></td>
+      <td style="color:var(--muted);font-size:12px">${minStr}</td>
+      <td style="color:var(--muted);font-size:12px">${cantStr}</td>
+      <td style="color:var(--muted);font-size:11px;font-family:monospace">${formula}</td>
+      <td><button class="icon-btn del" onclick="removeContComp(${i})">✕</button></td>
+    </tr>`;
   }).join('')}</tbody></table></div>`;
 }
 function updateContratoPreview(){
-  const el=document.getElementById('cont-prev-val');if(!el)return;
+  const el=document.getElementById('cont-prev-val'); if(!el)return;
+  const ca=parseInt(document.getElementById('cm-cont-ca')?.value)||0;
+  const mc=parseInt(document.getElementById('cm-cont-mc')?.value)||0;
+  const va=parseInt(document.getElementById('cm-cont-va')?.value)||0;
   if(!_contComps.length){
     const px=parseFloat(document.getElementById('cm-cont-px')?.value)||0;
-    const mc=parseInt(document.getElementById('cm-cont-mc')?.value)||0;
-    el.textContent='$'+(px*mc).toLocaleString()+'/mes';return;
+    const usar=Math.max(ca,mc);
+    el.textContent='$'+(px*usar).toLocaleString()+'/mes'+(usar===mc&&mc>0?' (mínimo)':'');
+    return;
   }
-  const f=calcFactura({componentes:_contComps,botsActivos:0},{},{conductores:10,vehiculos:8,bots:0});
+  // Usar los activos ingresados, o el mínimo del componente si es mayor
+  const caEf=Math.max(ca, _contComps.reduce((mx,c)=>Math.max(mx,c.minimo||0),0));
+  const f=calcFactura({componentes:_contComps,botsActivos:0},{},{conductores:caEf,vehiculos:va,bots:0});
   el.textContent='$'+f.total.toLocaleString()+'/mes estimado';
 }
 function openAddContrato(){
@@ -3788,25 +3900,45 @@ function editContrato(id){
   document.getElementById('cont-modal').classList.add('open');
 }
 function saveContrato(){
-  const cliSel=document.getElementById('cm-cont-cli');
-  const clienteId=parseInt(cliSel?.value)||null;
-  const clienteNm=(cliSel?.options[cliSel.selectedIndex]?.text||'').split(' — ')[0].trim();
-  if(!clienteNm||clienteNm==='Seleccionar cliente...'){alert('Selecciona un cliente');return;}
-  const nota=document.getElementById('cm-cont-nota')?.value.trim()||'';
-  const botsCount=parseInt(document.getElementById('cm-cont-bots')?.value)||0;
-  const comps=_contComps.length>0?[..._contComps]:null;
-  const va=parseInt(document.getElementById('cm-cont-va')?.value)||0;
-  const ca=parseInt(document.getElementById('cm-cont-ca')?.value)||0;
-  const px=parseFloat(document.getElementById('cm-cont-px')?.value)||15;
-  const mc=parseInt(document.getElementById('cm-cont-mc')?.value)||0;
-  if(editingContratoId){
-    const c=contratos.find(x=>x.id===editingContratoId);
-    if(c){c.componentes=comps;c.nota=nota;c.vehiculosActivos=va;c.conductoresActivos=ca;c.botsActivos=botsCount;c.precio=px;c.minC=mc;c.modalidad=comps?'componentes':'conductor';}
-  }else{
-    const id=Math.max(...contratos.map(c=>c.id),0)+1;
-    contratos.push({id,clienteId,cliente:clienteNm,componentes:comps,modalidad:comps?'componentes':'conductor',precio:px,minV:0,minC:mc,conductoresActivos:ca,vehiculosActivos:va,botsActivos:botsCount,es:'activo',nota,valorFijo:0,setupFee:0,descuentos:[]});
+  try{
+    const cliSel=document.getElementById('cm-cont-cli');
+    const clienteId=parseInt(cliSel?.value)||null;
+    const clienteNm=(cliSel?.options[cliSel.selectedIndex]?.text||'').split(' — ')[0].trim();
+    if(!clienteNm||clienteNm==='Seleccionar cliente...'){alert('Selecciona un cliente');return;}
+    const nota=document.getElementById('cm-cont-nota')?.value.trim()||'';
+    const botsCount=parseInt(document.getElementById('cm-cont-bots')?.value)||0;
+    const comps=_contComps.length>0?[..._contComps]:null;
+    const va=parseInt(document.getElementById('cm-cont-va')?.value)||0;
+    const ca=parseInt(document.getElementById('cm-cont-ca')?.value)||0;
+    const px=parseFloat(document.getElementById('cm-cont-px')?.value)||15;
+    const mc=parseInt(document.getElementById('cm-cont-mc')?.value)||0;
+    // Si usando componentes, usar el mínimo del primer componente como conductoresActivos base
+    const caEfectivo = comps ? Math.max(ca, comps.reduce((mx,c)=>Math.max(mx,c.minimo||0),0)) : Math.max(ca,mc);
+    if(editingContratoId){
+      const c=contratos.find(x=>x.id===editingContratoId);
+      if(c){
+        c.componentes=comps; c.nota=nota; c.vehiculosActivos=va;
+        c.conductoresActivos=caEfectivo; c.botsActivos=botsCount;
+        c.precio=px; c.minC=mc; c.modalidad=comps?'componentes':'conductor';
+      }
+    } else {
+      const id=Math.max(0,...contratos.map(c=>c.id||0))+1;
+      contratos.push({
+        id, clienteId, cliente:clienteNm,
+        componentes:comps, modalidad:comps?'componentes':'conductor',
+        precio:px, minV:0, minC:mc,
+        conductoresActivos:caEfectivo, vehiculosActivos:va, botsActivos:botsCount,
+        es:'activo', nota, valorFijo:0, setupFee:0, descuentos:[]
+      });
+    }
+    svCont();
+    closeM('cont-modal');
+    renderContratos();
+    updBadges();
+  } catch(err){
+    console.error('saveContrato error:', err);
+    alert('Error al guardar contrato: ' + err.message);
   }
-  svCont();closeM('cont-modal');renderContratos();updBadges();
 }
 function setupContratoPreview(){}
 
