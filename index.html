@@ -295,10 +295,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);backgro
 /* TABLE */
 .tbl-wrap{border:1px solid var(--border);border-radius:10px;background:var(--bg);box-shadow:var(--sh);overflow-x:auto;overflow-y:auto;max-height:75vh;position:relative}
 table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
-thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
+thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden;border-right:1px solid var(--border)}
 .col-r{position:absolute;right:0;top:0;height:100%;width:6px;cursor:col-resize;z-index:2}
 .col-r:hover,.col-r.on{background:var(--blue);opacity:.4}
-td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td{padding:7px 12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 tr:hover td{background:#FAFBFD}
 tr:last-child td{border-bottom:none}
 /* INLINE EDIT */
@@ -502,7 +502,31 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 
 .cl-mods-ro,.dep-modules{white-space:normal;overflow:visible;text-overflow:clip}
 .dep-actions,td.dep-actions,.cl-act{overflow:visible;white-space:nowrap}
-.cont-table td,.cat-table td{white-space:normal;overflow:visible;text-overflow:clip}</style>
+.cont-table td,.cat-table td{white-space:normal;overflow:visible;text-overflow:clip}
+/* ── Separación de columnas en tablas ──────────────────── */
+/* Quitar border-right de la última celda de cada fila */
+td:last-child, th:last-child, thead th:last-child { border-right:none !important; }
+/* Quitar border-bottom de la última fila */
+tr:last-child td { border-bottom:none; }
+/* Header bottom más grueso para separar del body */
+thead th { border-bottom:2px solid var(--border) !important; }
+/* Líneas de la tabla un poco más visibles (pero no agresivas) */
+td, th { border-color:#E4E9F0; }
+/* Cont-table y cat-table también */
+.cont-table td { border-right:1px solid var(--border); }
+.cont-table th { border-right:1px solid var(--border); }
+.cont-table td:last-child, .cont-table th:last-child { border-right:none; }
+.cat-table td  { border-right:1px solid var(--border); }
+.cat-table th  { border-right:1px solid var(--border); }
+.cat-table td:last-child, .cat-table th:last-child { border-right:none; }
+/* Borde exterior de la tabla */
+table { border:1px solid var(--border); }
+.tbl-wrap table, .cont-table, .cat-table { border:none; }
+
+/* ── Sort headers ─────────────────────────────────────── */
+thead th[data-sortable] { cursor:pointer; user-select:none; }
+thead th:hover .sort-arrow { opacity:0.7 !important; }
+</style>
 </head>
 <body>
 
@@ -559,7 +583,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.7 · 09 Abr 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.10 · 09 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -1064,7 +1088,7 @@ input[type=date].ei{cursor:pointer;min-width:110px}
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
       <div class="sec-hdr"><div>
-        <div class="sec-title">📖 Manual de Uso — Ops Center v5.7</div>
+        <div class="sec-title">📖 Manual de Uso — Ops Center v5.10</div>
         <div class="sec-sub">Guía de referencia completa · Clipp Operations</div>
       </div></div>
 
@@ -2034,7 +2058,12 @@ function sv(){
       const failed=results.filter(r=>r.status==='rejected');
       if(failed.length) showSync(false,'Error al guardar');
       else showSync(true,'Guardado');
+      // ← CRÍTICO: resetear _saving para que Realtime pueda recibir cambios externos
+      setTimeout(()=>{ _saving=false; }, 800);
     });
+  } else {
+    // Sin Supabase, resetear inmediatamente
+    setTimeout(()=>{ _saving=false; }, 100);
   }
 }
 function svCont2(){
@@ -2145,7 +2174,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.7'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.10'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -2199,6 +2228,80 @@ function renderAfterSave(){
   }
   updBadges(); // siempre al final para reflejar el estado actualizado
 }
+
+// ═══ SORT UNIVERSAL ══════════════════════════════════════════════════════
+const _sortState = {}; // { tblId: {col: N, dir: 1|-1} }
+
+// Comparador universal: detecta fechas, números y strings
+function _sortVal(v){
+  if(v===null||v===undefined||v==='—'||v==='') return '';
+  const s = String(v).trim();
+  // Fecha YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // ya ordenable como string
+  // Número
+  const n = parseFloat(s.replace(/[^0-9.-]/g,''));
+  if(!isNaN(n) && s.replace(/[^0-9.-]/g,'').length > 0) return n;
+  return s.toLowerCase();
+}
+
+function _cmp(a, b){
+  const va = _sortVal(a), vb = _sortVal(b);
+  if(va === vb) return 0;
+  if(va === '') return 1;  // vacíos al final
+  if(vb === '') return -1;
+  if(typeof va === 'number' && typeof vb === 'number') return va - vb;
+  return String(va).localeCompare(String(vb), 'es', {sensitivity:'base'});
+}
+
+// Agrega sort a los <th> de una tabla
+// getters: array de funciones (rowData) => valorParaOrdenar, una por columna
+// Si getter es null, esa columna no es sorteable (ej: Acciones, Módulos)
+function initSortHeaders(tblEl, getters){
+  if(!tblEl) return;
+  const id = tblEl.id;
+  tblEl.querySelectorAll('thead th').forEach(function(th, i){
+    const getter = getters[i];
+    if(!getter){ th.style.cursor='default'; return; }
+    th.style.cursor = 'pointer';
+    th.style.userSelect = 'none';
+    // Agregar contenedor de flecha si no existe
+    if(!th.querySelector('.sort-arrow')){
+      const arr = document.createElement('span');
+      arr.className = 'sort-arrow';
+      arr.style.cssText = 'margin-left:4px;opacity:0.35;font-size:10px';
+      arr.textContent = '⇅';
+      th.appendChild(arr);
+    }
+    th.addEventListener('click', function(e){
+      // No disparar sort si el usuario está arrastrando el resize
+      if(e.target.classList.contains('col-r')) return;
+      const cur = _sortState[id] || {col:-1, dir:1};
+      const dir = (cur.col === i) ? -cur.dir : 1;
+      _sortState[id] = {col:i, dir};
+      // Actualizar flechas de todos los th de esta tabla
+      tblEl.querySelectorAll('thead th .sort-arrow').forEach(function(a,j){
+        const g = getters[j];
+        if(!g){ a.textContent=''; return; }
+        if(j === i){ a.textContent = dir===1 ? '↑' : '↓'; a.style.opacity='1'; }
+        else { a.textContent='⇅'; a.style.opacity='0.35'; }
+      });
+      // Re-renderizar la vista activa (el sort se lee desde _sortState en cada render)
+      renderAfterSave();
+    });
+  });
+}
+
+// Aplica el sort guardado en _sortState a un array de filas
+// rows: array de objetos, getters: array de fn(obj)=>valor
+function applySort(rows, tblId, getters){
+  const st = _sortState[tblId];
+  if(!st || st.col < 0 || !getters[st.col]) return rows;
+  const getter = getters[st.col];
+  return rows.slice().sort(function(a,b){
+    return st.dir * _cmp(getter(a), getter(b));
+  });
+}
+
 function renderCurrentView(){setV(curV);}
 function openAdd(){
   if(curV==='clientes')openAddCl();
@@ -2513,13 +2616,26 @@ function depRowLegacy(d){
     <td style="white-space:nowrap"><button class="icon-btn del" onclick="confDel('dep',${d.id},'${esc(d.c)}')">🗑</button></td>
   </tr>`;
 }
-function uD(id,f,v){const d=deps.find(x=>x.id===id);if(!d)return;d[f]=v;sv();renderAfterSave();}
+function uD(id,f,v){
+  const d=deps.find(x=>x.id===id);if(!d)return;
+  d[f]=v;
+  sv();
+  updBadges();
+  setTimeout(function(){ renderAfterSave(); }, 0);
+}
 function uDEs(id,val){
   const d=deps.find(x=>x.id===id);if(!d)return;
-  const prev=d.es;d.es=val;sv();updBadges();renderDash();
-  if(prev===EL&&val!==EL){renderOps();renderDeps();}
-  else if(prev!==EL&&val===EL){renderDeps();renderOps();}
-  renderAfterSave();
+  const prev=d.es;
+  d.es=val;
+  sv();
+  updBadges(); // actualizar badges inmediatamente — datos ya cambiados en memoria
+  // Diferir render para que el evento onchange termine antes de destruir el DOM
+  setTimeout(function(){
+    renderDash();
+    if(prev===EL&&val!==EL){renderOps();renderDeps();}
+    else if(prev!==EL&&val===EL){renderDeps();renderOps();}
+    updBadges(); // segunda llamada post-render para confirmar
+  }, 0);
 }
 function advanceFase(id){
   const d=deps.find(x=>x.id===id);if(!d)return;
@@ -2822,15 +2938,18 @@ function renderDeps(){
     if(fTp&&d.tp!==fTp)return false;
     return true;
   });
+  const fS=applySort(f,'tbl-d',[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);
+
   const cd=document.getElementById('cd');if(cd)cd.textContent=`${f.length} de ${deps.filter(d=>d.es!==EL).length}`;
   const tb=document.getElementById('dtb');
-  if(tb)tb.innerHTML=f.length
-    ? f.map(depRowViewOps).join('')
+  if(tb)tb.innerHTML=fS.length
+    ? fS.map(depRowViewOps).join('')
     : `<tr><td colspan="20" class="dep-empty">
         <div style="font-size:34px">🚀</div>
         <div class="dep-empty-title">Sin despliegues activos</div>
         <div style="font-size:12px">No hay registros que coincidan con los filtros actuales.</div>
       </td></tr>`;
+  setTimeout(function(){initSortHeaders(document.getElementById('tbl-d'),[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);},20);
 }
 function renderOps(){
 
@@ -2846,21 +2965,39 @@ function renderOps(){
     if(to && d.fe && d.fe>to) return false;
     return true;
   });
+  const fS=applySort(f,'tbl-o',[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);
+
   const total=deps.filter(d=>d.es===EL).length;
   const co=document.getElementById('co');if(co)co.textContent=`${f.length} de ${total}`;
   const tb=document.getElementById('otb');
-  if(tb)tb.innerHTML=f.length
-    ? f.map(depRowView).join('')
+  if(tb)tb.innerHTML=fS.length
+    ? fS.map(depRowView).join('')
     : `<tr><td colspan="20" class="dep-empty">
         <div style="font-size:34px">✅</div>
         <div class="dep-empty-title">Sin clientes operativos</div>
         <div style="font-size:12px">No hay registros operativos que coincidan con los filtros actuales.</div>
       </td></tr>`;
+  setTimeout(function(){initSortHeaders(document.getElementById('tbl-o'),[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);},20);
 }
 function renderInact(){
   const f=cls.filter(c=>c.es==='deshabilitado'||c.es==='perdido');
+  const fS=applySort(f,'tbl-i',[
+    null,           // #
+    d=>d.nm||'',    // Cliente
+    d=>d.pa||'',    // País
+    d=>d.ci||'',    // Ciudad
+    d=>d.ap||'',    // Aplicativo
+    d=>d.tp||'',    // Tipo
+    d=>d.es||'',    // Estado
+    null,           // Módulos
+    d=>d.co||'',    // Contacto
+    d=>d.ph||'',    // Tel
+    d=>d.no||'',    // Notas
+    null            // Acciones
+  ]);
+
   const tb=document.getElementById('itb');if(!tb)return;
-  tb.innerHTML=f.length?f.map((c,idx)=>{
+  tb.innerHTML=fS.length?fS.map((c,idx)=>{
     const moHtml=c.mo&&c.mo.length?c.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'—';
     const cx=complexBadge(c);
     return`<tr>
@@ -2880,6 +3017,20 @@ function renderInact(){
       <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')" title="Eliminar">🗑</button>
     </td>
   </tr>`;}).join(''):`<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes inactivos</td></tr>`;
+  initSortHeaders(document.getElementById('tbl-i'),[
+    null,           // #
+    d=>d.nm||'',    // Cliente
+    d=>d.pa||'',    // País
+    d=>d.ci||'',    // Ciudad
+    d=>d.ap||'',    // Aplicativo
+    d=>d.tp||'',    // Tipo
+    d=>d.es||'',    // Estado
+    null,           // Módulos
+    d=>d.co||'',    // Contacto
+    d=>d.ph||'',    // Tel
+    d=>d.no||'',    // Notas
+    null            // Acciones
+  ]);
 }
 
 
@@ -2919,7 +3070,26 @@ function renderCls(){
   });
   const _tot=fEs?cls.filter(c=>c.es===fEs).length:cls.length;const ccl=document.getElementById('ccl');if(ccl)ccl.textContent=`${f.length} de ${_tot}`;
   const tb=document.getElementById('ctb');if(!tb)return;
-  tb.innerHTML=f.length?f.map((c,idx)=>{
+  const fSorted=applySort(f,'tbl-c',[
+    null,                          // # (índice, no sorteable)
+    d=>d.nm||'',                   // Cliente
+    d=>d.pa||'',                   // País
+    d=>d.ci||'',                   // Ciudad
+    d=>d.ap||'',                   // Aplicativo
+    d=>d.tp||'',                   // Tipo
+    d=>d.bot||'',                  // Bot WA
+    d=>d.es||'',                   // Estado
+    d=>d.fconf||'',                // F. Confirmación (fecha)
+    null,                          // Módulos (no sorteable)
+    null,                          // Complejidad (badge)
+    d=>d.co||'',                   // Contacto
+    d=>d.ph||'',                   // Tel/Email
+    null,                          // WhatsApp
+    d=>d.no||'',                   // Notas
+    null                           // Acciones
+  ]);
+
+  tb.innerHTML=fSorted.length?fSorted.map((c,idx)=>{
     const cx=complexBadge({mo:c.mo});
     const _validMods=new Set((cats.md&&cats.md.length?cats.md:BASE_MD).map(m=>m.name));
     const moHtml=(c.mo||[]).filter(m=>_validMods.has(m)).map(m=>`<span class="mt">${esc(m)}</span>`).join('');
@@ -2944,7 +3114,25 @@ function renderCls(){
         <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')">🗑</button>
       </td>
     </tr>`;
-  }).join(''):`<tr><td colspan="14" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes. Prueba cambiar los filtros.</td></tr>`;
+  }).join(''):`<tr><td colspan="16" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes. Prueba cambiar los filtros.</td></tr>`;
+  initSortHeaders(document.getElementById('tbl-c'),[
+    null,                          // # (índice, no sorteable)
+    d=>d.nm||'',                   // Cliente
+    d=>d.pa||'',                   // País
+    d=>d.ci||'',                   // Ciudad
+    d=>d.ap||'',                   // Aplicativo
+    d=>d.tp||'',                   // Tipo
+    d=>d.bot||'',                  // Bot WA
+    d=>d.es||'',                   // Estado
+    d=>d.fconf||'',                // F. Confirmación (fecha)
+    null,                          // Módulos (no sorteable)
+    null,                          // Complejidad (badge)
+    d=>d.co||'',                   // Contacto
+    d=>d.ph||'',                   // Tel/Email
+    null,                          // WhatsApp
+    d=>d.no||'',                   // Notas
+    null                           // Acciones
+  ]);
 }
 
 // ─── CLIENT MODAL ─────────────────────────────────────
@@ -3604,7 +3792,22 @@ function renderCapacidad(){
 // ═══ CONTRATOS ═══════════════════════════════════════
 function renderContratos(){
   const tb=document.getElementById('cont-tbody');if(!tb)return;
-  tb.innerHTML=contratos.length?contratos.map(c=>{
+  tb.innerHTML=contratos.length?applySort(contratos,'cont-table',[
+    null,                    // #
+    c=>c.cliente||'',        // Cliente
+    null,                    // Tipos de Cobro (badges)
+    c=>c.botsActivos??0,     // Bots WA
+    c=>{                     // Est. Mensual (calculado)
+      try{
+        const ca=c.conductoresActivos||Math.max(0,...(c.componentes||[]).map(x=>x.minimo||0),c.minC||0);
+        const p=calcFactura(c,'',{conductores:ca,vehiculos:c.vehiculosActivos||0,bots:c.botsActivos||0});
+        return p.total;
+      }catch(e){return 0;}
+    },
+    c=>c.es||'',             // Estado
+    c=>c.nota||'',           // Notas
+    null                     // Acciones
+  ]).map(c=>{
     const comps=c.componentes||[];
     const botComp=comps.find(comp=>comp.tipo==='bot_wa');
     const compBadges=comps.length?comps.map(comp=>`<span class="tag" style="font-size:10.5px">${esc(comp.nombre||comp.tipo)}: $${comp.precio}${comp.minimo?' (mín '+comp.minimo+')':''}</span>`).join(' '):'<span style="color:var(--subtle);font-size:11px">Legacy</span>';
@@ -3625,6 +3828,22 @@ function renderContratos(){
       </td>
     </tr>`;
   }).join(''):`<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--subtle)">Sin contratos. Usa "+ Nuevo Contrato".</td></tr>`;
+  initSortHeaders(document.querySelector('.cont-table'),[
+    null,                    // #
+    c=>c.cliente||'',        // Cliente
+    null,                    // Tipos de Cobro (badges)
+    c=>c.botsActivos??0,     // Bots WA
+    c=>{                     // Est. Mensual (calculado)
+      try{
+        const ca=c.conductoresActivos||Math.max(0,...(c.componentes||[]).map(x=>x.minimo||0),c.minC||0);
+        const p=calcFactura(c,'',{conductores:ca,vehiculos:c.vehiculosActivos||0,bots:c.botsActivos||0});
+        return p.total;
+      }catch(e){return 0;}
+    },
+    c=>c.es||'',             // Estado
+    c=>c.nota||'',           // Notas
+    null                     // Acciones
+  ]);
 }
 function initContModal(){
   const sel=document.getElementById('comp-tipo');
@@ -3767,6 +3986,18 @@ function generarMesPasado(){
 function renderCobranzas(){
   const mes=document.getElementById('cob-mes')?.value||'';
   const filtered=cobros.filter(cb=>!mes||cb.mes===mes);
+  const filteredS=applySort(filtered,'cob-table',[
+    c=>c.cliente||'',        // Cliente
+    c=>c.mes||'',            // Mes (fecha YYYY-MM, sorteable como string)
+    c=>c.conductores??0,     // Activos
+    null,                    // Desglose
+    c=>c.descPct??0,         // Descuento
+    c=>c.total??0,           // Monto Final
+    c=>c.estado||'',         // Estado
+    c=>c.nota||'',           // Notas
+    null                     // Acciones
+  ]);
+
   const totFact=filtered.reduce((s,cb)=>s+(cb.montoFinal||0),0);
   const totCob=filtered.filter(cb=>cb.estado==='pagado'||cb.estado==='parcial').reduce((s,cb)=>s+(cb.montoFinal||0),0);
   const totPend=filtered.filter(cb=>cb.estado==='pendiente'||cb.estado==='atrasado').reduce((s,cb)=>s+(cb.montoFinal||0),0);
@@ -3775,13 +4006,13 @@ function renderCobranzas(){
     ['💰 Facturado','$'+totFact.toLocaleString(),'Total período','#1B4FD8'],
     ['✅ Cobrado','$'+totCob.toLocaleString(),cobPct+'% del facturado','#0F7E4F'],
     ['⏳ Pendiente','$'+totPend.toLocaleString(),'Por cobrar','#B45309'],
-    ['📊 Clientes',filtered.length,'con cobros','#5B21B6'],
+    ['📊 Clientes',filteredS.length,'con cobros','#5B21B6'],
   ];
   const cobKpis=document.getElementById('cob-kpis');
   if(cobKpis)cobKpis.innerHTML=kpis.map(([l,v,n,c])=>`<div class="kpi" style="--ac:${c}"><div class="kpi-lbl">${l}</div><div class="kpi-val" style="color:${c}">${v}</div><div class="kpi-note">${n}</div></div>`).join('');
   const statEl=document.getElementById('cob-stat-hdr');if(statEl)statEl.textContent=mes?mes:'Todos los meses';
   const tb=document.getElementById('cob-tbody');if(!tb)return;
-  tb.innerHTML=filtered.length?filtered.map(cb=>{
+  tb.innerHTML=filtered.length?filteredS.map(cb=>{
     const desgH=(cb.desglose||[]).map(d=>`<div style="font-size:11px;color:var(--muted)">• ${esc(d.nombre)}: <strong>$${d.monto}</strong></div>`).join('');
     const extH=(cb.extras||[]).map(e=>`<div style="font-size:11px;color:#1B4FD8">+ ${esc(e.nombre)}: <strong>$${e.monto}</strong></div>`).join('');
     return`<tr>
@@ -3818,6 +4049,17 @@ function renderCobranzas(){
     const counts=states.map(s=>filtered.filter(c=>c.estado===s).length);
     if(typeof Chart!=='undefined')cobCharts.pie=new Chart(ctx2,{type:'doughnut',data:{labels:states.map(s=>ESTADO_COBRO_STYLES[s].label),datasets:[{data:counts,backgroundColor:['#FDE68A','#6EE7B7','#FDBA74','#FECDD3'],borderColor:['#B45309','#0F7E4F','#C2410C','#BE123C'],borderWidth:2}]},options:{responsive:true,plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}}}});
   }
+  initSortHeaders(document.querySelector('.cob-table'),[
+    c=>c.cliente||'',        // Cliente
+    c=>c.mes||'',            // Mes (fecha YYYY-MM, sorteable como string)
+    c=>c.conductores??0,     // Activos
+    null,                    // Desglose
+    c=>c.descPct??0,         // Descuento
+    c=>c.total??0,           // Monto Final
+    c=>c.estado||'',         // Estado
+    c=>c.nota||'',           // Notas
+    null                     // Acciones
+  ]);
 }
 function cambiarEstadoCobro(id){
   const cb=cobros.find(c=>c.id==id);if(!cb)return;
