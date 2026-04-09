@@ -526,6 +526,15 @@ table { border:1px solid var(--border); }
 /* ── Sort headers ─────────────────────────────────────── */
 thead th[data-sortable] { cursor:pointer; user-select:none; }
 thead th:hover .sort-arrow { opacity:0.7 !important; }
+
+/* ── Checklist de fases ─────────────────────────── */
+#phase-tasks-modal .modal, #dep-checklist-modal .modal { max-width:580px; }
+#dcm-phases { max-height:55vh; overflow-y:auto; }
+
+/* ── Popup checklist flotante ─────────────────────── */
+#dep-checklist-popup { font-family: inherit; }
+#dep-checklist-popup::-webkit-scrollbar { width:4px; }
+#dep-checklist-popup::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 </style>
 </head>
 <body>
@@ -583,7 +592,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.10 · 09 Abr 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.12 · 09 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -1088,7 +1097,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
       <div class="sec-hdr"><div>
-        <div class="sec-title">📖 Manual de Uso — Ops Center v5.10</div>
+        <div class="sec-title">📖 Manual de Uso — Ops Center v5.12</div>
         <div class="sec-sub">Guía de referencia completa · Clipp Operations</div>
       </div></div>
 
@@ -1372,7 +1381,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
             <button class="btn btn-p btn-sm" onclick="savePhase()">+ Agregar</button>
           </div>
           <div class="tbl-wrap"><table class="cat-table">
-            <thead><tr><th>Orden</th><th>Ícono</th><th>Nombre</th><th>Descripción</th><th style="width:80px">Acciones</th></tr></thead>
+            <thead><tr><th>Orden</th><th>Ícono</th><th>Nombre</th><th>Descripción</th><th style="width:80px">Acciones</th><th>Tareas</th></tr></thead>
             <tbody id="ph-tbody"></tbody>
           </table></div>
         </div>
@@ -1868,13 +1877,13 @@ const BASE_IMPL_TIMES=[
 ];
 // Implementation phases
 const BASE_PHASES=[
-  {id:1,name:'Kick-off',icon:'🚀',desc:'Reunión inicial, levantamiento de requerimientos'},
-  {id:2,name:'Configuración',icon:'⚙️',desc:'Configuración de módulos y plataforma'},
-  {id:3,name:'Carga de datos',icon:'📦',desc:'Registro de conductores, vehículos, zonas'},
-  {id:4,name:'Pruebas',icon:'🧪',desc:'Testing con usuarios piloto'},
-  {id:5,name:'Capacitación',icon:'🎓',desc:'Entrenamiento a operadoras y conductores'},
-  {id:6,name:'Lanzamiento',icon:'🌟',desc:'Go-live en producción'},
-  {id:7,name:'Post-launch',icon:'📊',desc:'Seguimiento y ajustes post lanzamiento'},
+  {id:1,name:'Kick-off',icon:'🚀',desc:'Reunión inicial, levantamiento de requerimientos',tasks:['Preparar contratos y definiciones','Levantar definiciones finales para parametrizar (Demos y Reuniones)']},
+  {id:2,name:'Configuración',icon:'⚙️',desc:'Configuración de módulos y plataforma',tasks:['Preparar todo para lanzar Tarifario / Configuración']},
+  {id:3,name:'Carga de datos',icon:'📦',desc:'Registro de conductores, vehículos, zonas',tasks:['Capacitar a Operadoras','Call Center (N1) - Llamada Tradicional']},
+  {id:4,name:'Pruebas',icon:'🧪',desc:'Testing con usuarios piloto',tasks:['Conductores: Activamos y Capacitamos Grupos de 5 por Zoom (Múltiples Sesiones)','Liberamos Conductores App + Callcenter (N2) - Mensajes']},
+  {id:5,name:'Capacitación',icon:'🎓',desc:'Entrenamiento a operadoras y conductores',tasks:['Liberamos Conductores App + Callcenter (N3) - Geolocalización','Liberamos Conductores App + Callcenter (N4) + Bot WhatsApp IA (Inglés / Español)']},
+  {id:6,name:'Lanzamiento',icon:'🌟',desc:'Go-live en producción',tasks:['Reservas 2.0: Bot y Callcenter']},
+  {id:7,name:'Post-launch',icon:'📊',desc:'Seguimiento y ajustes post lanzamiento',tasks:[]},
 ];
 // Module categories catalog
 const BASE_CATMOD=[
@@ -2174,7 +2183,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.10'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.12'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -2386,8 +2395,17 @@ function diasBadge(dep){
   return`<span style="background:${color}18;color:${color};padding:2px 8px;border-radius:12px;font-size:11.5px;font-weight:700">${d}d</span>`;
 }
 function phaseBadge(dep){
-  const ph=(cats.phases||[])[dep.fase||0];if(!ph)return'—';
-  return`<span style="background:#EFF6FF;color:#1B4FD8;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${ph.icon||''} ${esc(ph.name)}</span>`;
+  const ph=(cats.phases&&cats.phases.length?cats.phases:BASE_PHASES)[dep.fase||0];if(!ph)return'—';
+  const tasks=ph.tasks||[];
+  const checks=(dep.phaseChecks||{})[ph.id]||[];
+  const done=tasks.filter((_,i)=>(checks[i]||0)===2).length;
+  const inProg=tasks.filter((_,i)=>(checks[i]||0)===1).length;
+  const progress=tasks.length?` <span style="opacity:.8;font-size:10px">${done}/${tasks.length}</span>`:'';
+  return`<span style="background:#EFF6FF;color:#1B4FD8;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px"
+    onclick="openDepChecklist(${dep.id},event)" title="Clic para ver checklist de tareas">
+    ${ph.icon||''} ${esc(ph.name)}${progress}
+    <span style="font-size:10px;opacity:.6">📋</span>
+  </span>`;
 }
 
 // ═══ BILLING ENGINE ══════════════════════════════════
@@ -4305,11 +4323,25 @@ function saveModDep(){
 function renderPhases(){
   if(!cats.phases||!cats.phases.length)cats.phases=BASE_PHASES.map(x=>Object.assign({},x));
   const el=document.getElementById('ph-tbody');if(!el)return;
-  el.innerHTML=(cats.phases||[]).map((p,i)=>`<tr><td>${i+1}</td><td>${p.icon||''}</td><td><strong>${esc(p.name)}</strong></td><td style="color:var(--muted)">${esc(p.desc||'')}</td><td><button class="icon-btn edit" onclick="editCatItem('phases',${p.id})">✏️</button><button class="icon-btn del" onclick="delCat('phases',${p.id},'${esc(p.name)}')">🗑</button></td></tr>`).join('')||`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--subtle)">Sin fases</td></tr>`;
+  el.innerHTML=(cats.phases||[]).map((p,i)=>{
+    const tasks=(p.tasks||[]);
+    const taskBadge=tasks.length?`<span style="background:#EFF6FF;color:#1B4FD8;padding:1px 7px;border-radius:10px;font-size:11px">${tasks.length} tarea${tasks.length>1?'s':''}</span>`:'<span style="color:var(--subtle);font-size:11px">Sin tareas</span>';
+    return`<tr>
+      <td style="width:32px;text-align:center;color:var(--muted)">${i+1}</td>
+      <td style="width:36px;text-align:center;font-size:16px">${p.icon||''}</td>
+      <td><strong>${esc(p.name)}</strong><br><span style="color:var(--muted);font-size:11.5px">${esc(p.desc||'')}</span></td>
+      <td>${taskBadge}</td>
+      <td style="white-space:nowrap">
+        <button class="icon-btn" onclick="openPhaseTasksEditor(${p.id})" title="Editar tareas" style="color:#1B4FD8">📋</button>
+        <button class="icon-btn edit" onclick="editCatItem('phases',${p.id})">✏️</button>
+        <button class="icon-btn del" onclick="delCat('phases',${p.id},'${esc(p.name)}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--subtle)">Sin fases</td></tr>`;
 }
 function savePhase(){
   const n=document.getElementById('ph-name').value.trim();if(!n)return;
-  cats.phases.push({id:Date.now(),icon:document.getElementById('ph-icon').value.trim(),name:n,desc:document.getElementById('ph-desc').value.trim()});
+  cats.phases.push({id:Date.now(),icon:document.getElementById('ph-icon').value.trim(),name:n,desc:document.getElementById('ph-desc').value.trim(),tasks:[]});
   sv();renderPhases();renderAfterSave();['ph-icon','ph-name','ph-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 function renderImplTimes(){
@@ -5169,6 +5201,213 @@ function subscribeRealtime(){
     }
   }).subscribe();
 }
+
+// ═══ FASE TASKS EDITOR (Catálogos) ══════════════════════════════════════
+let _ptmPhaseId = null;
+
+function openPhaseTasksEditor(phaseId){
+  const ph = (cats.phases||[]).find(p=>p.id===phaseId);
+  if(!ph) return;
+  _ptmPhaseId = phaseId;
+  document.getElementById('ptm-title').textContent = (ph.icon||'📋') + ' Tareas: ' + ph.name;
+  document.getElementById('ptm-desc').textContent = ph.desc || '';
+  renderPhaseTasksList(ph);
+  document.getElementById('phase-tasks-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('ptm-new-task').focus(), 100);
+}
+
+function renderPhaseTasksList(ph){
+  const tasks = ph.tasks || [];
+  const el = document.getElementById('ptm-list');
+  if(!el) return;
+  if(!tasks.length){
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--subtle);font-size:12px">Sin tareas — agrega la primera abajo</div>';
+    return;
+  }
+  el.innerHTML = tasks.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--bg2);margin-bottom:6px">
+      <span style="color:var(--muted);font-size:11px;font-family:monospace;min-width:20px">${i+1}.</span>
+      <span style="flex:1;font-size:13px">${esc(t)}</span>
+      <button class="icon-btn del" onclick="removePhaseTask(${i})" title="Eliminar tarea" style="flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+function addPhaseTask(){
+  const inp = document.getElementById('ptm-new-task');
+  const text = (inp?.value||'').trim();
+  if(!text) return;
+  const ph = (cats.phases||[]).find(p=>p.id===_ptmPhaseId);
+  if(!ph) return;
+  if(!ph.tasks) ph.tasks = [];
+  ph.tasks.push(text);
+  inp.value = '';
+  sv();
+  renderPhaseTasksList(ph);
+  renderPhases();
+}
+
+function removePhaseTask(idx){
+  const ph = (cats.phases||[]).find(p=>p.id===_ptmPhaseId);
+  if(!ph||!ph.tasks) return;
+  ph.tasks.splice(idx, 1);
+  sv();
+  renderPhaseTasksList(ph);
+  renderPhases();
+}
+
+// ═══ CHECKLIST DE DESPLIEGUE ════════════════════════════════════════════
+// dep.phaseChecks = { phaseId: [true, false, true, ...] }
+// Índice = índice de tarea en cats.phases[idx].tasks[]
+
+// ═══ CHECKLIST DE DESPLIEGUE — 3 ESTADOS ════════════════════════════════
+// phaseChecks[phaseId][taskIdx] = 0 (pendiente) | 1 (en proceso) | 2 (completado)
+
+const TASK_STATES = [
+  {val:0, label:'Pendiente',   icon:'⬜', color:'#94A3B8', bg:'#F8FAFC'},
+  {val:1, label:'En Proceso',  icon:'🔄', color:'#B45309', bg:'#FEF9C3'},
+  {val:2, label:'Completado',  icon:'✅', color:'#0F7E4F', bg:'#ECFDF5'},
+];
+
+function setDepTaskStatus(depId, phaseId, taskIdx, status){
+  const d = deps.find(x=>x.id===depId);
+  if(!d) return;
+  if(!d.phaseChecks) d.phaseChecks = {};
+  if(!d.phaseChecks[phaseId] === undefined || !Array.isArray(d.phaseChecks[phaseId]))
+    d.phaseChecks[phaseId] = [];
+  d.phaseChecks[phaseId][taskIdx] = status;
+
+  // Auto-avance: si todas las tareas de la fase actual están en estado 2 (Completado)
+  const phases = cats.phases&&cats.phases.length ? cats.phases : BASE_PHASES;
+  const curPhase = phases[d.fase||0];
+  if(curPhase && curPhase.id === phaseId){
+    const tasks = curPhase.tasks||[];
+    const checks = d.phaseChecks[phaseId]||[];
+    const allDone = tasks.length>0 && tasks.every((_,i)=>(checks[i]||0)===2);
+    if(allDone){
+      const maxFase = phases.length - 1;
+      if((d.fase||0) < maxFase){
+        d.fase = (d.fase||0) + 1;
+        const nextPh = phases[d.fase];
+        showSync(true, '🎉 Fase completada → '+(nextPh?.icon||'')+' '+(nextPh?.name||''));
+        setTimeout(()=>setSyncStatus(''), 3000);
+      }
+    }
+  }
+
+  sv();
+  // Re-renderizar el popup flotante con estado actualizado
+  renderDepChecklistPopup(d);
+  // Actualizar badge de fase en la tabla
+  renderAfterSave();
+}
+
+function openDepChecklist(depId, evt){
+  const d = deps.find(x=>x.id===depId);
+  if(!d) return;
+  // Posicionar popup cerca del badge clicado
+  const popup = document.getElementById('dep-checklist-popup');
+  if(!popup) return;
+  if(evt){
+    const r = evt.target.closest('span')?.getBoundingClientRect() || evt.target.getBoundingClientRect();
+    const top  = Math.min(r.bottom+6, window.innerHeight-420);
+    const left = Math.max(8, Math.min(r.left, window.innerWidth-380));
+    popup.style.top  = top  + 'px';
+    popup.style.left = left + 'px';
+  }
+  popup.style.display = 'block';
+  renderDepChecklistPopup(d);
+  // Cerrar al hacer clic fuera
+  setTimeout(()=>{
+    document.addEventListener('mousedown', function closePopup(e){
+      if(!popup.contains(e.target)){ popup.style.display='none'; document.removeEventListener('mousedown',closePopup); }
+    });
+  }, 50);
+}
+
+function renderDepChecklistPopup(dep){
+  const popup = document.getElementById('dep-checklist-popup');
+  if(!popup) return;
+  const phases = cats.phases&&cats.phases.length ? cats.phases : BASE_PHASES;
+  const checks = dep.phaseChecks || {};
+  const curFase = dep.fase || 0;
+
+  // Título
+  const cl = cls.find(c=>c.id===dep.cid)||{nm:dep.c};
+  popup.querySelector('#dcp-title').textContent = (cl.nm||dep.c||'Despliegue');
+
+  // Renderizar fases y tareas
+  const body = popup.querySelector('#dcp-body');
+  body.innerHTML = phases.map((ph, phIdx)=>{
+    const tasks = ph.tasks||[];
+    if(!tasks.length) return ''; // ocultar fases sin tareas
+    const phChecks = checks[ph.id] || [];
+    const done = tasks.filter((_,i)=>(phChecks[i]||0)===2).length;
+    const isActive = phIdx === curFase;
+    const isDone   = done === tasks.length && tasks.length > 0;
+
+    const headerBg = isActive ? 'background:#EFF6FF;border-left:3px solid #1B4FD8'
+                   : isDone   ? 'background:#ECFDF5;border-left:3px solid #0F7E4F'
+                   :            'background:var(--bg2);border-left:3px solid transparent';
+
+    return`<div style="${headerBg};border-radius:6px;padding:8px 10px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:${tasks.length?'8px':'0'}">
+        <span>${ph.icon||'📍'}</span>
+        <span style="font-weight:700;font-size:12.5px;flex:1">${esc(ph.name)}</span>
+        ${isActive?'<span style="background:#1B4FD8;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px">ACTUAL</span>':''}
+        ${isDone&&!isActive?'<span style="color:#0F7E4F;font-size:11px">✅ ${done}/${tasks.length}</span>':''}
+        ${!isDone?`<span style="color:var(--muted);font-size:11px">${done}/${tasks.length}</span>`:''}
+      </div>
+      ${tasks.map((t,ti)=>{
+        const st = phChecks[ti]||0;
+        const S = TASK_STATES;
+        return`<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 2px;border-radius:4px;margin-bottom:2px"
+                    onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background=''">
+          <!-- Botón de estado: clic para ciclar 0→1→2→0 -->
+          <button onclick="setDepTaskStatus(${dep.id},${ph.id},${ti},(${st}+1)%3)"
+                  style="border:none;background:${S[st].bg};color:${S[st].color};padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;min-width:90px;text-align:center"
+                  title="Clic para cambiar estado">${S[st].icon} ${S[st].label}</button>
+          <span style="font-size:12.5px;${st===2?'text-decoration:line-through;color:var(--muted)':''};line-height:1.4">${esc(t)}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('') || '<div style="color:var(--subtle);font-size:12px;padding:12px;text-align:center">Sin tareas configuradas.<br>Agrégalas en Catálogos → Fases 📋</div>';
+}
+
+
+function toggleDepTask(depId, phaseId, taskIdx, checked){
+  const d = deps.find(x=>x.id===depId);
+  if(!d) return;
+  if(!d.phaseChecks) d.phaseChecks = {};
+  if(!d.phaseChecks[phaseId]) d.phaseChecks[phaseId] = [];
+  d.phaseChecks[phaseId][taskIdx] = checked;
+
+  // Auto-avance de fase si todas las tareas están completadas
+  const phases = cats.phases&&cats.phases.length ? cats.phases : BASE_PHASES;
+  const curPhase = phases[d.fase||0];
+  if(curPhase && curPhase.id === phaseId){
+    const tasks = curPhase.tasks||[];
+    const checks = d.phaseChecks[phaseId]||[];
+    const allDone = tasks.length>0 && tasks.every((_,i)=>checks[i]);
+    if(allDone){
+      const maxFase = phases.length - 1;
+      if((d.fase||0) < maxFase){
+        d.fase = (d.fase||0) + 1;
+        // Mostrar notificación de avance
+        const nextPh = phases[d.fase];
+        showSync(true, '🎉 Fase completada → ' + (nextPh?.icon||'') + ' ' + (nextPh?.name||''));
+        setTimeout(()=>setSyncStatus(''), 3000);
+      }
+    }
+  }
+
+  sv();
+  // Re-renderizar el modal con el estado actualizado
+  renderDepChecklistModal(d);
+  // Actualizar el badge de fase en la tabla
+  updBadges();
+  renderAfterSave();
+}
+
 function bootApp(){
   // DATA RESET: force reload when version changes
   var DATA_VERSION='v5.2_stable';
@@ -5270,5 +5509,38 @@ if(location.search.includes('demo=1')){
 })();
 
 </script>
+
+<!-- ══ MODAL EDITOR TAREAS DE FASE ══ -->
+<div class="modal-ov" id="phase-tasks-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="m-title">
+      <span id="ptm-title">📋 Tareas de Fase</span>
+      <button class="m-close" onclick="closeM('phase-tasks-modal')">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px" id="ptm-desc"></div>
+    <div id="ptm-list" style="margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input class="fld" id="ptm-new-task" placeholder="Nueva tarea..." style="flex:1" 
+             onkeydown="if(event.key==='Enter')addPhaseTask()">
+      <button class="btn btn-p btn-sm" onclick="addPhaseTask()">+ Agregar</button>
+    </div>
+    <div class="m-actions" style="margin-top:16px">
+      <button class="btn btn-g" onclick="closeM('phase-tasks-modal')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ POPUP CHECKLIST INLINE ══ -->
+<div id="dep-checklist-popup" style="display:none;position:fixed;z-index:4000;width:360px;max-height:420px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:14px 14px 10px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div>
+      <div style="font-weight:700;font-size:13px" id="dcp-title">Checklist</div>
+      <div style="font-size:11px;color:var(--muted)">Clic en el estado para cambiarlo</div>
+    </div>
+    <button onclick="document.getElementById('dep-checklist-popup').style.display='none'"
+            style="border:none;background:none;font-size:16px;cursor:pointer;color:var(--muted);padding:2px 6px">✕</button>
+  </div>
+  <div id="dcp-body"></div>
+</div>
 </body>
 </html>
