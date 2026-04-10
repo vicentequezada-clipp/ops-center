@@ -1445,12 +1445,7 @@ function hasLegacyLocalState() {
 
 function clearLegacyLocalState() { Object.values(KEYS).forEach(k => localStorage.removeItem(k)); }
 
-function getSerializableDB() {
-  return { countries:DB.countries||[], cities:DB.cities||[], appTypes:DB.appTypes||[],
-    apps:DB.apps||[], companies:DB.companies||[], modules:DB.modules||[],
-    vehicleTypes:DB.vehicleTypes||[], chars:DB.chars||[],
-    companyChars:DB.companyChars||[], roaming:DB.roaming||[] };
-}
+// getSerializableDB definida más abajo (única fuente)
 
 function _sbErr(e) {
   if (!e) return 'Error desconocido';
@@ -2799,6 +2794,7 @@ function getSerializableDB() {
     apps: DB.apps || [],
     companies: DB.companies || [],
     modules: DB.modules || [],
+    vehicleTypes: DB.vehicleTypes || [],
     chars: DB.chars || [],
     companyChars: DB.companyChars || [],
     roaming: DB.roaming || []
