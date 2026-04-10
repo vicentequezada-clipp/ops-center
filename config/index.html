@@ -344,7 +344,7 @@ table {
 }
 
 .table-wrap.overflow table {
-  min-width: 900px;
+  min-width: 760px;
 }
 
 .table-wrap.overflow th:last-child,
@@ -358,7 +358,7 @@ thead tr {
 }
 
 th {
-  padding: 9px 14px;
+  padding: 7px 10px;
   text-align: left;
   font-family: var(--font-mono);
   font-size: 9.5px;
@@ -370,7 +370,7 @@ th {
 }
 
 td {
-  padding: 10px 14px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   color: var(--text-1);
@@ -422,16 +422,23 @@ tbody tr:hover td { background: var(--bg-2); }
 }
 
 .entity-table .cell-actions .btn {
-  margin-left: 6px;
+  margin-left: 4px;
 }
 
-.col-actions { width: 170px; }
-.col-id { width: 90px; }
-.col-name { width: 28%; }
-.col-country, .col-city, .col-app, .col-type { width: 20%; }
-.col-count, .col-status, .col-used { width: 120px; }
-.col-modules { width: 26%; }
-.col-assigned { width: 140px; }
+.badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.col-actions { width: 138px; }
+.col-id { width: 72px; }
+.col-name { width: 24%; }
+.col-country, .col-city, .col-app, .col-type { width: 16%; }
+.col-count, .col-status, .col-used { width: 96px; }
+.col-modules { width: 21%; }
+.col-assigned { width: 112px; }
 
 
 .empty-row td {
@@ -628,7 +635,7 @@ tbody tr:hover td { background: var(--bg-2); }
 .char-line { display:flex; align-items:flex-start; gap:6px; width:100%; min-width:0; font-size:11px; line-height:1.25; color: var(--text-1); }
 .char-line-id { flex:0 0 44px; font-family: var(--font-mono); color: var(--blue); white-space: nowrap; }
 .char-line-sep { flex:0 0 auto; color: var(--text-3); font-family: var(--font-mono); }
-.char-line-app { flex:0 0 88px; color: var(--text-2); white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+.char-line-app { flex:0 0 78px; color: var(--text-2); white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
 .char-line-name { flex:1 1 auto; min-width:0; color: var(--text-1); white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
 .matrix-company-grid {
   display: grid;
@@ -642,12 +649,38 @@ tbody tr:hover td { background: var(--bg-2); }
   border-radius: var(--radius);
 }
 .matrix-company-grid .checkbox-item label { white-space: normal; }
-#matrix-table th:nth-child(5), #matrix-table td:nth-child(5) { width: 130px; max-width: 130px; }
-#matrix-table th:nth-child(6), #matrix-table td:nth-child(6) { width: 360px; min-width: 360px; }
+#matrix-table { min-width: 1420px; table-layout: fixed; }
+#matrix-table th:nth-child(1), #matrix-table td:nth-child(1) { width: 150px; min-width: 150px; }
+#matrix-table th:nth-child(2), #matrix-table td:nth-child(2) { width: 115px; min-width: 115px; }
+#matrix-table th:nth-child(3), #matrix-table td:nth-child(3) { width: 88px; min-width: 88px; }
+#matrix-table th:nth-child(4), #matrix-table td:nth-child(4) { width: 95px; min-width: 95px; }
+#matrix-table th:nth-child(5), #matrix-table td:nth-child(5) { width: 110px; min-width: 110px; }
+#matrix-table th:nth-child(6), #matrix-table td:nth-child(6) { width: 112px; min-width: 112px; }
+#matrix-table th:nth-child(7), #matrix-table td:nth-child(7) { width: 270px; min-width: 270px; }
+#matrix-table th:nth-child(8), #matrix-table td:nth-child(8) { width: 240px; min-width: 240px; }
+#matrix-table th:nth-child(9), #matrix-table td:nth-child(9) { width: 240px; min-width: 240px; }
 
-.roaming-stack { display:flex; flex-direction:column; gap:6px; align-items:flex-start; min-width:0; }
-.roaming-line { display:block; width:100%; }
+.roaming-stack { display:flex; flex-direction:column; gap:6px; align-items:stretch; min-width:0; width:100%; }
+.roaming-line { display:block; width:100%; min-width:0; }
 .roaming-stack .roaming-chip { margin:0; max-width:100%; }
+#matrix-table td, #matrix-table th { vertical-align: top; overflow: hidden; }
+#matrix-table th { line-height: 1.2; }
+
+#matrix-table .badge-list { align-items: flex-start; }
+#matrix-table .roaming-stack, #matrix-table .char-stack { min-width: 0; }
+#matrix-table .badge { white-space: normal; }
+
+.city-group-body table { table-layout: fixed; width: 100%; }
+.city-group-body th:nth-child(1), .city-group-body td:nth-child(1) { width: 138px; }
+.city-group-body th:nth-child(2), .city-group-body td:nth-child(2) { width: 34px; }
+.city-group-body th:nth-child(3), .city-group-body td:nth-child(3) { width: 165px; }
+.city-group-body th:nth-child(4), .city-group-body td:nth-child(4) { width: 100px; }
+.city-group-body th:nth-child(5), .city-group-body td:nth-child(5) { width: 56px; }
+.city-group-body th:nth-child(6), .city-group-body td:nth-child(6) { width: 56px; }
+.city-group-body th:nth-child(7), .city-group-body td:nth-child(7) { width: 230px; }
+.city-group-body th:nth-child(8), .city-group-body td:nth-child(8) { width: 132px; }
+.city-group-body th:nth-child(9), .city-group-body td:nth-child(9) { width: 132px; }
+
 
 
 /* ── MATRIX VIEW ── */
@@ -670,19 +703,30 @@ tbody tr:hover td { background: var(--bg-2); }
 
 .roaming-chip {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 10px;
-  margin: 2px;
-  white-space: nowrap;
+  line-height: 1.3;
+  margin: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .chip-send { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
 .chip-receive { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
-.chip-meta { font-size: 9px; opacity: 0.7; }
+.chip-meta { font-size: 9px; opacity: 0.7; white-space: nowrap; flex: 0 0 auto; align-self: center; }
+
+#matrix-table tbody tr { border-bottom: 1px solid var(--border); }
+#matrix-table tbody tr:last-child { border-bottom: none; }
+#matrix-table td > div,
+#matrix-table td > span { min-width: 0; }
+#matrix-table .badge-list { display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start; }
+#matrix-table .badge { max-width: 100%; overflow-wrap: anywhere; }
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -779,6 +823,16 @@ tbody tr:hover td { background: var(--bg-2); }
   border-radius: 0 0 var(--radius) var(--radius);
   overflow: hidden;
 }
+
+@media (max-width: 1366px) {
+  #content { padding: 16px; }
+  .matrix-filters { padding: 12px 14px; gap: 10px; }
+  #matrix-table { min-width: 1320px; }
+  #matrix-table th:nth-child(7), #matrix-table td:nth-child(7) { width: 240px; min-width: 240px; }
+  #matrix-table th:nth-child(8), #matrix-table td:nth-child(8),
+  #matrix-table th:nth-child(9), #matrix-table td:nth-child(9) { width: 210px; min-width: 210px; }
+}
+
 </style>
 </head>
 <body>
@@ -835,6 +889,10 @@ tbody tr:hover td { background: var(--bg-2); }
       <div class="nav-item" data-view="modules">
         <span class="nav-icon">⊟</span> Periféricos
         <span class="nav-badge" id="badge-modules">0</span>
+      </div>
+      <div class="nav-item" data-view="vehicle-types">
+        <span class="nav-icon">▤</span> Tipos vehículo
+        <span class="nav-badge" id="badge-vehicletypes">0</span>
       </div>
       <div class="nav-item" data-view="characteristics">
         <span class="nav-icon">◆</span> Características
@@ -916,6 +974,7 @@ tbody tr:hover td { background: var(--bg-2); }
               <th>Aplicativo</th>
               <th>Tipo</th>
               <th>Ciudad</th>
+              <th>Tipo vehículo</th>
               <th>Periféricos</th>
               <th>Características</th>
               <th>Envía a →</th>
@@ -1004,6 +1063,16 @@ tbody tr:hover td { background: var(--bg-2); }
         </div>
       </div>
 
+      <!-- TIPOS VEHÍCULO -->
+      <div class="view" id="view-vehicle-types">
+        <div class="table-wrap">
+          <table class="entity-table">
+            <thead><tr><th class="col-name">Nombre</th><th class="col-status">Estado</th><th class="col-actions"></th></tr></thead>
+            <tbody id="vehicletypes-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- CARACTERÍSTICAS -->
       <div class="view" id="view-characteristics">
         <div class="table-wrap overflow">
@@ -1068,6 +1137,7 @@ const KEYS = {
   apps: 'rt_apps',
   companies: 'rt_companies',
   modules: 'rt_modules',
+  vehicleTypes: 'rt_vehicle_types',
   chars: 'rt_chars',
   companyChars: 'rt_company_chars',
   roaming: 'rt_roaming'
@@ -1086,6 +1156,7 @@ function loadDB() {
   DB.apps = load(KEYS.apps);
   DB.companies = load(KEYS.companies);
   DB.modules = load(KEYS.modules);
+  DB.vehicleTypes = load(KEYS.vehicleTypes);
   DB.chars = load(KEYS.chars).map(item => ({
     ...item,
     id: String(item.id || '').trim(),
@@ -1105,7 +1176,8 @@ function normalizeRoamingRules() {
     return {
       ...rule,
       targetCompanyIds,
-      targetCompanyId: targetCompanyIds[0] || ''
+      targetCompanyId: targetCompanyIds[0] || '',
+      vehicleTypeId: rule.vehicleTypeId || ''
     };
   });
 }
@@ -1202,6 +1274,7 @@ const VIEW_TITLES = {
   applications: 'Aplicativos',
   companies: 'Empresas',
   modules: 'Periféricos',
+  'vehicle-types': 'Tipos de Vehículo',
   characteristics: 'Características',
   roaming: 'Configuración de Roaming'
 };
@@ -1213,6 +1286,7 @@ const VIEW_ACTIONS = {
   applications: () => `<button class="btn btn-primary" onclick="openAppModal()">+ Nuevo Aplicativo</button>`,
   companies: () => `<button class="btn btn-primary" onclick="openCompanyModal()">+ Nueva Empresa</button>`,
   modules: () => `<button class="btn btn-primary" onclick="openModuleModal()">+ Nuevo Periférico</button>`,
+  'vehicle-types': () => `<button class="btn btn-primary" onclick="openVehicleTypeModal()">+ Nuevo Tipo de Vehículo</button>`,
   characteristics: () => `<button class="btn btn-primary" onclick="openCharModal()">+ Nueva Característica</button>`,
   roaming: () => `<button class="btn btn-primary" onclick="openRoamingModal()">+ Nueva Regla</button>`
 };
@@ -1294,6 +1368,7 @@ function renderViews() {
   renderApps();
   renderCompanies();
   renderModules();
+  renderVehicleTypes();
   renderChars();
   renderRoaming();
 }
@@ -1311,6 +1386,7 @@ function updateBadges() {
   document.getElementById('badge-apps').textContent = DB.apps.length;
   document.getElementById('badge-companies').textContent = DB.companies.length;
   document.getElementById('badge-modules').textContent = DB.modules.length;
+  document.getElementById('badge-vehicletypes').textContent = DB.vehicleTypes.length;
   document.getElementById('badge-chars').textContent = DB.chars.length;
   document.getElementById('badge-roaming').textContent = DB.roaming.length;
 }
@@ -1367,56 +1443,71 @@ function renderMatrix() {
   }
 
   const tbody = document.getElementById('matrix-tbody');
-  if (!companies.length) { tbody.innerHTML = emptyRow(8, 'Sin empresas para los filtros seleccionados'); return; }
+  if (!companies.length) { tbody.innerHTML = emptyRow(9, 'Sin empresas para los filtros seleccionados'); return; }
 
-  tbody.innerHTML = companies.map(co => {
+  const rows = [];
+  companies.forEach(co => {
     const city = byId(DB.cities, co.cityId);
     const app = byId(DB.apps, co.applicationId);
     const appType = app ? byId(DB.appTypes, app.typeId) : null;
     const mods = (co.moduleIds || []).map(mid => getName(DB.modules, mid)).filter(Boolean);
-        const outgoing = getOutgoingRules(co.id);
+    const outgoing = getOutgoingRules(co.id);
     const incoming = getIncomingRules(co.id);
 
-    const charMap = new Map();
-    incoming.forEach(r => {
-      const sourceLines = (Array.isArray(r.characteristicSnapshots) && r.characteristicSnapshots.length)
-        ? r.characteristicSnapshots.map(ch => ({
-            key: [ch.id || ch.code || '', ch.applicationText || ch.application || ch.applicationId || '', ch.name || ''].join('||'),
-            html: renderCharacteristicLine(ch)
-          }))
-        : (r.characteristicIds || []).map(cid => ({
-            key: String(cid),
-            html: formatCharacteristicLineById(cid)
-          }));
-      sourceLines.forEach(item => {
-        if (item.html && !charMap.has(item.key)) charMap.set(item.key, item.html);
+    const vehicleTypeKeys = new Set();
+    [...outgoing, ...incoming].forEach(r => vehicleTypeKeys.add(r.vehicleTypeId || '__none__'));
+    if (!vehicleTypeKeys.size) vehicleTypeKeys.add('__none__');
+
+    Array.from(vehicleTypeKeys).forEach(vehicleTypeId => {
+      const outgoingRules = outgoing.filter(r => (r.vehicleTypeId || '__none__') === vehicleTypeId);
+      const incomingRules = incoming.filter(r => (r.vehicleTypeId || '__none__') === vehicleTypeId);
+
+      const charMap = new Map();
+      [...outgoingRules, ...incomingRules].forEach(r => {
+        const sourceLines = (Array.isArray(r.characteristicSnapshots) && r.characteristicSnapshots.length)
+          ? r.characteristicSnapshots.map(ch => ({
+              key: [ch.id || ch.code || '', ch.applicationText || ch.application || ch.applicationId || '', ch.name || ''].join('||'),
+              html: renderCharacteristicLine(ch)
+            }))
+          : (r.characteristicIds || []).map(cid => ({
+              key: String(cid),
+              html: formatCharacteristicLineById(cid)
+            }));
+        sourceLines.forEach(item => {
+          if (item.html && !charMap.has(item.key)) charMap.set(item.key, item.html);
+        });
       });
+      const ruleCharLines = Array.from(charMap.values());
+
+      const sendChips = outgoingRules.flatMap(r => {
+        return getRuleTargetIds(r).map(tid => {
+          const tgt = byId(DB.companies, tid);
+          return `<div class="roaming-line"><span class="roaming-chip chip-send">→ ${tgt ? tgt.name : '?'}${tgt && tgt.id === co.id ? ' (misma empresa)' : ''} <span class="chip-meta">${r.jumps}j/${r.threads}h</span></span></div>`;
+        });
+      }).join('');
+
+      const recvChips = incomingRules.map(r => {
+        const src = byId(DB.companies, r.sourceCompanyId);
+        return `<div class="roaming-line"><span class="roaming-chip chip-receive">← ${src ? src.name : '?'}${src && src.id === co.id ? ' (misma empresa)' : ''}</span></div>`;
+      }).join('');
+
+      const vehicleTypeName = vehicleTypeId === '__none__' ? '—' : getName(DB.vehicleTypes, vehicleTypeId);
+
+      rows.push(`<tr>
+        <td><strong>${co.name}</strong></td>
+        <td class="text-dim">${app ? app.name : '—'}</td>
+        <td>${appType ? `<span class="badge badge-blue">${appType.name}</span>` : '<span class="text-dimmer">—</span>'}</td>
+        <td class="text-dim">${city ? city.name : '—'}</td>
+        <td>${vehicleTypeName === '—' ? '<span class="text-dimmer">—</span>' : `<span class="badge badge-accent">${vehicleTypeName}</span>`}</td>
+        <td><div class="badge-list">${mods.map(m => `<span class="badge badge-purple">${m}</span>`).join('') || '<span class="text-dimmer">—</span>'}</div></td>
+        <td><div class="char-stack">${ruleCharLines.join('') || '<span class="text-dimmer">—</span>'}</div></td>
+        <td><div class="roaming-stack">${sendChips || '<span class="text-dimmer">—</span>'}</div></td>
+        <td><div class="roaming-stack">${recvChips || '<span class="text-dimmer">—</span>'}</div></td>
+      </tr>`);
     });
-    const ruleCharLines = Array.from(charMap.values());
+  });
 
-    const sendChips = outgoing.flatMap(r => {
-      return getRuleTargetIds(r).map(tid => {
-        const tgt = byId(DB.companies, tid);
-        return `<div class="roaming-line"><span class="roaming-chip chip-send">→ ${tgt ? tgt.name : '?'}${tgt && tgt.id === co.id ? ' (misma empresa)' : ''} <span class="chip-meta">${r.jumps}j/${r.threads}h</span></span></div>`;
-      });
-    }).join('');
-
-    const recvChips = incoming.map(r => {
-      const src = byId(DB.companies, r.sourceCompanyId);
-      return `<div class="roaming-line"><span class="roaming-chip chip-receive">← ${src ? src.name : '?'}${src && src.id === co.id ? ' (misma empresa)' : ''}</span></div>`;
-    }).join('');
-
-    return `<tr>
-      <td><strong>${co.name}</strong></td>
-      <td class="text-dim">${app ? app.name : '—'}</td>
-      <td>${appType ? `<span class="badge badge-blue">${appType.name}</span>` : '<span class="text-dimmer">—</span>'}</td>
-      <td class="text-dim">${city ? city.name : '—'}</td>
-      <td><div class="badge-list">${mods.map(m => `<span class="badge badge-purple">${m}</span>`).join('') || '<span class="text-dimmer">—</span>'}</div></td>
-      <td><div class="char-stack">${ruleCharLines.join('') || '<span class="text-dimmer">—</span>'}</div></td>
-      <td><div class="roaming-stack">${sendChips || '<span class="text-dimmer">—</span>'}</div></td>
-      <td><div class="roaming-stack">${recvChips || '<span class="text-dimmer">—</span>'}</div></td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = rows.join('') || emptyRow(9, 'Sin datos');
 }
 
 // ════════════════════════════════════════════════
@@ -1743,6 +1834,45 @@ function openModuleModal(id) {
 }
 
 // ════════════════════════════════════════════════
+// VEHICLE TYPES
+// ════════════════════════════════════════════════
+
+function renderVehicleTypes() {
+  const tbody = document.getElementById('vehicletypes-tbody');
+  if (!DB.vehicleTypes.length) { tbody.innerHTML = emptyRow(3); return; }
+  tbody.innerHTML = DB.vehicleTypes.map(v => `<tr>
+      <td><strong>${v.name}</strong></td>
+      <td>${statusBadge(v.active)}</td>
+      <td style="text-align:right">
+        <button class="btn btn-secondary btn-sm" onclick="openVehicleTypeModal('${v.id}')">Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('vehicleType','${v.id}')">Eliminar</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openVehicleTypeModal(id) {
+  const item = id ? byId(DB.vehicleTypes, id) : null;
+  openModal(id ? 'Editar Tipo de Vehículo' : 'Nuevo Tipo de Vehículo', `
+    <div class="form-group">
+      <label class="form-label">Nombre</label>
+      <input class="form-control" id="f-name" value="${item ? item.name : ''}">
+    </div>
+    ${toggleField('f-active', item ? item.active : true)}
+  `, () => {
+    const name = document.getElementById('f-name').value.trim();
+    if (!name) return toast('El nombre es obligatorio', 'error');
+    if (id) {
+      const idx = DB.vehicleTypes.findIndex(x => x.id === id);
+      DB.vehicleTypes[idx] = { ...DB.vehicleTypes[idx], name, active: getToggle('f-active') };
+    } else {
+      DB.vehicleTypes.push({ id: uid(), name, active: getToggle('f-active') });
+    }
+    saveDB(); closeModal(); renderAll(); toast('Tipo de vehículo guardado');
+  });
+}
+
+// ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // CHARACTERISTICS
 // ════════════════════════════════════════════════
 
@@ -1833,10 +1963,12 @@ function renderRoaming() {
         ? r.characteristicSnapshots.map(ch => renderCharacteristicLine(ch))
         : (r.characteristicIds||[]).map(cid => formatCharacteristicLineById(cid))
       ).filter(Boolean);
+      const vehicleTypeName = r.vehicleTypeId ? getName(DB.vehicleTypes, r.vehicleTypeId) : '—';
       return `<tr>
         <td><strong>${src ? src.name : '—'}</strong></td>
         <td style="color:var(--green)">→</td>
         <td><div class="char-stack">${targetNames.map(n => `<div class="char-line"><span class="char-line-name">${n}</span></div>`).join('') || '<span class="text-dimmer">—</span>'}</div></td>
+        <td>${vehicleTypeName === '—' ? '<span class="text-dimmer">—</span>' : `<span class="badge badge-accent">${vehicleTypeName}</span>`}</td>
         <td class="mono">${r.jumps}</td>
         <td class="mono">${r.threads}</td>
         <td><div class="char-stack">${charLines.join('') || '<span class="text-dimmer">—</span>'}</div></td>
@@ -1846,7 +1978,7 @@ function renderRoaming() {
           <button class="btn btn-danger btn-sm" onclick="confirmDelete('roaming','${r.id}')">Eliminar</button>
         </td>
       </tr>`;
-    }).join('') : `<tr class="empty-row"><td colspan="8">Sin reglas — usa "+ Nueva Regla" para agregar</td></tr>`;
+    }).join('') : `<tr class="empty-row"><td colspan="9">Sin reglas — usa "+ Nueva Regla" para agregar</td></tr>`;
 
     return `<div class="city-group">
       <div class="city-group-header">
@@ -1857,7 +1989,7 @@ function renderRoaming() {
       <div class="city-group-body">
         <table>
           <thead><tr>
-            <th>Origen</th><th></th><th>Destino</th><th>Saltos</th><th>Hilos</th><th>Características</th><th>Estado</th><th></th>
+            <th>Origen</th><th></th><th>Destino</th><th>Tipo vehículo</th><th>Saltos</th><th>Hilos</th><th>Características</th><th>Estado</th><th></th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
@@ -1917,13 +2049,23 @@ function openRoamingModal(id, prefillCityId) {
     </div>
     <div class="form-row">
       <div class="form-group">
+        <label class="form-label">Tipo de vehículo</label>
+        <select class="form-control" id="f-vehicle-type">
+          <option value="">— Sin tipo —</option>
+          ${DB.vehicleTypes.map(v => `<option value="${v.id}"${item && item.vehicleTypeId===v.id?' selected':''}>${v.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
         <label class="form-label">Saltos</label>
         <input class="form-control" type="number" id="f-jumps" min="1" value="${item ? item.jumps : 1}">
       </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label class="form-label">Hilos</label>
         <input class="form-control" type="number" id="f-threads" min="1" value="${item ? item.threads : 1}">
       </div>
+      <div></div>
     </div>
     <div class="form-group">
       <label class="form-label">Características</label>
@@ -1939,6 +2081,7 @@ function openRoamingModal(id, prefillCityId) {
     const cityId = document.getElementById('f-city-r').value;
     const src = document.getElementById('f-src').value;
     const tgt = document.getElementById('f-tgt').value;
+    const vehicleTypeId = document.getElementById('f-vehicle-type').value;
     const jumps = parseInt(document.getElementById('f-jumps').value) || 1;
     const threads = parseInt(document.getElementById('f-threads').value) || 1;
     if (!cityId) return toast('Selecciona una ciudad', 'error');
@@ -1970,6 +2113,7 @@ function openRoamingModal(id, prefillCityId) {
       sourceCompanyId: src,
       targetCompanyId: targetIds[0] || '',
       targetCompanyIds: targetIds,
+      vehicleTypeId,
       priority: 1,
       jumps,
       threads,
@@ -1988,6 +2132,7 @@ function openRoamingModal(id, prefillCityId) {
     const dup = DB.roaming.find(r =>
       r.cityId === cityId &&
       r.sourceCompanyId === src &&
+      (r.vehicleTypeId || '') === (vehicleTypeId || '') &&
       sameTargets(getRuleTargetIds(r), targetIds)
     );
     if (dup) return toast('Ya existe una regla con ese origen y los mismos destinos', 'error');
