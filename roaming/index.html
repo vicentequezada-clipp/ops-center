@@ -1206,7 +1206,7 @@ window.addEventListener('resize',()=>{Object.keys(drawn).forEach(k=>{drawn[k]=fa
     const cleanRows=[];
     for(const row of rows){
       const src=normalizeName(row.application_cliente || row.generadora || row.src || row.origen || row.emisora);
-      const tgt=normalizeName(row.application_clipper || row.conductora || row.tgt || row.destino || row.receptora);
+      const tgt=normalizeName(row.empresa || row.conductora || row.application_clipper || row.tgt || row.destino || row.receptora);
       const v=Number(row.total ?? row.viajes ?? row.v ?? 0) || 0;
       if(!src || !tgt || !v) continue;
       const ok=Number(row.succes ?? row.success ?? row.correctos ?? row.ok ?? 0) || 0;
@@ -1294,7 +1294,7 @@ window.addEventListener('resize',()=>{Object.keys(drawn).forEach(k=>{drawn[k]=fa
         <div>
           <div class="tag">Clipp B2B · Proyecto Roaming · Quito</div>
           <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Cargar meses en XLSX sin perder el dashboard</div>
-          <div class="import-note">Mantiene Dashboard, Sankey, Chord, Heatmap, Treemap, Mariposa, Scatter y Waterfall. El XLSX puede venir con columnas como el archivo adjunto: <b>empresa, application_clipper, application_cliente, city, total, succes, digital, efectivo</b>.</div>
+          <div class="import-note">Mantiene Dashboard, Sankey, Chord, Heatmap, Treemap, Mariposa, Scatter y Waterfall. El XLSX puede venir con columnas como el archivo adjunto: <b>empresa, application_clipper, application_cliente, city, total, succes, digital, efectivo</b>. En este formato, <b>application_cliente = generadora</b> y <b>empresa = conductora</b>.</div>
           <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
             <span class="import-pill">Periodo activo: ${esc(meta.label||'')}</span>
             <span class="import-pill">Origen: ${esc(meta.source||'archivo')}</span>
