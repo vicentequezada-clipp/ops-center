@@ -630,6 +630,21 @@ tbody tr:hover td { background: var(--bg-2); }
 .char-line-sep { flex:0 0 auto; color: var(--text-3); font-family: var(--font-mono); }
 .char-line-app { flex:0 0 88px; color: var(--text-2); white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
 .char-line-name { flex:1 1 auto; min-width:0; color: var(--text-1); white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+.matrix-company-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.matrix-company-grid .checkbox-item label { white-space: normal; }
+#matrix-table th:nth-child(5), #matrix-table td:nth-child(5) { width: 130px; max-width: 130px; }
+#matrix-table th:nth-child(6), #matrix-table td:nth-child(6) { width: 360px; min-width: 360px; }
+
 .roaming-stack { display:flex; flex-direction:column; gap:6px; align-items:flex-start; min-width:0; }
 .roaming-line { display:block; width:100%; }
 .roaming-stack .roaming-chip { margin:0; max-width:100%; }
@@ -818,7 +833,7 @@ tbody tr:hover td { background: var(--bg-2); }
         <span class="nav-badge" id="badge-companies">0</span>
       </div>
       <div class="nav-item" data-view="modules">
-        <span class="nav-icon">⊟</span> Módulos
+        <span class="nav-icon">⊟</span> Periféricos
         <span class="nav-badge" id="badge-modules">0</span>
       </div>
       <div class="nav-item" data-view="characteristics">
@@ -871,7 +886,7 @@ tbody tr:hover td { background: var(--bg-2); }
         <div class="table-wrap">
           <table id="dash-table">
             <thead><tr>
-              <th>Ciudad</th><th>País</th><th>Empresas</th><th>Reglas activas</th><th>Módulos únicos</th>
+              <th>Ciudad</th><th>País</th><th>Empresas</th><th>Reglas activas</th><th>Periféricos únicos</th>
             </tr></thead>
             <tbody id="dash-tbody"></tbody>
           </table>
@@ -901,7 +916,7 @@ tbody tr:hover td { background: var(--bg-2); }
               <th>Aplicativo</th>
               <th>Tipo</th>
               <th>Ciudad</th>
-              <th>Módulos activos</th>
+              <th>Periféricos</th>
               <th>Características</th>
               <th>Envía a →</th>
               <th>← Recibe de</th>
@@ -970,7 +985,7 @@ tbody tr:hover td { background: var(--bg-2); }
             <colgroup>
               <col class="col-name"><col class="col-city"><col class="col-app"><col class="col-modules"><col class="col-status"><col class="col-actions">
             </colgroup>
-            <thead><tr><th>Nombre</th><th>Ciudad</th><th>Aplicativo</th><th>Módulos</th><th>Estado</th><th></th></tr></thead>
+            <thead><tr><th>Nombre</th><th>Ciudad</th><th>Aplicativo</th><th>Periféricos</th><th>Estado</th><th></th></tr></thead>
             <tbody id="companies-tbody"></tbody>
           </table>
         </div>
@@ -1081,7 +1096,35 @@ function loadDB() {
   DB.roaming = load(KEYS.roaming);
 }
 
+function normalizeRoamingRules() {
+  DB.roaming = (DB.roaming || []).map(rule => {
+    const rawTargets = Array.isArray(rule.targetCompanyIds) && rule.targetCompanyIds.length
+      ? rule.targetCompanyIds
+      : (rule.targetCompanyId ? [rule.targetCompanyId] : []);
+    const targetCompanyIds = [...new Set(rawTargets.filter(Boolean))];
+    return {
+      ...rule,
+      targetCompanyIds,
+      targetCompanyId: targetCompanyIds[0] || ''
+    };
+  });
+}
+
+function sameTargets(a = [], b = []) {
+  const left = [...new Set(a.filter(Boolean))].sort();
+  const right = [...new Set(b.filter(Boolean))].sort();
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function getRuleTargetIds(rule) {
+  if (Array.isArray(rule?.targetCompanyIds) && rule.targetCompanyIds.length) {
+    return [...new Set(rule.targetCompanyIds.filter(Boolean))];
+  }
+  return rule?.targetCompanyId ? [rule.targetCompanyId] : [];
+}
+
 function saveDB() {
+  normalizeRoamingRules();
   Object.keys(KEYS).forEach(k => save(KEYS[k], DB[k]));
 }
 
@@ -1098,12 +1141,14 @@ function getCompanyChars(companyId) {
 }
 
 function getOutgoingRules(companyId) {
-  return DB.roaming.filter(r => r.sourceCompanyId === companyId && r.active);
+  return (DB.roaming || []).filter(r => r.sourceCompanyId === companyId && r.active);
 }
 
 function getIncomingRules(companyId) {
-  return DB.roaming.filter(r => r.targetCompanyId === companyId && r.active);
+  return (DB.roaming || []).filter(r => getRuleTargetIds(r).includes(companyId) && r.active);
 }
+
+
 
 function formatCharacteristicLineById(cid) {
   const ch = byId(DB.chars, cid);
@@ -1156,7 +1201,7 @@ const VIEW_TITLES = {
   'app-types': 'Tipos de Aplicativo',
   applications: 'Aplicativos',
   companies: 'Empresas',
-  modules: 'Módulos',
+  modules: 'Periféricos',
   characteristics: 'Características',
   roaming: 'Configuración de Roaming'
 };
@@ -1167,7 +1212,7 @@ const VIEW_ACTIONS = {
   'app-types': () => `<button class="btn btn-primary" onclick="openAppTypeModal()">+ Nuevo Tipo</button>`,
   applications: () => `<button class="btn btn-primary" onclick="openAppModal()">+ Nuevo Aplicativo</button>`,
   companies: () => `<button class="btn btn-primary" onclick="openCompanyModal()">+ Nueva Empresa</button>`,
-  modules: () => `<button class="btn btn-primary" onclick="openModuleModal()">+ Nuevo Módulo</button>`,
+  modules: () => `<button class="btn btn-primary" onclick="openModuleModal()">+ Nuevo Periférico</button>`,
   characteristics: () => `<button class="btn btn-primary" onclick="openCharModal()">+ Nueva Característica</button>`,
   roaming: () => `<button class="btn btn-primary" onclick="openRoamingModal()">+ Nueva Regla</button>`
 };
@@ -1280,7 +1325,7 @@ function renderDashboard() {
     { label: 'Ciudades', value: DB.cities.length, cls: '' },
     { label: 'Empresas', value: DB.companies.length, cls: 'stat-accent' },
     { label: 'Aplicativos', value: DB.apps.length, cls: '' },
-    { label: 'Módulos', value: DB.modules.length, cls: '' },
+    { label: 'Periféricos', value: DB.modules.length, cls: '' },
     { label: 'Reglas roaming', value: DB.roaming.length, cls: 'stat-green' },
   ];
   document.getElementById('dash-stats').innerHTML = stats.map(s => `
@@ -1332,16 +1377,28 @@ function renderMatrix() {
         const outgoing = getOutgoingRules(co.id);
     const incoming = getIncomingRules(co.id);
 
-    const ruleCharLines = incoming.flatMap(r => {
-      if (Array.isArray(r.characteristicSnapshots) && r.characteristicSnapshots.length) {
-        return r.characteristicSnapshots.map(ch => renderCharacteristicLine(ch));
-      }
-      return (r.characteristicIds || []).map(cid => formatCharacteristicLineById(cid));
-    }).filter(Boolean);
+    const charMap = new Map();
+    incoming.forEach(r => {
+      const sourceLines = (Array.isArray(r.characteristicSnapshots) && r.characteristicSnapshots.length)
+        ? r.characteristicSnapshots.map(ch => ({
+            key: [ch.id || ch.code || '', ch.applicationText || ch.application || ch.applicationId || '', ch.name || ''].join('||'),
+            html: renderCharacteristicLine(ch)
+          }))
+        : (r.characteristicIds || []).map(cid => ({
+            key: String(cid),
+            html: formatCharacteristicLineById(cid)
+          }));
+      sourceLines.forEach(item => {
+        if (item.html && !charMap.has(item.key)) charMap.set(item.key, item.html);
+      });
+    });
+    const ruleCharLines = Array.from(charMap.values());
 
-    const sendChips = outgoing.map(r => {
-      const tgt = byId(DB.companies, r.targetCompanyId);
-      return `<div class="roaming-line"><span class="roaming-chip chip-send">→ ${tgt ? tgt.name : '?'}${tgt && tgt.id === co.id ? ' (misma empresa)' : ''} <span class="chip-meta">${r.jumps}j/${r.threads}h</span></span></div>`;
+    const sendChips = outgoing.flatMap(r => {
+      return getRuleTargetIds(r).map(tid => {
+        const tgt = byId(DB.companies, tid);
+        return `<div class="roaming-line"><span class="roaming-chip chip-send">→ ${tgt ? tgt.name : '?'}${tgt && tgt.id === co.id ? ' (misma empresa)' : ''} <span class="chip-meta">${r.jumps}j/${r.threads}h</span></span></div>`;
+      });
     }).join('');
 
     const recvChips = incoming.map(r => {
@@ -1605,12 +1662,12 @@ function openCompanyModal(id) {
       </select>
     </div>
     <div class="form-group">
-      <label class="form-label">Módulos activos</label>
+      <label class="form-label">Periféricos</label>
       <div class="checkbox-grid">${DB.modules.map(m => `
         <div class="checkbox-item">
           <input type="checkbox" id="mod-${m.id}" ${(item && item.moduleIds||[]).includes(m.id)?'checked':''}>
           <label for="mod-${m.id}">${m.name}</label>
-        </div>`).join('') || '<span class="text-dimmer" style="padding:8px">Sin módulos definidos</span>'}
+        </div>`).join('') || '<span class="text-dimmer" style="padding:8px">Sin periféricos definidos</span>'}
       </div>
     </div>
     <div class="form-group">
@@ -1666,7 +1723,7 @@ function renderModules() {
 
 function openModuleModal(id) {
   const item = id ? byId(DB.modules, id) : null;
-  openModal(id ? 'Editar Módulo' : 'Nuevo Módulo', `
+  openModal(id ? 'Editar Periférico' : 'Nuevo Periférico', `
     <div class="form-group">
       <label class="form-label">Nombre</label>
       <input class="form-control" id="f-name" value="${item ? item.name : ''}">
@@ -1681,7 +1738,7 @@ function openModuleModal(id) {
     } else {
       DB.modules.push({ id: uid(), name, active: getToggle('f-active') });
     }
-    saveDB(); closeModal(); renderAll(); toast('Módulo guardado');
+    saveDB(); closeModal(); renderAll(); toast('Periférico guardado');
   });
 }
 
@@ -1767,15 +1824,22 @@ function renderRoaming() {
     const cityCos = DB.companies.filter(c => c.cityId === city.id);
     const rows = rules.length ? rules.map(r => {
       const src = byId(DB.companies, r.sourceCompanyId);
-      const tgt = byId(DB.companies, r.targetCompanyId);
-      const chars = (r.characteristicIds||[]).map(cid => byId(DB.chars, cid)).filter(Boolean);
+      const targetIds = getRuleTargetIds(r);
+      const targetNames = targetIds.map(tid => {
+        const tgt = byId(DB.companies, tid);
+        return tgt ? tgt.name : '—';
+      });
+      const charLines = (Array.isArray(r.characteristicSnapshots) && r.characteristicSnapshots.length
+        ? r.characteristicSnapshots.map(ch => renderCharacteristicLine(ch))
+        : (r.characteristicIds||[]).map(cid => formatCharacteristicLineById(cid))
+      ).filter(Boolean);
       return `<tr>
         <td><strong>${src ? src.name : '—'}</strong></td>
         <td style="color:var(--green)">→</td>
-        <td><strong>${tgt ? tgt.name : '—'}</strong></td>
+        <td><div class="char-stack">${targetNames.map(n => `<div class="char-line"><span class="char-line-name">${n}</span></div>`).join('') || '<span class="text-dimmer">—</span>'}</div></td>
         <td class="mono">${r.jumps}</td>
         <td class="mono">${r.threads}</td>
-        <td><div class="char-stack">${chars.map(c => renderCharacteristicLine(c)).join('') || '<span class="text-dimmer">—</span>'}</div></td>
+        <td><div class="char-stack">${charLines.join('') || '<span class="text-dimmer">—</span>'}</div></td>
         <td>${statusBadge(r.active)}</td>
         <td style="text-align:right">
           <button class="btn btn-secondary btn-sm" onclick="openRoamingModal('${r.id}')">Editar</button>
@@ -1810,11 +1874,22 @@ function openRoamingModal(id, prefillCityId) {
 
   function buildCompanyOptions(cityId, selectedId) {
     const cos = DB.companies.filter(c => c.cityId === cityId);
-    return cos.map(c => `<option value="${c.id}"${selectedId===c.id?' selected':''}>${c.name}</option>`).join('');
+    return `<option value="">— Seleccionar —</option>` + cos.map(c => `<option value="${c.id}"${selectedId===c.id?' selected':''}>${c.name}</option>`).join('');
+  }
+
+  function buildMultiTargets(cityId, selectedIds = []) {
+    const cos = DB.companies.filter(c => c.cityId === cityId);
+    return cos.map(c => `
+      <div class="checkbox-item">
+        <input type="checkbox" id="mtgt-${c.id}" ${selectedIds.includes(c.id) ? 'checked' : ''}>
+        <label for="mtgt-${c.id}">${c.name}</label>
+      </div>
+    `).join('') || '<span class="text-dimmer" style="padding:8px">Sin empresas en esta ciudad</span>';
   }
 
   const initSrc = item ? item.sourceCompanyId : '';
-  const initTgt = item ? item.targetCompanyId : '';
+  const initTargets = item ? getRuleTargetIds(item) : [];
+  const initTgt = initTargets[0] || '';
 
   openModal(id ? 'Editar Regla de Roaming' : 'Nueva Regla de Roaming', `
     <div class="form-group">
@@ -1830,11 +1905,16 @@ function openRoamingModal(id, prefillCityId) {
         <select class="form-control" id="f-src">${buildCompanyOptions(initCity, initSrc)}</select>
       </div>
       <div class="form-group">
-        <label class="form-label">Empresa destino (recibe)</label>
+        <label class="form-label">Empresa destino principal</label>
         <select class="form-control" id="f-tgt">${buildCompanyOptions(initCity, initTgt)}</select>
       </div>
     </div>
     <div class="mb-8 text-dim" style="font-size:11px">Puedes usar la misma empresa como origen y destino para configuraciones internas.</div>
+    <div class="form-group">
+      <label class="form-label">Destinos múltiples</label>
+      <div class="text-dim mb-8" style="font-size:11px">Todos los destinos seleccionados quedarán dentro de una sola regla para editarse juntos en un solo recuadro.</div>
+      <div class="matrix-company-grid" id="f-multi-targets">${buildMultiTargets(initCity, initTargets)}</div>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Saltos</label>
@@ -1862,10 +1942,14 @@ function openRoamingModal(id, prefillCityId) {
     const jumps = parseInt(document.getElementById('f-jumps').value) || 1;
     const threads = parseInt(document.getElementById('f-threads').value) || 1;
     if (!cityId) return toast('Selecciona una ciudad', 'error');
-    if (!src || !tgt) return toast('Selecciona origen y destino', 'error');
-    // Check duplicate
-    const dup = DB.roaming.find(r => r.id !== id && r.cityId === cityId && r.sourceCompanyId === src && r.targetCompanyId === tgt);
-    if (dup) return toast('Ya existe una regla entre estas empresas en esta ciudad', 'error');
+    if (!src) return toast('Selecciona empresa origen', 'error');
+
+    const cityCompanies = DB.companies.filter(c => c.cityId === cityId);
+    let targetIds = cityCompanies.filter(c => document.getElementById(`mtgt-${c.id}`)?.checked).map(c => c.id);
+    if (tgt && !targetIds.includes(tgt)) targetIds.unshift(tgt);
+    targetIds = [...new Set(targetIds.filter(Boolean))];
+    if (!targetIds.length) return toast('Selecciona al menos una empresa destino', 'error');
+
     const characteristicIds = DB.chars.filter(c => document.getElementById(`rchar-${c.id}`)?.checked).map(c => c.id);
     const characteristicSnapshots = characteristicIds.map(cid => {
       const ch = byId(DB.chars, cid);
@@ -1879,12 +1963,36 @@ function openRoamingModal(id, prefillCityId) {
         applicationId: ch.applicationId || ''
       };
     }).filter(Boolean);
+    const active = getToggle('f-active');
+
+    const rulePayload = {
+      cityId,
+      sourceCompanyId: src,
+      targetCompanyId: targetIds[0] || '',
+      targetCompanyIds: targetIds,
+      priority: 1,
+      jumps,
+      threads,
+      characteristicIds,
+      characteristicSnapshots,
+      active
+    };
+
     if (id) {
       const idx = DB.roaming.findIndex(x => x.id === id);
-      DB.roaming[idx] = { ...DB.roaming[idx], cityId, sourceCompanyId: src, targetCompanyId: tgt, jumps, threads, characteristicIds, characteristicSnapshots, active: getToggle('f-active') };
-    } else {
-      DB.roaming.push({ id: uid(), cityId, sourceCompanyId: src, targetCompanyId: tgt, priority: 1, jumps, threads, characteristicIds, characteristicSnapshots, active: getToggle('f-active') });
+      DB.roaming[idx] = { ...DB.roaming[idx], ...rulePayload };
+      saveDB(); closeModal(); renderAll(); toast('Regla guardada');
+      return;
     }
+
+    const dup = DB.roaming.find(r =>
+      r.cityId === cityId &&
+      r.sourceCompanyId === src &&
+      sameTargets(getRuleTargetIds(r), targetIds)
+    );
+    if (dup) return toast('Ya existe una regla con ese origen y los mismos destinos', 'error');
+
+    DB.roaming.push({ id: uid(), ...rulePayload });
     saveDB(); closeModal(); renderAll(); toast('Regla guardada');
   });
 }
@@ -1892,9 +2000,15 @@ function openRoamingModal(id, prefillCityId) {
 function onRoamingCityChange() {
   const cityId = document.getElementById('f-city-r').value;
   const cos = DB.companies.filter(c => c.cityId === cityId);
-  const opts = cos.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const opts = `<option value="">— Seleccionar —</option>` + cos.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
   document.getElementById('f-src').innerHTML = opts;
   document.getElementById('f-tgt').innerHTML = opts;
+  document.getElementById('f-multi-targets').innerHTML = cos.map(c => `
+    <div class="checkbox-item">
+      <input type="checkbox" id="mtgt-${c.id}">
+      <label for="mtgt-${c.id}">${c.name}</label>
+    </div>
+  `).join('') || '<span class="text-dimmer" style="padding:8px">Sin empresas en esta ciudad</span>';
 }
 
 // ════════════════════════════════════════════════
@@ -1907,7 +2021,7 @@ const DELETE_CONFIG = {
   appType: { arr: 'appTypes', label: 'este tipo de aplicativo', warn: 'Los aplicativos asociados perderán su tipo.' },
   app: { arr: 'apps', label: 'este aplicativo', warn: 'Las empresas asociadas perderán su aplicativo.' },
   company: { arr: 'companies', label: 'esta empresa', warn: 'Se eliminarán sus características y reglas de roaming asociadas.' },
-  module: { arr: 'modules', label: 'este módulo', warn: 'Se desasignará de todas las empresas.' },
+  module: { arr: 'modules', label: 'este periférico', warn: 'Se desasignará de todas las empresas.' },
   char: { arr: 'chars', label: 'esta característica', warn: 'Se desasignará de todas las empresas y reglas.' },
   roaming: { arr: 'roaming', label: 'esta regla de roaming', warn: 'Esta acción no se puede deshacer.' }
 };
@@ -2145,7 +2259,9 @@ function _loadDemoData() {
 function confirmReset() {
   openConfirm('Resetear todos los datos', 'Se eliminarán TODOS los datos del sistema. Esta acción no se puede deshacer.', () => {
     Object.values(KEYS).forEach(k => localStorage.removeItem(k));
-    loadDB(); renderAll(); toast('Datos reseteados', 'success');
+    loadDB();
+normalizeRoamingRules();
+renderAll(); toast('Datos reseteados', 'success');
   });
 }
 
@@ -2361,6 +2477,7 @@ function importConfig(event) {
 }
 
 loadDB();
+normalizeRoamingRules();
 renderAll();
 
 function getApplicationName(appId) {
