@@ -295,7 +295,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);backgro
 /* TABLE */
 .tbl-wrap{border:1px solid var(--border);border-radius:10px;background:var(--bg);box-shadow:var(--sh);overflow-x:auto;overflow-y:auto;max-height:75vh;position:relative}
 table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
-thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden;border-right:1px solid var(--border)}
+thead th{padding:9px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg2);border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
 .col-r{position:absolute;right:0;top:0;height:100%;width:6px;cursor:col-resize;z-index:2}
 .col-r:hover,.col-r.on{background:var(--blue);opacity:.4}
 td{padding:7px 12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -500,41 +500,23 @@ input[type=date].ei{cursor:pointer;min-width:110px}
 /* Allow wrapping in specific cells */
 .cell-wrap,.cl-mods-ro,.mt,.dep-note{white-space:normal;word-break:break-word;min-width:120px}
 
+td:last-child,th:last-child{border-right:none!important}
+tr:last-child td{border-bottom:none}
+thead th{border-bottom:2px solid var(--border)!important;border-right:1px solid var(--border)}
 .cl-mods-ro,.dep-modules{white-space:normal;overflow:visible;text-overflow:clip}
 .dep-actions,td.dep-actions,.cl-act{overflow:visible;white-space:nowrap}
 .cont-table td,.cat-table td{white-space:normal;overflow:visible;text-overflow:clip}
-/* ── Separación de columnas en tablas ──────────────────── */
-/* Quitar border-right de la última celda de cada fila */
-td:last-child, th:last-child, thead th:last-child { border-right:none !important; }
-/* Quitar border-bottom de la última fila */
-tr:last-child td { border-bottom:none; }
-/* Header bottom más grueso para separar del body */
-thead th { border-bottom:2px solid var(--border) !important; }
-/* Líneas de la tabla un poco más visibles (pero no agresivas) */
-td, th { border-color:#E4E9F0; }
-/* Cont-table y cat-table también */
-.cont-table td { border-right:1px solid var(--border); }
-.cont-table th { border-right:1px solid var(--border); }
-.cont-table td:last-child, .cont-table th:last-child { border-right:none; }
-.cat-table td  { border-right:1px solid var(--border); }
-.cat-table th  { border-right:1px solid var(--border); }
-.cat-table td:last-child, .cat-table th:last-child { border-right:none; }
-/* Borde exterior de la tabla */
-table { border:1px solid var(--border); }
-.tbl-wrap table, .cont-table, .cat-table { border:none; }
+.cl-num{color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace;text-align:center}
+.cl-name{font-weight:600;cursor:pointer;color:var(--blue)}
+.cl-txt{font-size:12.5px}
+.cl-date{font-size:12px;white-space:nowrap}
+.cl-note{font-size:12px;color:var(--muted)}
+.cl-act{text-align:center;overflow:visible}
+.cl-tag{background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:12px;font-size:11.5px;white-space:nowrap;display:inline-block}
 
-/* ── Sort headers ─────────────────────────────────────── */
-thead th[data-sortable] { cursor:pointer; user-select:none; }
-thead th:hover .sort-arrow { opacity:0.7 !important; }
-
-/* ── Checklist de fases ─────────────────────────── */
-#phase-tasks-modal .modal, #dep-checklist-modal .modal { max-width:580px; }
-#dcm-phases { max-height:55vh; overflow-y:auto; }
-
-/* ── Popup checklist flotante ─────────────────────── */
-#dep-checklist-popup { font-family: inherit; }
-#dep-checklist-popup::-webkit-scrollbar { width:4px; }
-#dep-checklist-popup::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+/* ── Sort headers ────────────────────────────────── */
+.sort-arrow{display:inline-block;transition:opacity .15s}
+thead th{cursor:default}
 </style>
 </head>
 <body>
@@ -592,7 +574,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.12 · 09 Abr 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.13 · 09 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -620,15 +602,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
       <!-- Time KPIs -->
       <div class="kpi-grid-2" id="kpi-time"></div>
       <div class="filter-bar">
-        <label style="font-weight:700;font-size:12px">📅 Período:</label>
-        <div style="display:flex;gap:5px;flex-wrap:wrap">
-          <button class="dash-qf-btn" id="qf-cm" onclick="dashQF('mes-actual')">Mes actual</button>
-          <button class="dash-qf-btn" id="qf-pm" onclick="dashQF('mes-pasado')">Mes pasado</button>
-          <button class="dash-qf-btn" id="qf-t3" onclick="dashQF('trim-actual')">Trim. actual</button>
-          <button class="dash-qf-btn" id="qf-ya" onclick="dashQF('ano-actual')">Año actual</button>
-          <button class="dash-qf-btn" id="qf-yp" onclick="dashQF('ano-pasado')">Año pasado</button>
-          <button class="dash-qf-btn" id="qf-all" onclick="dashQF('todo')">Todo</button>
-        </div>
+        <label>📅 Filtrar estadísticas por período:</label>
         <label style="font-size:12px;color:var(--muted)">Desde</label>
         <input type="date" class="fi" id="sf" onchange="renderDash()">
         <label style="font-size:12px;color:var(--muted)">Hasta</label>
@@ -739,21 +713,21 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
       </div>
       <div class="tbl-wrap">
         <table id="tbl-c"><thead><tr>
-          <th style="width:40px">#<div class="col-r"></div></th>
-          <th style="width:160px">Cliente<div class="col-r"></div></th>
-          <th style="width:90px">País<div class="col-r"></div></th>
-          <th style="width:100px">Ciudad<div class="col-r"></div></th>
-          <th style="width:110px">Aplicativo<div class="col-r"></div></th>
-          <th style="width:110px">Tipo<div class="col-r"></div></th>
-          <th style="width:120px">Bot WA<div class="col-r"></div></th>
-          <th style="width:110px">Estado<div class="col-r"></div></th>
-          <th style="width:115px">F. Confirmación<div class="col-r"></div></th>
-          <th style="width:220px">Módulos<div class="col-r"></div></th>
-          <th style="width:85px">Complej.<div class="col-r"></div></th>
-          <th style="width:120px">Contacto<div class="col-r"></div></th>
-          <th style="width:120px">Tel / Email<div class="col-r"></div></th>
-          <th style="width:150px">WhatsApp<div class="col-r"></div></th>
-          <th style="width:150px">Notas<div class="col-r"></div></th>
+          <th style="width:40px">#</th>
+          <th style="width:160px">Cliente</th>
+          <th style="width:90px">País</th>
+          <th style="width:100px">Ciudad</th>
+          <th style="width:110px">Aplicativo</th>
+          <th style="width:110px">Tipo</th>
+          <th style="width:120px">Bot WA</th>
+          <th style="width:110px">Estado</th>
+          <th style="width:115px">F. Confirmación</th>
+          <th style="width:220px">Módulos</th>
+          <th style="width:85px">Complej.</th>
+          <th style="width:120px">Contacto</th>
+          <th style="width:120px">Tel / Email</th>
+          <th style="width:150px">WhatsApp</th>
+          <th style="width:150px">Notas</th>
           <th style="width:72px">Acciones</th>
         </tr></thead><tbody id="ctb"></tbody></table>
       </div>
@@ -762,7 +736,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
     <!-- ══ LÍNEA DE TIEMPO ══ -->
     <div id="view-timeline" class="view">
       <div class="sec-hdr">
-        <div><div class="sec-title">Línea de Tiempo <button class="info-btn" onclick="toggleInfo('tl-info',event)" title="¿Cómo funciona?">i</button></div><div class="sec-sub">Visión histórica y proyección por categoría · Clientes confirmados · Despliegues · Operativos</div></div>
+        <div><div class="sec-title">Línea de Tiempo</div><div class="sec-sub">Visión histórica y proyección por categoría · Clientes confirmados · Despliegues · Operativos</div></div>
       </div>
 
       <div class="deploy-subnav-wrap">
@@ -811,7 +785,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
 
     <!-- ══ CAPACIDAD OPERATIVA ══ -->
     <div id="view-capacidad" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">Capacidad Operativa <span class="sec-stat" id="cap-stat">—</span> <button class="info-btn" onclick="toggleInfo('cap-info',event)" title="¿Cómo se calculan estos datos?">i</button></div><div class="sec-sub">Horas disponibles vs consumidas · Escenarios de crecimiento</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">Capacidad Operativa <span class="sec-stat" id="cap-stat">—</span> <button class="info-btn" onclick="toggleInfo('cap-info')" title="¿Cómo se calculan estos datos?">i</button></div><div class="sec-sub">Horas disponibles vs consumidas · Escenarios de crecimiento</div></div></div>
 
       <div class="deploy-subnav-wrap">
         <div class="deploy-subnav" aria-label="Menú horizontal de despliegue">
@@ -851,7 +825,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
           <div class="action-card-label">Estabilización</div>
           <div class="action-card-sub">Sin nuevos</div>
         </div>
-        <div class="action-card" onclick="toggleInfo('cap-info',event)">
+        <div class="action-card" onclick="toggleInfo('cap-info')">
           <div class="action-card-icon">ℹ️</div>
           <div class="action-card-label">¿Cómo se calcula?</div>
           <div class="action-card-sub">Ver fórmulas</div>
@@ -893,7 +867,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
 
     <!-- ══ CONTRATOS ══ -->
     <div id="view-contratos" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">Gestión de Contratos <button class="info-btn" onclick="toggleInfo('cont-info',event)" title="¿Cómo funciona?">i</button> <span class="sec-stat" id="cont-stat-hdr">0 contratos</span></div><div class="sec-sub">Modalidad de cobro · Condiciones contractuales · Definición de activos</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">Gestión de Contratos <span class="sec-stat" id="cont-stat-hdr">0 contratos</span></div><div class="sec-sub">Modalidad de cobro · Condiciones contractuales · Definición de activos</div></div></div>
       <div class="action-grid" style="grid-template-columns:repeat(3,1fr);max-width:440px;margin-bottom:16px">
         <div class="action-card" onclick="openAddContrato()">
           <div class="action-card-icon">📋</div>
@@ -953,7 +927,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
 
     <!-- ══ COBRANZAS ══ -->
     <div id="view-cobranzas" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">Dashboard de Cobranzas <button class="info-btn" onclick="toggleInfo('cob-info',event)" title="¿Cómo funciona?">i</button> <span class="sec-stat" id="cob-stat-hdr">—</span></div><div class="sec-sub">Solo clientes operativos · Registro mensual · Estados de pago</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">Dashboard de Cobranzas <span class="sec-stat" id="cob-stat-hdr">—</span></div><div class="sec-sub">Solo clientes operativos · Registro mensual · Estados de pago</div></div></div>
 
       <div class="deploy-subnav-wrap">
         <div class="deploy-subnav" aria-label="Menú horizontal de despliegue">
@@ -1023,7 +997,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
 
     <!-- ══ ESTRATEGIA DE DESPLIEGUE ══ -->
     <div id="view-estrategia" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">Estrategia de Despliegue <button class="info-btn" onclick="toggleInfo('est-info',event)" title="¿Cómo funciona este módulo?">i</button></div><div class="sec-sub">Clasificación por complejidad · Fases · Checklists por módulo</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">Estrategia de Despliegue <button class="info-btn" onclick="toggleInfo('est-info')" title="¿Cómo funciona este módulo?">i</button></div><div class="sec-sub">Clasificación por complejidad · Fases · Checklists por módulo</div></div></div>
 
       <div class="deploy-subnav-wrap">
         <div class="deploy-subnav" aria-label="Menú horizontal de despliegue">
@@ -1096,119 +1070,119 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
 
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
-      <div class="sec-hdr"><div>
-        <div class="sec-title">📖 Manual de Uso — Ops Center v5.12</div>
-        <div class="sec-sub">Guía de referencia completa · Clipp Operations</div>
-      </div></div>
+      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.13</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
 
+      <!-- REFERENCE TABLE -->
       <div class="card" style="margin-bottom:16px">
         <div class="card-h"><div class="card-title">📋 Qué dato alimenta qué reporte</div></div>
         <div class="card-b" style="padding:0"><div style="overflow-x:auto"><table class="cat-table">
-          <thead><tr><th>Si llenas este dato en…</th><th>Aparece en estos reportes</th></tr></thead>
+          <thead><tr><th>Si llenas este dato en...</th><th>Aparece en estos reportes</th></tr></thead>
           <tbody>
             <tr><td><strong>F. Confirmación</strong> del cliente</td><td>Línea de Tiempo → Confirmados por mes</td></tr>
             <tr><td><strong>F. Entrega</strong> del despliegue</td><td>Línea de Tiempo → Finalizados · Dashboard KPIs · Días de implementación</td></tr>
             <tr><td><strong>F. Inicio</strong> del despliegue</td><td>Línea de Tiempo → En Proceso · Capacidad Operativa</td></tr>
             <tr><td><strong>Estado ✅ Listo</strong> en despliegue</td><td>Mueve el cliente a Clientes Operativos automáticamente</td></tr>
-            <tr><td><strong>Horas soporte / Horas despliegue</strong></td><td>Capacidad Operativa → carga real por cliente</td></tr>
-            <tr><td><strong>Módulos activos</strong> del cliente</td><td>Complejidad automática · Estrategia · Capacidad</td></tr>
-            <tr><td><strong>Contrato</strong> con componentes</td><td>Cobranzas → generación automática de facturas mensuales</td></tr>
+            <tr><td><strong>Horas soporte / Horas despliegue</strong></td><td>Capacidad Operativa → cálculo de carga real por cliente</td></tr>
+            <tr><td><strong>Módulos activos</strong> del cliente</td><td>Complejidad automática · Estrategia de Despliegue · Capacidad</td></tr>
+            <tr><td><strong>Contrato</strong> con componentes de cobro</td><td>Cobranzas → generación automática de facturas mensuales</td></tr>
             <tr><td><strong>Launcher</strong> del despliegue</td><td>Filtros en Dashboard, Despliegues, Línea de Tiempo, Capacidad</td></tr>
-            <tr><td><strong>WhatsApp</strong> del cliente</td><td>Tabla Clientes → links directos wa.me por número</td></tr>
-            <tr><td><strong>Bot WA</strong> del cliente (Normal/Coexistencia)</td><td>Tabla Clientes · Contratos → Bots WA Activos</td></tr>
           </tbody>
         </table></div></div>
       </div>
 
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-h"><div class="card-title">🔢 Cómo se calculan los datos clave</div></div>
-        <div class="card-b"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
-          <div><div style="font-weight:700;font-size:12.5px;margin-bottom:6px">📊 Dashboard KPIs</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7">Todos los contadores respetan el <strong>filtro de fechas</strong>.<br>• Total = deps en el período<br>• Operativos = estado ✅ Listo<br>• Tiempos = F.Entrega − F.Inicio en días<br><em>Usa los botones rápidos: Mes actual, Trimestre, Año.</em></div></div>
-          <div><div style="font-weight:700;font-size:12.5px;margin-bottom:6px">⚡ Capacidad Operativa</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7"><strong>Hrs disponibles</strong> = Operadores × Hrs/día × Días/mes<br><strong>Hrs consumidas</strong> = Σ (Hrs cliente × Peso complejidad)<br><strong>Pesos:</strong> Básico 1× · Medio 1.5× · Avanzado 2.5×<br><em>Configura en Catálogos → Complejidad.</em></div></div>
-          <div><div style="font-weight:700;font-size:12.5px;margin-bottom:6px">💰 Cobro mensual</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7">Por cada componente:<br>• <strong>Conductor/Vehículo:</strong> max(activos, mínimo) × precio<br>• <strong>Bot WA:</strong> max(bots, mínimo) × precio<br>• <strong>Fijo/Mínimo:</strong> precio fijo mensual<br>• <strong>Setup:</strong> cobro único<br><em>Tipos en Catálogos → Tipos de Cobro.</em></div></div>
-          <div><div style="font-weight:700;font-size:12.5px;margin-bottom:6px">🎯 Complejidad automática</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7">El sistema revisa los módulos del cliente vs umbrales de Catálogos → Complejidad. Asigna el nivel más alto que aplique.<br><em>Editable en Catálogos → Complejidad.</em></div></div>
-          <div><div style="font-weight:700;font-size:12.5px;margin-bottom:6px">📅 Línea de Tiempo</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7">• 🔵 Confirmados: F. Confirmación en ese mes<br>• 🟢 Finalizados: F. Entrega en ese mes (✅)<br>• 🟡 En Proceso: F.Inicio ≤ mes y sin F.Entrega<br>• 🟣 Operativos: acumulado ≤ mes<br><em>Líneas punteadas = regresión lineal.</em></div></div>
-          <div><div style="font-weight:700;font-size:12.5px;margin-bottom:6px">🚦 Estados de Riesgo</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7">Se aplican en Cobranzas según % pagado vs facturado.<br>Configura umbrales en Catálogos → Estados de Riesgo.<br>Ej: &lt;70% → Riesgo Alto (🔴)</div></div>
-        </div></div>
-      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+        <!-- CLIENTES -->
         <div class="card"><div class="card-h"><div class="card-title">👥 Clientes</div></div><div class="card-b" style="font-size:12.5px">
-          <p>Registro central. <strong>Clic en el nombre</strong> → resumen con contrato, cobros e historial.</p>
+          <p>Registro central de todos tus clientes. <strong>Haz clic en el nombre</strong> para ver el resumen completo: contrato, cobros e historial de despliegues.</p>
           <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li>Filtro Estado: Activos / Todos / Deshabilitados / Perdidos.</li>
-            <li><strong>WhatsApp</strong>: genera links 📱 wa.me por número.</li>
-            <li><strong>Bot WA</strong>: Normal o Coexistencia (afecta contratos).</li>
-            <li><strong>F. Confirmación</strong>: llénala para la Línea de Tiempo.</li>
-            <li>Módulos mostrados filtrados según tu catálogo actual.</li>
+            <li>Usa el filtro de <strong>Estado</strong> para ver activos, deshabilitados o perdidos.</li>
+            <li>El botón ✏️ abre el modal de edición — los cambios se sincronizan automáticamente a todos sus despliegues.</li>
+            <li>La <strong>complejidad</strong> se asigna automáticamente según los módulos activos (configurable en Catálogos → Complejidad).</li>
+            <li><strong>F. Confirmación:</strong> llénala para que aparezca en la Línea de Tiempo.</li>
           </ul>
         </div></div>
+
+        <!-- DESPLIEGUES -->
         <div class="card"><div class="card-h"><div class="card-title">🚀 Despliegues</div></div><div class="card-b" style="font-size:12.5px">
-          <p>Seguimiento operativo. <strong>Columnas editables directamente en la tabla.</strong></p>
+          <p>Seguimiento operativo de implementaciones en curso. Todas las columnas son editables directamente en la tabla.</p>
           <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li>Estado ✅ Listo → pasa a Clientes Operativos automáticamente.</li>
-            <li>▶ / ◀ para avanzar/retroceder la <strong>Fase</strong>.</li>
-            <li><strong>Hrs Sop./Desp.</strong> → alimentan Capacidad Operativa.</li>
-            <li>Arrastra el borde de columnas para ajustar anchos (se guarda).</li>
+            <li>Cambia el <strong>Estado</strong> a ✅ Listo → el cliente pasa automáticamente a <em>Clientes Operativos</em>.</li>
+            <li>Usa ▶ / ◀ para avanzar o retroceder la <strong>Fase de implementación</strong>.</li>
+            <li>Las <strong>Hrs Sop./Desp.</strong> alimentan el cálculo de Capacidad Operativa.</li>
+            <li>El <strong>Launcher</strong> se elige entre los configurados en Catálogos → Launchers.</li>
           </ul>
         </div></div>
-        <div class="card"><div class="card-h"><div class="card-title">📋 Contratos</div></div><div class="card-b" style="font-size:12.5px">
-          <p>Condiciones de cobro por cliente. Combina múltiples componentes.</p>
+
+        <!-- LÍNEA DE TIEMPO -->
+        <div class="card"><div class="card-h"><div class="card-title">📅 Línea de Tiempo</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Reporte histórico y proyección mes a mes con 4 series:</p>
           <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li>Tipos disponibles vienen de <strong>Catálogos → Tipos de Cobro</strong>.</li>
-            <li>El <strong>mínimo</strong> garantiza un piso aunque haya pocos activos.</li>
-            <li>El estimado en el modal usa los activos y mínimos del formulario.</li>
+            <li>🔵 <strong>Confirmados</strong> — clientes con F. Confirmación en ese mes.</li>
+            <li>🟢 <strong>Finalizados</strong> — despliegues con F. Entrega en ese mes.</li>
+            <li>🟡 <strong>En Proceso</strong> — despliegues activos durante ese mes.</li>
+            <li>🟣 <strong>Operativos</strong> — clientes acumulados con estado Listo.</li>
           </ul>
+          <p style="margin-top:6px">Las líneas punteadas son proyección (regresión lineal sobre datos reales).</p>
         </div></div>
+
+        <!-- COBRANZAS -->
         <div class="card"><div class="card-h"><div class="card-title">💰 Cobranzas</div></div><div class="card-b" style="font-size:12.5px">
-          <p>Facturación mensual. Solo clientes <strong>Operativos con contrato activo</strong>.</p>
+          <p>Facturación mensual. Solo se facturan clientes <strong>Operativos con contrato</strong>.</p>
           <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li><strong>⚡ Generar Cobros</strong> al inicio de cada mes.</li>
-            <li>✏️ para ajustar activos, descuentos y extras del mes.</li>
-            <li>Estados: ⏳ Pendiente → ✅ Pagado → 🔶 Parcial → 🔴 Atrasado.</li>
+            <li>Usa <strong>⚡ Generar Cobros</strong> al inicio de cada mes.</li>
+            <li>Haz clic en ✏️ de cada cobro para ajustar activos, descuentos y extras.</li>
+            <li>Cicla el estado: ⏳ Pendiente → ✅ Pagado → 🔶 Parcial → 🔴 Atrasado.</li>
+            <li>El monto se calcula automáticamente según el <strong>contrato vigente</strong>.</li>
           </ul>
         </div></div>
+
+        <!-- CONTRATOS -->
+        <div class="card"><div class="card-h"><div class="card-title">📋 Contratos</div></div><div class="card-b" style="font-size:12.5px">
+          <p>Define las condiciones de cobro de cada cliente. Un contrato puede mezclar múltiples componentes:</p>
+          <ul style="margin:8px 0 0 16px;line-height:1.8">
+            <li>Por conductor / por vehículo / cobro fijo / mínimo operativo / setup / bot WA.</li>
+            <li>Los componentes se configuran en <strong>Catálogos → Tipos de Cobro</strong>.</li>
+            <li>El campo <strong>Bots WA Activos</strong> se carga automáticamente en cada cobro.</li>
+          </ul>
+        </div></div>
+
+        <!-- CAPACIDAD -->
         <div class="card"><div class="card-h"><div class="card-title">⚡ Capacidad Operativa</div></div><div class="card-b" style="font-size:12.5px">
-          <p>Carga del equipo en tiempo real.</p>
+          <p>Calcula cuánta carga tiene tu equipo en tiempo real.</p>
+          <p style="margin-top:6px"><strong>Fórmula:</strong><br>
+          Hrs disponibles = Operadores × Hrs/día × Días/mes<br>
+          Hrs consumidas = Σ(cliente × peso_complejidad × hrs_asignadas)</p>
           <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li>Configura operadores, hrs/día y días/mes arriba.</li>
-            <li>Horas individuales en tabla de Despliegues (Hrs Sop./Desp.).</li>
-            <li>Pesos de complejidad en <strong>Catálogos → Complejidad</strong>.</li>
+            <li>Pesos: Básico=1× · Medio=1.5× · Avanzado=2.5× (editables en Catálogos).</li>
+            <li>Las horas individuales de cada cliente se configuran en la tabla de Despliegues.</li>
           </ul>
         </div></div>
+
+        <!-- CATÁLOGOS -->
         <div class="card"><div class="card-h"><div class="card-title">🗂 Catálogos</div></div><div class="card-b" style="font-size:12.5px">
-          <p>Valores maestros. Los cambios impactan en toda la app al instante.</p>
+          <p>Configura todos los valores maestros del sistema. Los cambios impactan en toda la aplicación al instante.</p>
           <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li><strong>Módulos, Aplicativos, Tipos de Cliente</strong> → aparecen en clientes.</li>
-            <li><strong>Launchers, Modalidades, Fases</strong> → aparecen en despliegues.</li>
-            <li><strong>Complejidad</strong> → niveles y módulos disparadores.</li>
-            <li><strong>Tipos de Cobro</strong> → componentes para contratos.</li>
-            <li><strong>Estados de Riesgo, T. Implementación</strong> → cobranzas y capacidad.</li>
+            <li><strong>Módulos</strong> — los que aparecen en clientes y despliegues.</li>
+            <li><strong>Launchers</strong> — responsables de implementación. Agrégalos aquí y aparecerán en todos los dropdowns.</li>
+            <li><strong>Complejidad</strong> — niveles y módulos que los activan.</li>
+            <li><strong>Tipos de Cobro</strong> — componentes disponibles para contratos.</li>
+            <li><strong>Fases</strong> — etapas del proceso de implementación.</li>
+            <li><strong>Estados de Riesgo</strong> — umbrales para cobranzas y contratos.</li>
           </ul>
         </div></div>
+
+        <!-- USUARIOS Y ROLES -->
         <div class="card"><div class="card-h"><div class="card-title">👤 Usuarios y Roles</div></div><div class="card-b" style="font-size:12.5px">
           <p>Controla quién puede ver y editar cada módulo.</p>
           <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li>🚫 Sin acceso · 👁 Solo lectura · ✏️ Editar · ⚡ Control total.</li>
-            <li>Asocia email de Supabase a un rol. Permisos aplicados automáticamente.</li>
-            <li>Roles: Administrador · Gerente · Operador · Solo Lectura · Comercial.</li>
+            <li><strong>Roles</strong>: define niveles de acceso (Sin acceso / Solo lectura / Editar / Control total) por módulo.</li>
+            <li><strong>Usuarios</strong>: asocia cada email de Supabase a un rol. El sistema aplica los permisos automáticamente al entrar.</li>
+            <li>Roles base: Administrador · Gerente · Operador · Solo Lectura · Comercial.</li>
+            <li>El rol activo se muestra en la barra superior junto al botón Salir.</li>
           </ul>
         </div></div>
-        <div class="card"><div class="card-h"><div class="card-title">💾 Backup y Restaurar</div></div><div class="card-b" style="font-size:12.5px">
-          <p>Exporta e importa todos tus datos en JSON.</p>
-          <ul style="margin:8px 0 0 16px;line-height:1.8">
-            <li><strong>Backup</strong> → JSON con todos los datos.</li>
-            <li><strong>Restaurar</strong> → sube un backup anterior.</li>
-            <li><strong>CSV</strong> → exporta el módulo actual a Excel.</li>
-            <li>Sync automático con Supabase en tiempo real.</li>
-          </ul>
-        </div></div>
+
       </div>
     </div>
 
@@ -1381,7 +1355,7 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
             <button class="btn btn-p btn-sm" onclick="savePhase()">+ Agregar</button>
           </div>
           <div class="tbl-wrap"><table class="cat-table">
-            <thead><tr><th>Orden</th><th>Ícono</th><th>Nombre</th><th>Descripción</th><th style="width:80px">Acciones</th><th>Tareas</th></tr></thead>
+            <thead><tr><th>Orden</th><th>Ícono</th><th>Nombre</th><th>Descripción</th><th style="width:80px">Acciones</th></tr></thead>
             <tbody id="ph-tbody"></tbody>
           </table></div>
         </div>
@@ -1542,6 +1516,12 @@ thead th:hover .sort-arrow { opacity:0.7 !important; }
     <div class="fr2">
       <div class="fr"><label class="fl">Contacto</label><input class="fld" id="cm-co" placeholder="Nombre contacto"></div>
       <div class="fr"><label class="fl">Tel / Email</label><input class="fld" id="cm-ph" placeholder="+593..."></div>
+    </div>
+    <div class="fr2">
+      <div class="fr"><label class="fl">📱 WhatsApp (separar con coma)</label><input class="fld" id="cm-wh" placeholder="+593987654321"></div>
+      <div class="fr"><label class="fl">🤖 Bot de WhatsApp</label>
+        <select class="fld" id="cm-bot"><option value="">Sin Bot WA</option><option value="normal">🤖 Normal</option><option value="coexistencia">🔄 Coexistencia</option></select>
+      </div>
     </div>
     <div class="fr2">
       <div class="fr"><label class="fl">📅 Fecha Confirmación del Cliente</label><input type="date" class="fld" id="cm-fconf" title="Cuándo se concretó que trabaja con nosotros"></div>
@@ -1877,13 +1857,13 @@ const BASE_IMPL_TIMES=[
 ];
 // Implementation phases
 const BASE_PHASES=[
-  {id:1,name:'Kick-off',icon:'🚀',desc:'Reunión inicial, levantamiento de requerimientos',tasks:['Preparar contratos y definiciones','Levantar definiciones finales para parametrizar (Demos y Reuniones)']},
-  {id:2,name:'Configuración',icon:'⚙️',desc:'Configuración de módulos y plataforma',tasks:['Preparar todo para lanzar Tarifario / Configuración']},
-  {id:3,name:'Carga de datos',icon:'📦',desc:'Registro de conductores, vehículos, zonas',tasks:['Capacitar a Operadoras','Call Center (N1) - Llamada Tradicional']},
-  {id:4,name:'Pruebas',icon:'🧪',desc:'Testing con usuarios piloto',tasks:['Conductores: Activamos y Capacitamos Grupos de 5 por Zoom (Múltiples Sesiones)','Liberamos Conductores App + Callcenter (N2) - Mensajes']},
-  {id:5,name:'Capacitación',icon:'🎓',desc:'Entrenamiento a operadoras y conductores',tasks:['Liberamos Conductores App + Callcenter (N3) - Geolocalización','Liberamos Conductores App + Callcenter (N4) + Bot WhatsApp IA (Inglés / Español)']},
-  {id:6,name:'Lanzamiento',icon:'🌟',desc:'Go-live en producción',tasks:['Reservas 2.0: Bot y Callcenter']},
-  {id:7,name:'Post-launch',icon:'📊',desc:'Seguimiento y ajustes post lanzamiento',tasks:[]},
+  {id:1,name:'Kick-off',icon:'🚀',desc:'Reunión inicial, levantamiento de requerimientos'},
+  {id:2,name:'Configuración',icon:'⚙️',desc:'Configuración de módulos y plataforma'},
+  {id:3,name:'Carga de datos',icon:'📦',desc:'Registro de conductores, vehículos, zonas'},
+  {id:4,name:'Pruebas',icon:'🧪',desc:'Testing con usuarios piloto'},
+  {id:5,name:'Capacitación',icon:'🎓',desc:'Entrenamiento a operadoras y conductores'},
+  {id:6,name:'Lanzamiento',icon:'🌟',desc:'Go-live en producción'},
+  {id:7,name:'Post-launch',icon:'📊',desc:'Seguimiento y ajustes post lanzamiento'},
 ];
 // Module categories catalog
 const BASE_CATMOD=[
@@ -2067,11 +2047,9 @@ function sv(){
       const failed=results.filter(r=>r.status==='rejected');
       if(failed.length) showSync(false,'Error al guardar');
       else showSync(true,'Guardado');
-      // ← CRÍTICO: resetear _saving para que Realtime pueda recibir cambios externos
       setTimeout(()=>{ _saving=false; }, 800);
     });
   } else {
-    // Sin Supabase, resetear inmediatamente
     setTimeout(()=>{ _saving=false; }, 100);
   }
 }
@@ -2183,7 +2161,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.12'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.13'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -2218,9 +2196,7 @@ function setV(v){
   if(actions[v])actions[v]();
 }
 
-// ── Re-render la vista activa tras cualquier cambio ──────────────────────
 function renderAfterSave(){
-  // Render primero — luego badges (para que reflejen el estado post-render)
   switch(curV){
     case 'despliegues':  renderDeps(); break;
     case 'operativos':   renderOps(); break;
@@ -2235,79 +2211,94 @@ function renderAfterSave(){
     case 'catalogos':    renderCats(); break;
     case 'usuarios':     renderUsuarios(); break;
   }
-  updBadges(); // siempre al final para reflejar el estado actualizado
+  updBadges();
 }
 
 // ═══ SORT UNIVERSAL ══════════════════════════════════════════════════════
-const _sortState = {}; // { tblId: {col: N, dir: 1|-1} }
+const _sortState = {}; // { tblId: {col:N, dir:1|-1} | null }
 
-// Comparador universal: detecta fechas, números y strings
 function _sortVal(v){
-  if(v===null||v===undefined||v==='—'||v==='') return '';
-  const s = String(v).trim();
-  // Fecha YYYY-MM-DD
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // ya ordenable como string
-  // Número
-  const n = parseFloat(s.replace(/[^0-9.-]/g,''));
-  if(!isNaN(n) && s.replace(/[^0-9.-]/g,'').length > 0) return n;
+  if(v===null||v===undefined||v==='—'||v==='')return '';
+  const s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(s))return s;
+  const n=parseFloat(s.replace(/[^0-9.-]/g,''));
+  if(!isNaN(n)&&s.replace(/[^0-9.-]/g,'').length>0)return n;
   return s.toLowerCase();
 }
-
-function _cmp(a, b){
-  const va = _sortVal(a), vb = _sortVal(b);
-  if(va === vb) return 0;
-  if(va === '') return 1;  // vacíos al final
-  if(vb === '') return -1;
-  if(typeof va === 'number' && typeof vb === 'number') return va - vb;
-  return String(va).localeCompare(String(vb), 'es', {sensitivity:'base'});
+function _cmp(a,b){
+  const va=_sortVal(a),vb=_sortVal(b);
+  if(va===vb)return 0;
+  if(va==='')return 1;
+  if(vb==='')return -1;
+  if(typeof va==='number'&&typeof vb==='number')return va-vb;
+  return String(va).localeCompare(String(vb),'es',{sensitivity:'base'});
 }
 
-// Agrega sort a los <th> de una tabla
-// getters: array de funciones (rowData) => valorParaOrdenar, una por columna
-// Si getter es null, esa columna no es sorteable (ej: Acciones, Módulos)
-function initSortHeaders(tblEl, getters){
-  if(!tblEl) return;
-  const id = tblEl.id;
-  tblEl.querySelectorAll('thead th').forEach(function(th, i){
-    const getter = getters[i];
-    if(!getter){ th.style.cursor='default'; return; }
-    th.style.cursor = 'pointer';
-    th.style.userSelect = 'none';
-    // Agregar contenedor de flecha si no existe
-    if(!th.querySelector('.sort-arrow')){
-      const arr = document.createElement('span');
-      arr.className = 'sort-arrow';
-      arr.style.cssText = 'margin-left:4px;opacity:0.35;font-size:10px';
-      arr.textContent = '⇅';
-      th.appendChild(arr);
+// Aplica sort al array y devuelve copia ordenada (no muta el original)
+function applySort(rows, tblId, getters){
+  const st=_sortState[tblId];
+  if(!st||st.col<0||!getters||!getters[st.col])return rows;
+  const getter=getters[st.col];
+  return rows.slice().sort(function(a,b){ return st.dir*_cmp(getter(a),getter(b)); });
+}
+
+// Actualiza flechas ⇅ ↑ ↓ en los TH
+function _updateSortArrows(tblEl,tblId){
+  if(!tblEl)return;
+  const st=_sortState[tblId]||{col:-1,dir:1};
+  const getters=tblEl._sortGetters||[];
+  tblEl.querySelectorAll('thead th').forEach(function(th,i){
+    if(!getters[i]){
+      const a=th.querySelector('.sort-arrow');if(a)a.remove();return;
     }
-    th.addEventListener('click', function(e){
-      // No disparar sort si el usuario está arrastrando el resize
-      if(e.target.classList.contains('col-r')) return;
-      const cur = _sortState[id] || {col:-1, dir:1};
-      const dir = (cur.col === i) ? -cur.dir : 1;
-      _sortState[id] = {col:i, dir};
-      // Actualizar flechas de todos los th de esta tabla
-      tblEl.querySelectorAll('thead th .sort-arrow').forEach(function(a,j){
-        const g = getters[j];
-        if(!g){ a.textContent=''; return; }
-        if(j === i){ a.textContent = dir===1 ? '↑' : '↓'; a.style.opacity='1'; }
-        else { a.textContent='⇅'; a.style.opacity='0.35'; }
-      });
-      // Re-renderizar la vista activa (el sort se lee desde _sortState en cada render)
-      renderAfterSave();
-    });
+    let arr=th.querySelector('.sort-arrow');
+    if(!arr){
+      arr=document.createElement('span');
+      arr.className='sort-arrow';
+      arr.style.cssText='margin-left:4px;font-size:10px;pointer-events:none;user-select:none';
+      const cr=th.querySelector('.col-r');
+      if(cr)th.insertBefore(arr,cr);else th.appendChild(arr);
+    }
+    if(i===st.col){
+      arr.textContent=st.dir===1?'↑':'↓';
+      arr.style.opacity='1';
+      arr.style.color='var(--blue)';
+    } else {
+      arr.textContent='⇅';
+      arr.style.opacity='0.3';
+      arr.style.color='';
+    }
   });
 }
 
-// Aplica el sort guardado en _sortState a un array de filas
-// rows: array de objetos, getters: array de fn(obj)=>valor
-function applySort(rows, tblId, getters){
-  const st = _sortState[tblId];
-  if(!st || st.col < 0 || !getters[st.col]) return rows;
-  const getter = getters[st.col];
-  return rows.slice().sort(function(a,b){
-    return st.dir * _cmp(getter(a), getter(b));
+// Registra listeners de sort en una tabla — solo una vez por tabla
+function initSortHeaders(tblEl, getters){
+  if(!tblEl)return;
+  const tblId=tblEl.id||tblEl.className.split(' ')[0];
+  tblEl._sortGetters=getters;
+  _updateSortArrows(tblEl,tblId);
+  if(tblEl._sortInit)return; // ya tiene listener
+  tblEl._sortInit=true;
+  tblEl.addEventListener('click',function(e){
+    if(e.target.classList.contains('col-r')||e.target.classList.contains('sort-arrow'))return;
+    const th=e.target.closest('th');if(!th)return;
+    const g=tblEl._sortGetters||[];
+    const ths=Array.from(tblEl.querySelectorAll('thead th'));
+    const i=ths.indexOf(th);
+    if(i<0||!g[i])return;
+    const id=tblEl.id||tblEl.className.split(' ')[0];
+    const cur=_sortState[id]||{col:-1,dir:1};
+    if(cur.col===i){
+      if(cur.dir===1){
+        _sortState[id]={col:i,dir:-1}; // ↓
+      } else {
+        _sortState[id]=null; // 3er clic = quitar sort
+      }
+    } else {
+      _sortState[id]={col:i,dir:1}; // nueva columna = ↑
+    }
+    _updateSortArrows(tblEl,id);
+    renderAfterSave();
   });
 }
 
@@ -2395,17 +2386,8 @@ function diasBadge(dep){
   return`<span style="background:${color}18;color:${color};padding:2px 8px;border-radius:12px;font-size:11.5px;font-weight:700">${d}d</span>`;
 }
 function phaseBadge(dep){
-  const ph=(cats.phases&&cats.phases.length?cats.phases:BASE_PHASES)[dep.fase||0];if(!ph)return'—';
-  const tasks=ph.tasks||[];
-  const checks=(dep.phaseChecks||{})[ph.id]||[];
-  const done=tasks.filter((_,i)=>(checks[i]||0)===2).length;
-  const inProg=tasks.filter((_,i)=>(checks[i]||0)===1).length;
-  const progress=tasks.length?` <span style="opacity:.8;font-size:10px">${done}/${tasks.length}</span>`:'';
-  return`<span style="background:#EFF6FF;color:#1B4FD8;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px"
-    onclick="openDepChecklist(${dep.id},event)" title="Clic para ver checklist de tareas">
-    ${ph.icon||''} ${esc(ph.name)}${progress}
-    <span style="font-size:10px;opacity:.6">📋</span>
-  </span>`;
+  const ph=(cats.phases||[])[dep.fase||0];if(!ph)return'—';
+  return`<span style="background:#EFF6FF;color:#1B4FD8;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${ph.icon||''} ${esc(ph.name)}</span>`;
 }
 
 // ═══ BILLING ENGINE ══════════════════════════════════
@@ -2513,8 +2495,8 @@ function dashQF(preset){
   var sfEl=document.getElementById('sf');var stEl=document.getElementById('st');
   if(sfEl)sfEl.value=from;if(stEl)stEl.value=to;
   document.querySelectorAll('.dash-qf-btn').forEach(function(b){b.classList.remove('active');});
-  var map={'mes-actual':'qf-cm','mes-pasado':'qf-pm','trim-actual':'qf-t3','ano-actual':'qf-ya','ano-pasado':'qf-yp','todo':'qf-all'};
-  var btn=document.getElementById(map[preset]);if(btn)btn.classList.add('active');
+  var btnId={'mes-actual':'qf-cm','mes-pasado':'qf-pm','trim-actual':'qf-t3','ano-actual':'qf-ya','ano-pasado':'qf-yp','todo':'qf-all'}[preset];
+  var btn=document.getElementById(btnId||'');if(btn)btn.classList.add('active');
   renderDash();
 }
 function renderDash(){
@@ -2634,26 +2616,16 @@ function depRowLegacy(d){
     <td style="white-space:nowrap"><button class="icon-btn del" onclick="confDel('dep',${d.id},'${esc(d.c)}')">🗑</button></td>
   </tr>`;
 }
-function uD(id,f,v){
-  const d=deps.find(x=>x.id===id);if(!d)return;
-  d[f]=v;
-  sv();
-  updBadges();
-  setTimeout(function(){ renderAfterSave(); }, 0);
-}
+function uD(id,f,v){const d=deps.find(x=>x.id===id);if(!d)return;d[f]=v;sv();updBadges();setTimeout(function(){renderAfterSave();},0);}
 function uDEs(id,val){
   const d=deps.find(x=>x.id===id);if(!d)return;
-  const prev=d.es;
-  d.es=val;
-  sv();
-  updBadges(); // actualizar badges inmediatamente — datos ya cambiados en memoria
-  // Diferir render para que el evento onchange termine antes de destruir el DOM
+  const prev=d.es;d.es=val;sv();updBadges();
   setTimeout(function(){
     renderDash();
     if(prev===EL&&val!==EL){renderOps();renderDeps();}
     else if(prev!==EL&&val===EL){renderDeps();renderOps();}
-    updBadges(); // segunda llamada post-render para confirmar
-  }, 0);
+    updBadges();
+  },0);
 }
 function advanceFase(id){
   const d=deps.find(x=>x.id===id);if(!d)return;
@@ -2804,13 +2776,12 @@ function depSaveEdit(id){
   sv();
   _editDepId=null;
   _depDraft=null;
-  // Actualizar todas las vistas afectadas y badges
-  renderDeps();
-  renderOps();
+  updBadges();
   renderDash();
   renderTimeline();
   renderCapacidad();
-  updBadges();
+  renderDeps();
+  renderOps();
 }
 function depInput(value, field, placeholder=''){
   return `<input class="dep-inline-input" value="${esc(value||'')}" placeholder="${esc(placeholder)}" oninput="depSetDraft('${field}',this.value)">`;
@@ -2834,11 +2805,11 @@ function depLinkCell(link){
   return `<a class="dep-link" href="${esc(link)}" target="_blank" title="${esc(link)}">🔗 <span>${esc(link)}</span></a>`;
 }
 function depModulesRead(mods){
-  if(!mods||!mods.length) return `<span class="dep-text muted">Sin módulos</span>`;
-  const validMods=new Set((cats.md&&cats.md.length?cats.md:BASE_MD).map(x=>x.name));
-  const filtered=mods.filter(m=>validMods.has(m));
-  if(!filtered.length) return `<span class="dep-text muted">Sin módulos</span>`;
-  return `<div class="dep-modules">${filtered.map(m=>`<span class="mt" title="${esc(m)}">${esc(m)}</span>`).join('')}</div>`;
+  if(!mods||!mods.length)return`<span class="dep-text muted">Sin módulos</span>`;
+  const vm=new Set((cats.md&&cats.md.length?cats.md:BASE_MD).map(x=>x.name));
+  const f=mods.filter(m=>vm.has(m));
+  if(!f.length)return`<span class="dep-text muted">Sin módulos</span>`;
+  return`<div class="dep-modules">${f.map(m=>`<span class="mt" title="${esc(m)}">${esc(m)}</span>`).join('')}</div>`;
 }
 function depNotesRead(text){
   if(!text) return `<span class="dep-text muted">—</span>`;
@@ -2956,18 +2927,17 @@ function renderDeps(){
     if(fTp&&d.tp!==fTp)return false;
     return true;
   });
-  const fS=applySort(f,'tbl-d',[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);
+  const fS=applySort(f,'tbl-d',[null,function(d){return d.c||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.tp||'';},function(d){return d.es||'';},function(d){return d.fase||0;},null,null,function(d){return d.ln||'';},function(d){return d.fi||'';},function(d){return d.fd||'';},function(d){return d.fe||'';},function(d){if(!d.fi||!d.fe)return 99999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},function(d){return d.pe||'';},function(d){return d.hrsOp||0;},function(d){return d.hrsNew||0;},function(d){return d.no||'';},function(d){return d.lk||'';},null]);
 
   const cd=document.getElementById('cd');if(cd)cd.textContent=`${f.length} de ${deps.filter(d=>d.es!==EL).length}`;
   const tb=document.getElementById('dtb');
-  if(tb)tb.innerHTML=fS.length
-    ? fS.map(depRowViewOps).join('')
+  if(tb)tb.innerHTML=fS.length?fS.map(depRowViewOps).join('')
     : `<tr><td colspan="20" class="dep-empty">
         <div style="font-size:34px">🚀</div>
         <div class="dep-empty-title">Sin despliegues activos</div>
         <div style="font-size:12px">No hay registros que coincidan con los filtros actuales.</div>
       </td></tr>`;
-  setTimeout(function(){initSortHeaders(document.getElementById('tbl-d'),[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);},20);
+  setTimeout(function(){initSortHeaders(document.getElementById('tbl-d'),[null,function(d){return d.c||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.tp||'';},function(d){return d.es||'';},function(d){return d.fase||0;},null,null,function(d){return d.ln||'';},function(d){return d.fi||'';},function(d){return d.fd||'';},function(d){return d.fe||'';},function(d){if(!d.fi||!d.fe)return 99999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},function(d){return d.pe||'';},function(d){return d.hrsOp||0;},function(d){return d.hrsNew||0;},function(d){return d.no||'';},function(d){return d.lk||'';},null]);},20);
 }
 function renderOps(){
 
@@ -2983,37 +2953,22 @@ function renderOps(){
     if(to && d.fe && d.fe>to) return false;
     return true;
   });
-  const fS=applySort(f,'tbl-o',[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);
+  const fS=applySort(f,'tbl-o',[null,function(d){return d.c||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.tp||'';},function(d){return d.es||'';},function(d){return d.fase||0;},null,null,function(d){return d.ln||'';},function(d){return d.fi||'';},function(d){return d.fd||'';},function(d){return d.fe||'';},function(d){if(!d.fi||!d.fe)return 99999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},function(d){return d.pe||'';},function(d){return d.hrsOp||0;},function(d){return d.hrsNew||0;},function(d){return d.no||'';},function(d){return d.lk||'';},null]);
 
   const total=deps.filter(d=>d.es===EL).length;
   const co=document.getElementById('co');if(co)co.textContent=`${f.length} de ${total}`;
   const tb=document.getElementById('otb');
-  if(tb)tb.innerHTML=fS.length
-    ? fS.map(depRowView).join('')
+  if(tb)tb.innerHTML=fS.length?fS.map(depRowView).join('')
     : `<tr><td colspan="20" class="dep-empty">
         <div style="font-size:34px">✅</div>
         <div class="dep-empty-title">Sin clientes operativos</div>
         <div style="font-size:12px">No hay registros operativos que coincidan con los filtros actuales.</div>
       </td></tr>`;
-  setTimeout(function(){initSortHeaders(document.getElementById('tbl-o'),[null,d=>d.c||'',d=>d.pa||'',d=>d.ci||'',d=>d.tp||'',d=>d.es||'',d=>d.fase??0,null,null,d=>d.ln||'',d=>d.fi||'',d=>d.fd||'',d=>d.fe||'',d=>{if(!d.fi||!d.fe)return 999999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},d=>d.pe||'',d=>d.hrsOp??0,d=>d.hrsNew??0,d=>d.no||'',d=>d.lk||'',null]);},20);
+  setTimeout(function(){initSortHeaders(document.getElementById('tbl-o'),[null,function(d){return d.c||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.tp||'';},function(d){return d.es||'';},function(d){return d.fase||0;},null,null,function(d){return d.ln||'';},function(d){return d.fi||'';},function(d){return d.fd||'';},function(d){return d.fe||'';},function(d){if(!d.fi||!d.fe)return 99999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},function(d){return d.pe||'';},function(d){return d.hrsOp||0;},function(d){return d.hrsNew||0;},function(d){return d.no||'';},function(d){return d.lk||'';},null]);},20);
 }
 function renderInact(){
   const f=cls.filter(c=>c.es==='deshabilitado'||c.es==='perdido');
-  const fS=applySort(f,'tbl-i',[
-    null,           // #
-    d=>d.nm||'',    // Cliente
-    d=>d.pa||'',    // País
-    d=>d.ci||'',    // Ciudad
-    d=>d.ap||'',    // Aplicativo
-    d=>d.tp||'',    // Tipo
-    d=>d.es||'',    // Estado
-    null,           // Módulos
-    d=>d.co||'',    // Contacto
-    d=>d.ph||'',    // Tel
-    d=>d.no||'',    // Notas
-    null            // Acciones
-  ]);
-
+  const fS=applySort(f,'tbl-i',[null,function(d){return d.nm||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.ap||'';},function(d){return d.tp||'';},function(d){return d.es||'';},null,function(d){return d.co||'';},function(d){return d.ph||'';},function(d){return d.no||'';},null]);
   const tb=document.getElementById('itb');if(!tb)return;
   tb.innerHTML=fS.length?fS.map((c,idx)=>{
     const moHtml=c.mo&&c.mo.length?c.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'—';
@@ -3035,20 +2990,7 @@ function renderInact(){
       <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')" title="Eliminar">🗑</button>
     </td>
   </tr>`;}).join(''):`<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes inactivos</td></tr>`;
-  initSortHeaders(document.getElementById('tbl-i'),[
-    null,           // #
-    d=>d.nm||'',    // Cliente
-    d=>d.pa||'',    // País
-    d=>d.ci||'',    // Ciudad
-    d=>d.ap||'',    // Aplicativo
-    d=>d.tp||'',    // Tipo
-    d=>d.es||'',    // Estado
-    null,           // Módulos
-    d=>d.co||'',    // Contacto
-    d=>d.ph||'',    // Tel
-    d=>d.no||'',    // Notas
-    null            // Acciones
-  ]);
+  initSortHeaders(document.getElementById('tbl-i'),[null,function(d){return d.nm||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.ap||'';},function(d){return d.tp||'';},function(d){return d.es||'';},null,function(d){return d.co||'';},function(d){return d.ph||'';},function(d){return d.no||'';},null]);
 }
 
 
@@ -3071,7 +3013,7 @@ function popClSelects(){
 }
 function waLinks(wh){
   if(!wh||!wh.length)return '';
-  return wh.map(function(n){var clean=n.replace(/[^0-9]/g,'');return '<a href="https://wa.me/'+clean+'" target="_blank" style="color:#25D366;text-decoration:none;white-space:nowrap;font-size:12px">📱 '+esc(n)+'</a>';}).join(' ');
+  return wh.map(function(n){var clean=n.replace(/[^0-9]/g,'');return '<a href="https://wa.me/'+clean+'" target="_blank" style="color:#25D366;text-decoration:none;font-size:12px">📱 '+esc(n)+'</a>';}).join(' ');
 }
 function renderCls(){
   const s=(document.getElementById('sc')?.value||'').toLowerCase();
@@ -3088,24 +3030,7 @@ function renderCls(){
   });
   const _tot=fEs?cls.filter(c=>c.es===fEs).length:cls.length;const ccl=document.getElementById('ccl');if(ccl)ccl.textContent=`${f.length} de ${_tot}`;
   const tb=document.getElementById('ctb');if(!tb)return;
-  const fSorted=applySort(f,'tbl-c',[
-    null,                          // # (índice, no sorteable)
-    d=>d.nm||'',                   // Cliente
-    d=>d.pa||'',                   // País
-    d=>d.ci||'',                   // Ciudad
-    d=>d.ap||'',                   // Aplicativo
-    d=>d.tp||'',                   // Tipo
-    d=>d.bot||'',                  // Bot WA
-    d=>d.es||'',                   // Estado
-    d=>d.fconf||'',                // F. Confirmación (fecha)
-    null,                          // Módulos (no sorteable)
-    null,                          // Complejidad (badge)
-    d=>d.co||'',                   // Contacto
-    d=>d.ph||'',                   // Tel/Email
-    null,                          // WhatsApp
-    d=>d.no||'',                   // Notas
-    null                           // Acciones
-  ]);
+  const fSorted=applySort(f,'tbl-c',[null,function(d){return d.nm||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.ap||'';},function(d){return d.tp||'';},function(d){return d.bot||'';},function(d){return d.es||'';},function(d){return d.fconf||'';},null,null,function(d){return d.co||'';},function(d){return d.ph||'';},null,function(d){return d.no||'';},null]);
 
   tb.innerHTML=fSorted.length?fSorted.map((c,idx)=>{
     const cx=complexBadge({mo:c.mo});
@@ -3123,7 +3048,7 @@ function renderCls(){
       <td class="cl-date">${fmtD(c.fconf)}</td>
       <td><div class="cl-mods-ro">${moHtml||'—'}</div></td>
       <td>${cx}</td>
-      <td class="cl-txt" title="${esc(c.co||'')}">${esc(c.co||'—')}</td>
+      <td class="cl-txt">${esc(c.co||'—')}</td>
       <td class="cl-txt">${esc(c.ph||'—')}</td>
       <td>${waLinks(c.wh)}</td>
       <td class="cl-note" title="${esc(c.no||'')}">${esc((c.no||'').slice(0,60))}</td>
@@ -3132,25 +3057,8 @@ function renderCls(){
         <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')">🗑</button>
       </td>
     </tr>`;
-  }).join(''):`<tr><td colspan="16" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes. Prueba cambiar los filtros.</td></tr>`;
-  initSortHeaders(document.getElementById('tbl-c'),[
-    null,                          // # (índice, no sorteable)
-    d=>d.nm||'',                   // Cliente
-    d=>d.pa||'',                   // País
-    d=>d.ci||'',                   // Ciudad
-    d=>d.ap||'',                   // Aplicativo
-    d=>d.tp||'',                   // Tipo
-    d=>d.bot||'',                  // Bot WA
-    d=>d.es||'',                   // Estado
-    d=>d.fconf||'',                // F. Confirmación (fecha)
-    null,                          // Módulos (no sorteable)
-    null,                          // Complejidad (badge)
-    d=>d.co||'',                   // Contacto
-    d=>d.ph||'',                   // Tel/Email
-    null,                          // WhatsApp
-    d=>d.no||'',                   // Notas
-    null                           // Acciones
-  ]);
+  }).join(''):`<tr><td colspan="14" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes. Prueba cambiar los filtros.</td></tr>`;
+  initSortHeaders(document.getElementById('tbl-c'),[null,function(d){return d.nm||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.ap||'';},function(d){return d.tp||'';},function(d){return d.bot||'';},function(d){return d.es||'';},function(d){return d.fconf||'';},null,null,function(d){return d.co||'';},function(d){return d.ph||'';},null,function(d){return d.no||'';},null]);
 }
 
 // ─── CLIENT MODAL ─────────────────────────────────────
@@ -3246,7 +3154,9 @@ function saveCl(){
     const ic=document.getElementById('tic');if(ic)ic.textContent='▸';
   }
   sv();closeM('cl-modal');
-  renderAfterSave();
+  if(curV==='clientes')renderCls();else if(curV==='inactivos')renderInact();
+  else if(curV==='despliegues')renderDeps();
+  updBadges();
 }
 
 // ─── CLIENT SUMMARY ────────────────────────────────────
@@ -3344,7 +3254,6 @@ function saveNewDep(){
     hrsNew:parseFloat(document.getElementById('dm-hrsnew')?.value)||null,
   });
   sv();closeM('dep-modal');
-  renderAfterSave();
   if(curV==='despliegues'||curV==='dashboard')renderDeps();
   renderOps();renderDash();updBadges();
   if(curV!=='despliegues')setV('despliegues'); // navigate to deps to show new one
@@ -3376,25 +3285,13 @@ function closeMP(e){
   }
 }
 function closeInfoPop(){const p=document.getElementById('info-pop');if(p)p.style.display='none';}
-function toggleInfo(id, evt){
+function toggleInfo(id){
   const pop=document.getElementById('info-pop');
   const body=document.getElementById('info-pop-body');
   if(!pop||!body)return;
-  const INFO={
-    'cap-info':`<strong>⚡ Capacidad Operativa</strong><br><br><strong>Fórmula:</strong><br>Hrs disponibles = Operadores × Hrs/día × Días/mes<br>Hrs consumidas = Σ (Hrs cliente × Peso complejidad)<br><br><strong>Pesos:</strong><br>• Básico → 1×<br>• Medio → 1.5×<br>• Avanzado → 2.5×<br><em>(editables en Catálogos → Complejidad)</em>`,
-    'est-info':`<strong>🎯 Estrategia de Despliegue</strong><br><br>Clasifica por: complejidad automática (módulos del cliente), fase actual y checklists pendientes.<br><br><strong>Complejidad:</strong> el sistema revisa los módulos del cliente contra los umbrales de Catálogos → Complejidad. Asigna el nivel más alto que aplique.`,
-    'dash-info':`<strong>📊 Dashboard KPIs</strong><br><br>Todos los contadores respetan el filtro de fechas.<br><br>• Total = deps en el período<br>• Operativos = estado ✅ Listo<br>• En Proceso = estado 🔧<br>• Tiempos = F.Entrega − F.Inicio en días<br><br>Usa los botones rápidos: Mes actual, Trimestre, Año actual.`,
-    'cont-info':`<strong>📋 Cálculo de Cobro</strong><br><br>• Por Conductor: max(activos, mínimo) × precio<br>• Por Vehículo: max(activos, mínimo) × precio<br>• Bot WA: max(bots, mínimo) × precio<br>• Cobro Fijo: precio fijo mensual<br>• Setup: pago único<br><br>El estimado usa el mayor entre activos actuales y mínimo configurado.`,
-    'cob-info':`<strong>💰 Cálculo de Factura</strong><br><br>Monto = Σ componentes del contrato con activos del mes<br><br>Estados: ⏳ Pendiente → ✅ Pagado → 🔶 Parcial → 🔴 Atrasado<br><br>Estados de Riesgo (Catálogos): umbral % de pago vs facturado. Ej: &lt;70% → Riesgo Alto.`,
-    'tl-info':`<strong>📅 Línea de Tiempo — Series</strong><br><br>• 🔵 Confirmados: F. Confirmación del cliente en ese mes<br>• 🟢 Finalizados: F. Entrega del dep en ese mes (✅)<br>• 🟡 En Proceso: F.Inicio ≤ mes y sin F.Entrega (o F.Entrega ≥ mes)<br>• 🟣 Operativos: acumulado con F.Entrega ≤ mes<br><br>Líneas punteadas = proyección por regresión lineal.`,
-    'usr-info':`<strong>👤 Usuarios y Roles</strong><br><br>Niveles: 🚫 Sin acceso · 👁 Solo lectura · ✏️ Editar · ⚡ Control total<br><br>Los usuarios se asocian por email de Supabase. El sistema aplica el rol al iniciar sesión.`
-  };
-  const mdInfo=(cats.md||[]).find(m=>m.name===id);
-  if(mdInfo){body.innerHTML=`<strong>${esc(mdInfo.name)}</strong><br><span style="color:#93C5FD;font-size:12px">${esc(mdInfo.cat||'')}</span><br><br>${esc(mdInfo.desc||'Sin descripción')}`;}
-  else if(INFO[id]){body.innerHTML=INFO[id];}
-  else{body.innerHTML=`<strong>${esc(id)}</strong><br><span style="color:var(--muted);font-size:12px">Sin información</span>`;}
-  if(evt){const t=evt.target||evt;const r=t.getBoundingClientRect?t.getBoundingClientRect():{top:100,left:200};pop.style.top=Math.min(r.bottom+6,window.innerHeight-280)+'px';pop.style.left=Math.min(r.left,window.innerWidth-340)+'px';}
-  pop.classList.add('open');pop.style.display='block';
+  const info={};
+  (cats.md||[]).forEach(m=>{if(m.name===id)body.innerHTML=`<strong>${esc(m.name)}</strong><br><span style="color:var(--muted);font-size:12px">${esc(m.desc||'Sin descripción')}</span>`;});
+  pop.style.display='block';
 }
 function setM(name,checked){
   if(!mTgt)return;
@@ -3810,22 +3707,7 @@ function renderCapacidad(){
 // ═══ CONTRATOS ═══════════════════════════════════════
 function renderContratos(){
   const tb=document.getElementById('cont-tbody');if(!tb)return;
-  tb.innerHTML=contratos.length?applySort(contratos,'cont-table',[
-    null,                    // #
-    c=>c.cliente||'',        // Cliente
-    null,                    // Tipos de Cobro (badges)
-    c=>c.botsActivos??0,     // Bots WA
-    c=>{                     // Est. Mensual (calculado)
-      try{
-        const ca=c.conductoresActivos||Math.max(0,...(c.componentes||[]).map(x=>x.minimo||0),c.minC||0);
-        const p=calcFactura(c,'',{conductores:ca,vehiculos:c.vehiculosActivos||0,bots:c.botsActivos||0});
-        return p.total;
-      }catch(e){return 0;}
-    },
-    c=>c.es||'',             // Estado
-    c=>c.nota||'',           // Notas
-    null                     // Acciones
-  ]).map(c=>{
+  tb.innerHTML=contratos.length?applySort(contratos,'cont-table',[null,function(c){return c.cliente||'';},null,function(c){return c.botsActivos||0;},null,function(c){return c.es||'';},function(c){return c.nota||'';},null]).map(c=>{
     const comps=c.componentes||[];
     const botComp=comps.find(comp=>comp.tipo==='bot_wa');
     const compBadges=comps.length?comps.map(comp=>`<span class="tag" style="font-size:10.5px">${esc(comp.nombre||comp.tipo)}: $${comp.precio}${comp.minimo?' (mín '+comp.minimo+')':''}</span>`).join(' '):'<span style="color:var(--subtle);font-size:11px">Legacy</span>';
@@ -3846,22 +3728,7 @@ function renderContratos(){
       </td>
     </tr>`;
   }).join(''):`<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--subtle)">Sin contratos. Usa "+ Nuevo Contrato".</td></tr>`;
-  initSortHeaders(document.querySelector('.cont-table'),[
-    null,                    // #
-    c=>c.cliente||'',        // Cliente
-    null,                    // Tipos de Cobro (badges)
-    c=>c.botsActivos??0,     // Bots WA
-    c=>{                     // Est. Mensual (calculado)
-      try{
-        const ca=c.conductoresActivos||Math.max(0,...(c.componentes||[]).map(x=>x.minimo||0),c.minC||0);
-        const p=calcFactura(c,'',{conductores:ca,vehiculos:c.vehiculosActivos||0,bots:c.botsActivos||0});
-        return p.total;
-      }catch(e){return 0;}
-    },
-    c=>c.es||'',             // Estado
-    c=>c.nota||'',           // Notas
-    null                     // Acciones
-  ]);
+  initSortHeaders(document.querySelector('.cont-table'),[null,function(c){return c.cliente||'';},null,function(c){return c.botsActivos||0;},null,function(c){return c.es||'';},function(c){return c.nota||'';},null]);
 }
 function initContModal(){
   const sel=document.getElementById('comp-tipo');
@@ -3953,8 +3820,7 @@ function saveContrato(){
     const id=Math.max(...contratos.map(c=>c.id),0)+1;
     contratos.push({id,clienteId,cliente:clienteNm,componentes:comps,modalidad:comps?'componentes':'conductor',precio:px,minV:0,minC:mc,conductoresActivos:ca,vehiculosActivos:va,botsActivos:botsCount,es:'activo',nota,valorFijo:0,setupFee:0,descuentos:[]});
   }
-  svCont();closeM('cont-modal');renderContratos();
-  renderAfterSave();updBadges();
+  svCont();closeM('cont-modal');renderContratos();updBadges();
 }
 function setupContratoPreview(){}
 
@@ -4004,18 +3870,7 @@ function generarMesPasado(){
 function renderCobranzas(){
   const mes=document.getElementById('cob-mes')?.value||'';
   const filtered=cobros.filter(cb=>!mes||cb.mes===mes);
-  const filteredS=applySort(filtered,'cob-table',[
-    c=>c.cliente||'',        // Cliente
-    c=>c.mes||'',            // Mes (fecha YYYY-MM, sorteable como string)
-    c=>c.conductores??0,     // Activos
-    null,                    // Desglose
-    c=>c.descPct??0,         // Descuento
-    c=>c.total??0,           // Monto Final
-    c=>c.estado||'',         // Estado
-    c=>c.nota||'',           // Notas
-    null                     // Acciones
-  ]);
-
+  const filteredS=applySort(filtered,'cob-table',[function(c){return c.cliente||'';},function(c){return c.mes||'';},function(c){return c.conductores||0;},null,function(c){return c.descPct||0;},function(c){return c.total||0;},function(c){return c.estado||'';},function(c){return c.nota||'';},null]);
   const totFact=filtered.reduce((s,cb)=>s+(cb.montoFinal||0),0);
   const totCob=filtered.filter(cb=>cb.estado==='pagado'||cb.estado==='parcial').reduce((s,cb)=>s+(cb.montoFinal||0),0);
   const totPend=filtered.filter(cb=>cb.estado==='pendiente'||cb.estado==='atrasado').reduce((s,cb)=>s+(cb.montoFinal||0),0);
@@ -4067,17 +3922,7 @@ function renderCobranzas(){
     const counts=states.map(s=>filtered.filter(c=>c.estado===s).length);
     if(typeof Chart!=='undefined')cobCharts.pie=new Chart(ctx2,{type:'doughnut',data:{labels:states.map(s=>ESTADO_COBRO_STYLES[s].label),datasets:[{data:counts,backgroundColor:['#FDE68A','#6EE7B7','#FDBA74','#FECDD3'],borderColor:['#B45309','#0F7E4F','#C2410C','#BE123C'],borderWidth:2}]},options:{responsive:true,plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}}}});
   }
-  initSortHeaders(document.querySelector('.cob-table'),[
-    c=>c.cliente||'',        // Cliente
-    c=>c.mes||'',            // Mes (fecha YYYY-MM, sorteable como string)
-    c=>c.conductores??0,     // Activos
-    null,                    // Desglose
-    c=>c.descPct??0,         // Descuento
-    c=>c.total??0,           // Monto Final
-    c=>c.estado||'',         // Estado
-    c=>c.nota||'',           // Notas
-    null                     // Acciones
-  ]);
+  initSortHeaders(document.querySelector('.cob-table'),[function(c){return c.cliente||'';},function(c){return c.mes||'';},function(c){return c.conductores||0;},null,function(c){return c.descPct||0;},function(c){return c.total||0;},function(c){return c.estado||'';},function(c){return c.nota||'';},null]);
 }
 function cambiarEstadoCobro(id){
   const cb=cobros.find(c=>c.id==id);if(!cb)return;
@@ -4170,7 +4015,6 @@ function saveCobro(){
   cb.estado=document.getElementById('cem-estado')?.value||cb.estado;
   cb.notas=document.getElementById('cem-notas')?.value.trim()||'';
   svCobros();closeM('cobro-edit-modal');renderCobranzas();
-  renderAfterSave();
 }
 
 
@@ -4297,7 +4141,7 @@ function renderMds(){
 function saveMd(){
   const n=document.getElementById('md-name').value.trim();if(!n)return;
   cats.md.push({id:Date.now(),name:n,desc:document.getElementById('md-desc').value.trim(),cat:document.getElementById('md-cat').value});
-  sv();renderMds();renderAfterSave();document.getElementById('md-name').value='';document.getElementById('md-desc').value='';
+  sv();renderMds();document.getElementById('md-name').value='';document.getElementById('md-desc').value='';
 }
 function renderCatMods(){
   if(!cats.catmod||!cats.catmod.length)cats.catmod=BASE_CATMOD.map(x=>Object.assign({},x));
@@ -4307,7 +4151,7 @@ function renderCatMods(){
 function saveCatmod(){
   const n=document.getElementById('cm-cname').value.trim();if(!n)return;
   cats.catmod.push({id:Date.now(),name:n,icon:document.getElementById('cm-icon').value.trim(),color:document.getElementById('cm-col').value,desc:''});
-  sv();renderCatMods();renderAfterSave();
+  sv();renderCatMods();
   document.getElementById('cm-cname').value='';document.getElementById('cm-icon').value='';
 }
 function renderModDeps(){
@@ -4318,31 +4162,17 @@ function renderModDeps(){
 function saveModDep(){
   const n=document.getElementById('mo-dep-name').value.trim();if(!n)return;
   cats.modal.push({id:Date.now(),icon:document.getElementById('mo-dep-icon').value.trim(),name:n,desc:document.getElementById('mo-dep-desc').value.trim()});
-  sv();renderModDeps();renderAfterSave();['mo-dep-name','mo-dep-icon','mo-dep-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  sv();renderModDeps();['mo-dep-name','mo-dep-icon','mo-dep-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 function renderPhases(){
   if(!cats.phases||!cats.phases.length)cats.phases=BASE_PHASES.map(x=>Object.assign({},x));
   const el=document.getElementById('ph-tbody');if(!el)return;
-  el.innerHTML=(cats.phases||[]).map((p,i)=>{
-    const tasks=(p.tasks||[]);
-    const taskBadge=tasks.length?`<span style="background:#EFF6FF;color:#1B4FD8;padding:1px 7px;border-radius:10px;font-size:11px">${tasks.length} tarea${tasks.length>1?'s':''}</span>`:'<span style="color:var(--subtle);font-size:11px">Sin tareas</span>';
-    return`<tr>
-      <td style="width:32px;text-align:center;color:var(--muted)">${i+1}</td>
-      <td style="width:36px;text-align:center;font-size:16px">${p.icon||''}</td>
-      <td><strong>${esc(p.name)}</strong><br><span style="color:var(--muted);font-size:11.5px">${esc(p.desc||'')}</span></td>
-      <td>${taskBadge}</td>
-      <td style="white-space:nowrap">
-        <button class="icon-btn" onclick="openPhaseTasksEditor(${p.id})" title="Editar tareas" style="color:#1B4FD8">📋</button>
-        <button class="icon-btn edit" onclick="editCatItem('phases',${p.id})">✏️</button>
-        <button class="icon-btn del" onclick="delCat('phases',${p.id},'${esc(p.name)}')">🗑</button>
-      </td>
-    </tr>`;
-  }).join('')||`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--subtle)">Sin fases</td></tr>`;
+  el.innerHTML=(cats.phases||[]).map((p,i)=>`<tr><td>${i+1}</td><td>${p.icon||''}</td><td><strong>${esc(p.name)}</strong></td><td style="color:var(--muted)">${esc(p.desc||'')}</td><td><button class="icon-btn edit" onclick="editCatItem('phases',${p.id})">✏️</button><button class="icon-btn del" onclick="delCat('phases',${p.id},'${esc(p.name)}')">🗑</button></td></tr>`).join('')||`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--subtle)">Sin fases</td></tr>`;
 }
 function savePhase(){
   const n=document.getElementById('ph-name').value.trim();if(!n)return;
-  cats.phases.push({id:Date.now(),icon:document.getElementById('ph-icon').value.trim(),name:n,desc:document.getElementById('ph-desc').value.trim(),tasks:[]});
-  sv();renderPhases();renderAfterSave();['ph-icon','ph-name','ph-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  cats.phases.push({id:Date.now(),icon:document.getElementById('ph-icon').value.trim(),name:n,desc:document.getElementById('ph-desc').value.trim()});
+  sv();renderPhases();['ph-icon','ph-name','ph-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 function renderImplTimes(){
   if(!cats.implTimes||!cats.implTimes.length)cats.implTimes=BASE_IMPL_TIMES.map(x=>Object.assign({},x));
@@ -4352,7 +4182,7 @@ function renderImplTimes(){
 function saveImplTime(){
   const n=document.getElementById('it-name').value.trim();if(!n)return;
   cats.implTimes.push({id:Date.now(),name:n,weeks:parseInt(document.getElementById('it-weeks').value)||2,color:document.getElementById('it-color')?.value||'#0F7E4F',desc:document.getElementById('it-desc')?.value.trim()||''});
-  sv();renderImplTimes();renderAfterSave();['it-name','it-weeks','it-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  sv();renderImplTimes();['it-name','it-weeks','it-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 function renderCxs(){
   if(!cats.complexity||!cats.complexity.length)cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
@@ -4372,7 +4202,7 @@ function saveCx(){
   const modsSel=document.getElementById('cx-mods');
   const mods=modsSel?Array.from(modsSel.selectedOptions).map(o=>o.value):[];
   cats.complexity.push({id:Date.now(),name:n,mods,peso:parseFloat(document.getElementById('cx-peso').value)||1,icon:document.getElementById('cx-icon').value.trim()||'⚡',bg:'#dbeafe',color:document.getElementById('cx-color')?.value||'#1d4ed8',border:'#93c5fd',prioridad:parseInt(document.getElementById('cx-prio').value)||cats.complexity.length+1});
-  sv();renderCxs();renderAfterSave();['cx-name','cx-peso','cx-icon','cx-prio'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  sv();renderCxs();['cx-name','cx-peso','cx-icon','cx-prio'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   if(modsSel) Array.from(modsSel.options).forEach(o=>o.selected=false);
 }
 function renderBTs(){
@@ -4384,7 +4214,7 @@ function saveBillingType(){
   const n=document.getElementById('bt-name').value.trim();if(!n)return;
   const tipo=document.getElementById('bt-tipo').value.trim()||n.toLowerCase().replace(/\s+/g,'_');
   cats.billingTypes.push({id:Date.now(),name:n,tipo,icon:document.getElementById('bt-icon').value.trim()||'💰',unidad:document.getElementById('bt-unit')?.value.trim()||'unid',desc:document.getElementById('bt-desc')?.value.trim()||''});
-  sv();renderBTs();renderAfterSave();['bt-name','bt-tipo','bt-icon','bt-unit','bt-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  sv();renderBTs();['bt-name','bt-tipo','bt-icon','bt-unit','bt-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 function renderRisks(){
   if(!cats.risk||!cats.risk.length)cats.risk=BASE_RISK.map(x=>Object.assign({},x));
@@ -4413,7 +4243,7 @@ function saveRisk(){
     border:brMap[color]||'#FDE68A',
     desc:document.getElementById('rk-desc')?.value.trim()||''
   });
-  sv();renderRisks();renderAfterSave();
+  sv();renderRisks();
   ['rk-name','rk-icon','rk-pct','rk-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 function renderAps(){
@@ -4429,7 +4259,7 @@ function renderAps(){
 function saveAp(){
   const n=document.getElementById('ap-name').value.trim();if(!n)return;
   cats.ap.push({id:Date.now(),name:n,desc:document.getElementById('ap-desc').value.trim(),color:document.getElementById('ap-color').value||'#1B4FD8'});
-  sv();renderAps();renderAfterSave();document.getElementById('ap-name').value='';document.getElementById('ap-desc').value='';
+  sv();renderAps();document.getElementById('ap-name').value='';document.getElementById('ap-desc').value='';
 }
 function renderTps(){
   const el=document.getElementById('tp-tbody');if(!el)return;
@@ -4443,7 +4273,7 @@ function saveTp(){
   const n=document.getElementById('tp-name').value.trim();if(!n)return;
   const col=document.getElementById('tp-color')?.value||'#637087';
   cats.tp.push({id:Date.now(),name:n,desc:document.getElementById('tp-desc').value.trim(),color:col});
-  sv();renderTps();renderAfterSave();
+  sv();renderTps();
   document.getElementById('tp-name').value='';document.getElementById('tp-desc').value='';
 }
 // ─── CATALOG EDIT MODAL ────────────────────────────────────────────────────
@@ -4702,22 +4532,14 @@ function doLogin(){
 
 // ═══ COLUMN RESIZE ══════════════════════════════════
 function initColResize(e){
-  var th=e.target.closest('th');if(!th)return;
-  var startX=e.clientX,startW=th.offsetWidth;e.preventDefault();
-  document.body.style.cursor='col-resize';document.body.style.userSelect='none';
-  function onMove(ev){var w=Math.max(40,startW+ev.clientX-startX)+'px';th.style.width=w;var tbl=th.closest('table');if(tbl&&tbl.id){try{var s=JSON.parse(localStorage.getItem('_colW')||'{}');var i=Array.from(th.parentElement.children).indexOf(th);s[tbl.id+'_'+i]=w;localStorage.setItem('_colW',JSON.stringify(s));}catch(ex){}}}
-  function onUp(){document.body.style.cursor='';document.body.style.userSelect='';document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
-  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+  const th=e.target.closest('th');if(!th)return;
+  const startX=e.clientX,startW=th.offsetWidth;
+  e.preventDefault();
+  function onMove(ev){th.style.width=(startW+ev.clientX-startX)+'px';}
+  function onUp(){document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
 }
-function applyColWidths(tblEl){
-  try{if(!tblEl||!tblEl.id)return;var saved=JSON.parse(localStorage.getItem('_colW')||'{}');tblEl.querySelectorAll('thead th').forEach(function(th,i){var k=tblEl.id+'_'+i;if(saved[k])th.style.width=saved[k];});}catch(e){}
-}
-function addColResizers(tblEl){
-  if(!tblEl)return;
-  tblEl.querySelectorAll('thead th').forEach(function(th){var r=th.querySelector('.col-r');if(!r){r=document.createElement('div');r.className='col-r';th.appendChild(r);}r.onmousedown=initColResize;});
-  applyColWidths(tblEl);
-}
-
 
 
 
@@ -4744,7 +4566,7 @@ function saveLauncher(){
   const n=document.getElementById('ln-name').value.trim();if(!n)return;
   if(!cats.launchers)cats.launchers=[];
   cats.launchers.push({id:Date.now(),name:n,email:document.getElementById('ln-email').value.trim(),notas:document.getElementById('ln-notas').value.trim()});
-  sv();renderLaunchers();renderAfterSave();
+  sv();renderLaunchers();
   ['ln-name','ln-email','ln-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 
@@ -5201,213 +5023,6 @@ function subscribeRealtime(){
     }
   }).subscribe();
 }
-
-// ═══ FASE TASKS EDITOR (Catálogos) ══════════════════════════════════════
-let _ptmPhaseId = null;
-
-function openPhaseTasksEditor(phaseId){
-  const ph = (cats.phases||[]).find(p=>p.id===phaseId);
-  if(!ph) return;
-  _ptmPhaseId = phaseId;
-  document.getElementById('ptm-title').textContent = (ph.icon||'📋') + ' Tareas: ' + ph.name;
-  document.getElementById('ptm-desc').textContent = ph.desc || '';
-  renderPhaseTasksList(ph);
-  document.getElementById('phase-tasks-modal').classList.add('open');
-  setTimeout(()=>document.getElementById('ptm-new-task').focus(), 100);
-}
-
-function renderPhaseTasksList(ph){
-  const tasks = ph.tasks || [];
-  const el = document.getElementById('ptm-list');
-  if(!el) return;
-  if(!tasks.length){
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--subtle);font-size:12px">Sin tareas — agrega la primera abajo</div>';
-    return;
-  }
-  el.innerHTML = tasks.map((t,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--bg2);margin-bottom:6px">
-      <span style="color:var(--muted);font-size:11px;font-family:monospace;min-width:20px">${i+1}.</span>
-      <span style="flex:1;font-size:13px">${esc(t)}</span>
-      <button class="icon-btn del" onclick="removePhaseTask(${i})" title="Eliminar tarea" style="flex-shrink:0">✕</button>
-    </div>`).join('');
-}
-
-function addPhaseTask(){
-  const inp = document.getElementById('ptm-new-task');
-  const text = (inp?.value||'').trim();
-  if(!text) return;
-  const ph = (cats.phases||[]).find(p=>p.id===_ptmPhaseId);
-  if(!ph) return;
-  if(!ph.tasks) ph.tasks = [];
-  ph.tasks.push(text);
-  inp.value = '';
-  sv();
-  renderPhaseTasksList(ph);
-  renderPhases();
-}
-
-function removePhaseTask(idx){
-  const ph = (cats.phases||[]).find(p=>p.id===_ptmPhaseId);
-  if(!ph||!ph.tasks) return;
-  ph.tasks.splice(idx, 1);
-  sv();
-  renderPhaseTasksList(ph);
-  renderPhases();
-}
-
-// ═══ CHECKLIST DE DESPLIEGUE ════════════════════════════════════════════
-// dep.phaseChecks = { phaseId: [true, false, true, ...] }
-// Índice = índice de tarea en cats.phases[idx].tasks[]
-
-// ═══ CHECKLIST DE DESPLIEGUE — 3 ESTADOS ════════════════════════════════
-// phaseChecks[phaseId][taskIdx] = 0 (pendiente) | 1 (en proceso) | 2 (completado)
-
-const TASK_STATES = [
-  {val:0, label:'Pendiente',   icon:'⬜', color:'#94A3B8', bg:'#F8FAFC'},
-  {val:1, label:'En Proceso',  icon:'🔄', color:'#B45309', bg:'#FEF9C3'},
-  {val:2, label:'Completado',  icon:'✅', color:'#0F7E4F', bg:'#ECFDF5'},
-];
-
-function setDepTaskStatus(depId, phaseId, taskIdx, status){
-  const d = deps.find(x=>x.id===depId);
-  if(!d) return;
-  if(!d.phaseChecks) d.phaseChecks = {};
-  if(!d.phaseChecks[phaseId] === undefined || !Array.isArray(d.phaseChecks[phaseId]))
-    d.phaseChecks[phaseId] = [];
-  d.phaseChecks[phaseId][taskIdx] = status;
-
-  // Auto-avance: si todas las tareas de la fase actual están en estado 2 (Completado)
-  const phases = cats.phases&&cats.phases.length ? cats.phases : BASE_PHASES;
-  const curPhase = phases[d.fase||0];
-  if(curPhase && curPhase.id === phaseId){
-    const tasks = curPhase.tasks||[];
-    const checks = d.phaseChecks[phaseId]||[];
-    const allDone = tasks.length>0 && tasks.every((_,i)=>(checks[i]||0)===2);
-    if(allDone){
-      const maxFase = phases.length - 1;
-      if((d.fase||0) < maxFase){
-        d.fase = (d.fase||0) + 1;
-        const nextPh = phases[d.fase];
-        showSync(true, '🎉 Fase completada → '+(nextPh?.icon||'')+' '+(nextPh?.name||''));
-        setTimeout(()=>setSyncStatus(''), 3000);
-      }
-    }
-  }
-
-  sv();
-  // Re-renderizar el popup flotante con estado actualizado
-  renderDepChecklistPopup(d);
-  // Actualizar badge de fase en la tabla
-  renderAfterSave();
-}
-
-function openDepChecklist(depId, evt){
-  const d = deps.find(x=>x.id===depId);
-  if(!d) return;
-  // Posicionar popup cerca del badge clicado
-  const popup = document.getElementById('dep-checklist-popup');
-  if(!popup) return;
-  if(evt){
-    const r = evt.target.closest('span')?.getBoundingClientRect() || evt.target.getBoundingClientRect();
-    const top  = Math.min(r.bottom+6, window.innerHeight-420);
-    const left = Math.max(8, Math.min(r.left, window.innerWidth-380));
-    popup.style.top  = top  + 'px';
-    popup.style.left = left + 'px';
-  }
-  popup.style.display = 'block';
-  renderDepChecklistPopup(d);
-  // Cerrar al hacer clic fuera
-  setTimeout(()=>{
-    document.addEventListener('mousedown', function closePopup(e){
-      if(!popup.contains(e.target)){ popup.style.display='none'; document.removeEventListener('mousedown',closePopup); }
-    });
-  }, 50);
-}
-
-function renderDepChecklistPopup(dep){
-  const popup = document.getElementById('dep-checklist-popup');
-  if(!popup) return;
-  const phases = cats.phases&&cats.phases.length ? cats.phases : BASE_PHASES;
-  const checks = dep.phaseChecks || {};
-  const curFase = dep.fase || 0;
-
-  // Título
-  const cl = cls.find(c=>c.id===dep.cid)||{nm:dep.c};
-  popup.querySelector('#dcp-title').textContent = (cl.nm||dep.c||'Despliegue');
-
-  // Renderizar fases y tareas
-  const body = popup.querySelector('#dcp-body');
-  body.innerHTML = phases.map((ph, phIdx)=>{
-    const tasks = ph.tasks||[];
-    if(!tasks.length) return ''; // ocultar fases sin tareas
-    const phChecks = checks[ph.id] || [];
-    const done = tasks.filter((_,i)=>(phChecks[i]||0)===2).length;
-    const isActive = phIdx === curFase;
-    const isDone   = done === tasks.length && tasks.length > 0;
-
-    const headerBg = isActive ? 'background:#EFF6FF;border-left:3px solid #1B4FD8'
-                   : isDone   ? 'background:#ECFDF5;border-left:3px solid #0F7E4F'
-                   :            'background:var(--bg2);border-left:3px solid transparent';
-
-    return`<div style="${headerBg};border-radius:6px;padding:8px 10px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:${tasks.length?'8px':'0'}">
-        <span>${ph.icon||'📍'}</span>
-        <span style="font-weight:700;font-size:12.5px;flex:1">${esc(ph.name)}</span>
-        ${isActive?'<span style="background:#1B4FD8;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px">ACTUAL</span>':''}
-        ${isDone&&!isActive?'<span style="color:#0F7E4F;font-size:11px">✅ ${done}/${tasks.length}</span>':''}
-        ${!isDone?`<span style="color:var(--muted);font-size:11px">${done}/${tasks.length}</span>`:''}
-      </div>
-      ${tasks.map((t,ti)=>{
-        const st = phChecks[ti]||0;
-        const S = TASK_STATES;
-        return`<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 2px;border-radius:4px;margin-bottom:2px"
-                    onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background=''">
-          <!-- Botón de estado: clic para ciclar 0→1→2→0 -->
-          <button onclick="setDepTaskStatus(${dep.id},${ph.id},${ti},(${st}+1)%3)"
-                  style="border:none;background:${S[st].bg};color:${S[st].color};padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;min-width:90px;text-align:center"
-                  title="Clic para cambiar estado">${S[st].icon} ${S[st].label}</button>
-          <span style="font-size:12.5px;${st===2?'text-decoration:line-through;color:var(--muted)':''};line-height:1.4">${esc(t)}</span>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }).join('') || '<div style="color:var(--subtle);font-size:12px;padding:12px;text-align:center">Sin tareas configuradas.<br>Agrégalas en Catálogos → Fases 📋</div>';
-}
-
-
-function toggleDepTask(depId, phaseId, taskIdx, checked){
-  const d = deps.find(x=>x.id===depId);
-  if(!d) return;
-  if(!d.phaseChecks) d.phaseChecks = {};
-  if(!d.phaseChecks[phaseId]) d.phaseChecks[phaseId] = [];
-  d.phaseChecks[phaseId][taskIdx] = checked;
-
-  // Auto-avance de fase si todas las tareas están completadas
-  const phases = cats.phases&&cats.phases.length ? cats.phases : BASE_PHASES;
-  const curPhase = phases[d.fase||0];
-  if(curPhase && curPhase.id === phaseId){
-    const tasks = curPhase.tasks||[];
-    const checks = d.phaseChecks[phaseId]||[];
-    const allDone = tasks.length>0 && tasks.every((_,i)=>checks[i]);
-    if(allDone){
-      const maxFase = phases.length - 1;
-      if((d.fase||0) < maxFase){
-        d.fase = (d.fase||0) + 1;
-        // Mostrar notificación de avance
-        const nextPh = phases[d.fase];
-        showSync(true, '🎉 Fase completada → ' + (nextPh?.icon||'') + ' ' + (nextPh?.name||''));
-        setTimeout(()=>setSyncStatus(''), 3000);
-      }
-    }
-  }
-
-  sv();
-  // Re-renderizar el modal con el estado actualizado
-  renderDepChecklistModal(d);
-  // Actualizar el badge de fase en la tabla
-  updBadges();
-  renderAfterSave();
-}
-
 function bootApp(){
   // DATA RESET: force reload when version changes
   var DATA_VERSION='v5.2_stable';
@@ -5509,38 +5124,5 @@ if(location.search.includes('demo=1')){
 })();
 
 </script>
-
-<!-- ══ MODAL EDITOR TAREAS DE FASE ══ -->
-<div class="modal-ov" id="phase-tasks-modal">
-  <div class="modal" style="max-width:520px">
-    <div class="m-title">
-      <span id="ptm-title">📋 Tareas de Fase</span>
-      <button class="m-close" onclick="closeM('phase-tasks-modal')">✕</button>
-    </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:12px" id="ptm-desc"></div>
-    <div id="ptm-list" style="margin-bottom:14px"></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <input class="fld" id="ptm-new-task" placeholder="Nueva tarea..." style="flex:1" 
-             onkeydown="if(event.key==='Enter')addPhaseTask()">
-      <button class="btn btn-p btn-sm" onclick="addPhaseTask()">+ Agregar</button>
-    </div>
-    <div class="m-actions" style="margin-top:16px">
-      <button class="btn btn-g" onclick="closeM('phase-tasks-modal')">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ POPUP CHECKLIST INLINE ══ -->
-<div id="dep-checklist-popup" style="display:none;position:fixed;z-index:4000;width:360px;max-height:420px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:14px 14px 10px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-    <div>
-      <div style="font-weight:700;font-size:13px" id="dcp-title">Checklist</div>
-      <div style="font-size:11px;color:var(--muted)">Clic en el estado para cambiarlo</div>
-    </div>
-    <button onclick="document.getElementById('dep-checklist-popup').style.display='none'"
-            style="border:none;background:none;font-size:16px;cursor:pointer;color:var(--muted);padding:2px 6px">✕</button>
-  </div>
-  <div id="dcp-body"></div>
-</div>
 </body>
 </html>
