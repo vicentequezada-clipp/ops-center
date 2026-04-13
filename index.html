@@ -155,7 +155,7 @@
   border-color:#93c5fd;
   box-shadow:0 0 0 3px rgba(59,130,246,.14);
 }
-.dep-inline-date{ min-width:120px; }
+.dep-inline-date{width:100%;overflow:hidden}
 .dep-inline-select{ padding-right:28px; }
 .dep-inline-textarea{
   resize:vertical;
@@ -204,7 +204,7 @@
 .dep-col-cx{width:115px}
 .dep-col-mods{width:230px}
 .dep-col-launcher{width:150px}
-.dep-col-date{width:118px}
+.dep-col-date{width:100px;max-width:100px;overflow:hidden}
 .dep-col-days{width:78px}
 .dep-col-pending{width:170px}
 .dep-col-hours{width:92px}
@@ -549,6 +549,16 @@ thead th{cursor:default}
 .cx-combo-chip { display:inline-flex;align-items:center;gap:4px;background:#EFF6FF;color:#1B4FD8;padding:3px 10px;border-radius:20px;font-size:12px;margin:3px;font-weight:600; }
 .cx-combo-chip button { border:none;background:none;color:#94A3B8;cursor:pointer;font-size:12px;padding:0 2px;line-height:1; }
 .cx-combo-chip button:hover { color:#BE123C; }
+
+.dep-notes-list{margin:0;padding-left:14px;font-size:12px}
+.dep-notes-list li{margin-bottom:2px;line-height:1.4}
+
+/* ── Input date inline — no expandir columna ────── */
+td.dep-inline-date { overflow:hidden; max-width:100px; }
+td.dep-inline-date input[type=date] { width:100% !important; min-width:0 !important; max-width:100% !important; font-size:11px; padding:2px 3px; box-sizing:border-box; }
+
+td.dep-inline-date{width:100px!important;max-width:100px!important;min-width:0!important;overflow:hidden}
+td.dep-inline-date input{width:100%!important;min-width:0!important;box-sizing:border-box;font-size:11px}
 </style>
 </head>
 <body>
@@ -606,7 +616,7 @@ thead th{cursor:default}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.16 · 13 Abr 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.17 · 13 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -1102,7 +1112,7 @@ thead th{cursor:default}
 
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.16</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.17</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
 
       <!-- REFERENCE TABLE -->
       <div class="card" style="margin-bottom:16px">
@@ -1352,24 +1362,40 @@ thead th{cursor:default}
           <span>🎯 Complejidad</span><span class="cat-section-arrow">▾</span>
         </div>
         <div class="cat-section-body">
-          <div class="cat-add-row">
-            <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="cx-icon" placeholder="🟢" style="max-width:70px"></div>
-            <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="cx-name" placeholder="Básico"></div>
-            <select class="cat-input" id="cx-color" style="max-width:130px">
-              <option value="#0F7E4F">🟢 Verde</option><option value="#B45309">🟡 Ámbar</option>
-              <option value="#BE123C">🔴 Rojo</option><option value="#5B21B6">🟣 Violeta</option>
-            </select>
-            <div class="fr"><label class="fl">Peso</label><input class="cat-input" id="cx-peso" type="number" step="0.1" min="0.5" value="1.0" style="max-width:80px"></div>
-            <div class="fr"><label class="fl">Prioridad</label><input class="cat-input" id="cx-prio" type="number" min="1" value="3" style="max-width:80px"></div>
-            <button class="btn btn-p btn-sm" onclick="saveCx()">+ Agregar</button>
+          <!-- Formulario agregar nuevo nivel -->
+          <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px">
+            <div style="font-weight:700;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">+ Nuevo nivel de complejidad</div>
+            <div class="fr2" style="margin-bottom:8px">
+              <div class="fr"><label class="fl">Ícono</label><input class="cat-input" id="cx-icon" placeholder="🟢" style="max-width:70px"></div>
+              <div class="fr"><label class="fl">Nombre</label><input class="cat-input" id="cx-name" placeholder="Ej: Básico"></div>
+              <div class="fr"><label class="fl">Color</label>
+                <select class="cat-input" id="cx-color" style="max-width:130px">
+                  <option value="#0F7E4F">🟢 Verde</option>
+                  <option value="#B45309">🟡 Ámbar</option>
+                  <option value="#BE123C">🔴 Rojo</option>
+                  <option value="#5B21B6">🟣 Violeta</option>
+                  <option value="#0891B2">🔵 Azul</option>
+                </select>
+              </div>
+              <div class="fr"><label class="fl">Peso</label><input class="cat-input" id="cx-peso" type="number" step="0.1" min="0.5" value="1.0" style="max-width:80px"></div>
+              <div class="fr"><label class="fl">Prioridad</label><input class="cat-input" id="cx-prio" type="number" min="1" value="3" style="max-width:80px"></div>
+            </div>
+            <!-- Checklist de módulos para la primera combinación -->
+            <div style="margin-bottom:8px">
+              <label class="fl" style="margin-bottom:6px">Módulos de la primera combinación <span style="font-weight:400;color:var(--muted);font-size:11px">(puedes agregar más combinaciones después)</span></label>
+              <div id="cx-new-mods-list" style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;background:#fff"></div>
+            </div>
+            <button class="btn btn-p btn-sm" onclick="saveCx()" style="width:100%">+ Agregar nivel</button>
           </div>
-          <div class="fr" style="margin-bottom:12px">
-            <label class="fl">Módulos disparadores</label>
-            <select class="cat-input" id="cx-mods" multiple style="height:80px"></select>
-            <p style="font-size:11px;color:var(--muted);margin:2px 0">Ctrl+clic para seleccionar varios</p>
-          </div>
+          <!-- Tabla de niveles existentes -->
           <div class="tbl-wrap"><table class="cat-table">
-            <thead><tr><th>Nivel</th><th>Peso</th><th>Prioridad</th><th>Módulos disparadores</th><th style="width:80px">Acciones</th></tr></thead>
+            <thead><tr>
+              <th>Nivel</th>
+              <th style="width:60px">Peso</th>
+              <th style="width:60px">Prior.</th>
+              <th>Combinaciones (aplica si tiene todos los módulos de alguna)</th>
+              <th style="width:80px">Acciones</th>
+            </tr></thead>
             <tbody id="cx-tbody"></tbody>
           </table></div>
         </div>
@@ -1647,7 +1673,7 @@ thead th{cursor:default}
 
 <!-- CAT EDIT MODAL -->
 <div class="modal-ov" id="cat-modal">
-  <div class="modal modal-sm">
+  <div class="modal" style="max-width:560px">
     <div class="m-title"><span id="cat-mt">Editar</span><button class="m-close" onclick="closeM('cat-modal')">✕</button></div>
     <div id="cat-mb"></div>
     <div class="m-actions">
@@ -2199,7 +2225,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.16'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.17'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -2657,7 +2683,14 @@ function depTH(headerId){
     ['Link','dep-col-link'],
     ['Acciones','dep-col-actions']
   ];
-  el.innerHTML = cols.map(([label,cls])=>`<th class="${isActive?cls:''}">${label}</th>`).join('');
+  el.innerHTML = cols.map(([label,cls])=>{
+    const w = cls==='dep-col-date'?'style="width:100px;max-width:100px;min-width:100px"'
+            : cls==='dep-col-id'?'style="width:36px"'
+            : cls==='dep-col-days'?'style="width:60px"'
+            : cls==='dep-col-hours'?'style="width:60px"'
+            : cls==='dep-col-actions'?'style="width:64px"' : '';
+    return `<th class="${isActive?cls:''}" ${w}>${label}</th>`;
+  }).join('');
   if(!isActive){
     el.querySelectorAll('th').forEach(th=>{
       if(!th.querySelector('.col-r')){
@@ -2920,8 +2953,15 @@ function depModulesRead(mods){
   return`<div class="dep-modules">${f.map(m=>`<span class="mt" title="${esc(m)}">${esc(m)}</span>`).join('')}</div>`;
 }
 function depNotesRead(text){
-  if(!text) return `<span class="dep-text muted">—</span>`;
-  return `<span class="dep-notes" title="${esc(text)}">${esc(text)}</span>`;
+  if(!text) return '<span class="dep-text muted">—</span>';
+  // Cada línea (salto de línea o separador "|") se muestra como ítem separado
+  const lines = text.split(/\n|\|/).map(s=>s.trim()).filter(Boolean);
+  if(lines.length <= 1){
+    return '<span class="dep-notes" title="'+esc(text)+'">'+esc(text)+'</span>';
+  }
+  return '<ul class="dep-notes-list" title="'+esc(text)+'">'+
+    lines.map(function(l){ return '<li>'+esc(l)+'</li>'; }).join('')+
+  '</ul>';
 }
 function depRowRead(d){
   const cl=cls.find(c=>c.id===d.cid)||null;
@@ -2929,7 +2969,7 @@ function depRowRead(d){
   const mode=(_editDepMode||'dep');
   // Helpers para celdas editables inline (clic simple)
   const inlineText=(val,field,ph)=>`<td onclick="depInlineEdit(${d.id},'${field}',this)" class="dep-inline-cell" title="Clic para editar"><span class="dep-text">${esc(val||'—')}</span></td>`;
-  const inlineDate=(val,field)=>`<td onclick="depInlineDateEdit(${d.id},'${field}',this)" class="dep-inline-cell dep-inline-date" title="Clic para editar fecha"><span class="dep-date">${fmtD(val)}</span></td>`;
+  const inlineDate=(val,field)=>`<td onclick="depInlineDateEdit(${d.id},'${field}',this)" class="dep-inline-cell dep-inline-date" style="width:100px;max-width:100px;min-width:0;overflow:hidden" title="Clic para editar fecha"><span class="dep-date">${fmtD(val)}</span></td>`;
   const inlineNum=(val,field)=>`<td class="dep-num dep-inline-cell" onclick="depInlineNumEdit(${d.id},'${field}',this)" title="Clic para editar">${val===''||val==null?'<span class="dep-text muted">—</span>':esc(val)}</td>`;
   const inlineSelect=(val,field,opts)=>`<td onclick="depInlineSelectEdit(${d.id},'${field}',this,${JSON.stringify(opts)})" class="dep-inline-cell" title="Clic para editar">${val||'—'}</td>`;
 
@@ -4334,6 +4374,17 @@ function saveImplTime(){
 function renderCxs(){
   if(!cats.complexity||!cats.complexity.length) cats.complexity=BASE_COMPLEXITY.map(x=>Object.assign({},x));
   const el=document.getElementById('cx-tbody'); if(!el) return;
+  // Poblar checklist del formulario de agregar
+  const newModsList=document.getElementById('cx-new-mods-list');
+  if(newModsList){
+    const allMods=(cats.md&&cats.md.length?cats.md:BASE_MD).map(m=>m.name);
+    newModsList.innerHTML=allMods.map(function(m){
+      return '<label class="cx-mod-check-row" style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer">'+
+        '<input type="checkbox" class="cx-new-mod-check" value="'+esc(m)+'" style="width:14px;height:14px;accent-color:#1B4FD8;cursor:pointer">'+
+        '<span style="font-size:12.5px">'+esc(m)+'</span>'+
+      '</label>';
+    }).join('');
+  }
   el.innerHTML=(cats.complexity||[]).map(function(c){
     const combos=Array.isArray(c.combos)&&c.combos.length ? c.combos
       : [String(c.mods||'').split(',').map(function(s){return s.trim();}).filter(Boolean)];
@@ -4345,8 +4396,8 @@ function renderCxs(){
         '<span style="color:var(--muted);font-size:10px;font-weight:700;min-width:20px">C'+(ci+1)+'</span>'+chips+
       '</div>';
     }).join('');
-    const editFn = 'editCatItem("complexity",'+c.id+')';
-    const delFn  = 'delCat("complexity",'+c.id+',"'+esc(c.name)+'")';
+    const editFn = "openCxEdit('"+c.id+"')";
+    const delFn  = "cxDelete('"+c.id+"','"+esc(c.name)+"')";
     return '<tr>'+
       '<td><span style="background:'+(c.bg||'#dbeafe')+';color:'+(c.color||'#1d4ed8')+';padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700">'+(c.icon||'')+' '+esc(c.name)+'</span></td>'+
       '<td style="font-size:13px;font-weight:700">'+(c.peso||1)+'×</td>'+
@@ -4360,12 +4411,30 @@ function renderCxs(){
   }).join('')||'<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--subtle)">Sin niveles</td></tr>';
 }
 function saveCx(){
-  const n=document.getElementById('cx-name').value.trim();if(!n)return;
-  const modsSel=document.getElementById('cx-mods');
-  const mods=modsSel?Array.from(modsSel.selectedOptions).map(o=>o.value):[];
-  cats.complexity.push({id:Date.now(),name:n,mods,peso:parseFloat(document.getElementById('cx-peso').value)||1,icon:document.getElementById('cx-icon').value.trim()||'⚡',bg:'#dbeafe',color:document.getElementById('cx-color')?.value||'#1d4ed8',border:'#93c5fd',prioridad:parseInt(document.getElementById('cx-prio').value)||cats.complexity.length+1});
-  sv();renderCxs();['cx-name','cx-peso','cx-icon','cx-prio'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  if(modsSel) Array.from(modsSel.options).forEach(o=>o.selected=false);
+  const n=(document.getElementById('cx-name')?.value||'').trim();
+  if(!n){ alert('Escribe un nombre para el nivel'); return; }
+  const colorVal=document.getElementById('cx-color')?.value||'#1d4ed8';
+  const bgMap={'#0F7E4F':'#ECFDF5','#B45309':'#FFFBEB','#BE123C':'#FFF1F2','#5B21B6':'#F5F3FF','#0891B2':'#ECFEFF','#1d4ed8':'#EFF6FF','#637087':'#F3F4F6'};
+  const brMap={'#0F7E4F':'#6EE7B7','#B45309':'#FDE68A','#BE123C':'#FECDD3','#5B21B6':'#DDD6FE','#0891B2':'#A5F3FC','#1d4ed8':'#BFDBFE','#637087':'#D1D5DB'};
+  // Leer módulos del checklist del formulario
+  const checks=document.querySelectorAll('#cx-new-mods-list .cx-new-mod-check:checked');
+  const mods=Array.from(checks).map(c=>c.value).filter(Boolean);
+  const combos=mods.length?[mods]:[];
+  const newId=String(Date.now());
+  cats.complexity.push({
+    id:newId, name:n,
+    icon:(document.getElementById('cx-icon')?.value||'').trim()||'⚡',
+    color:colorVal, bg:bgMap[colorVal]||'#EFF6FF', border:brMap[colorVal]||'#BFDBFE',
+    peso:parseFloat(document.getElementById('cx-peso')?.value)||1,
+    prioridad:parseInt(document.getElementById('cx-prio')?.value)||cats.complexity.length+1,
+    combos:combos, mods:mods.join(','), desc:n
+  });
+  sv(); renderCxs();
+  // Limpiar
+  ['cx-name','cx-icon'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const pe=document.getElementById('cx-peso'); if(pe) pe.value='1.0';
+  const pp=document.getElementById('cx-prio'); if(pp) pp.value=String(cats.complexity.length);
+  document.querySelectorAll('#cx-new-mods-list .cx-new-mod-check').forEach(c=>c.checked=false);
 }
 function renderBTs(){
   if(!cats.billingTypes||!cats.billingTypes.length)cats.billingTypes=BASE_BILLING_TYPES.map(x=>Object.assign({},x));
@@ -4502,51 +4571,9 @@ function _catModalBody(type,item){
     row('Notas',inp('desc','Descripción del paquete')),
   ].join('');
 
-  if(type==='complexity') {
-    // Renderizar checklist de módulos + gestor de combos
-    const allMods=(cats.md&&cats.md.length?cats.md:BASE_MD).map(m=>m.name);
-    const curCombos=Array.isArray(item.combos)&&item.combos.length ? item.combos : 
-      [String(item.mods||'').split(',').map(s=>s.trim()).filter(Boolean)];
-    // Serializar combos como JSON en campo oculto — se lee en _catModalSave
-    const combosJson=JSON.stringify(curCombos).replace(/"/g,'&quot;');
-    const modsChecks=allMods.map(function(m){
-      return '<label style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;margin-bottom:2px" '+
-        'class="cx-mod-check-row">'+
-        '<input type="checkbox" class="cx-mod-check" value="'+esc(m)+'" style="width:15px;height:15px;accent-color:#1B4FD8;cursor:pointer">'+
-        '<span style="font-size:13px">'+esc(m)+'</span>'+
-        '<button type="button" onclick="cxAddCombo(this)" '+
-          'style="margin-left:auto;background:#EFF6FF;color:#1B4FD8;border:none;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap">'+
-          '+ Solo este módulo'+
-        '</button>'+
-      '</label>';
-    }).join('');
-    return '<div class="fr2">'+
-      '<div class="fr"><label class="fl">Ícono</label><input type="text" class="fld" id="cem-icon" value="'+esc(v('icon'))+'" placeholder="🟢"></div>'+
-      '<div class="fr"><label class="fl">Nombre</label><input type="text" class="fld" id="cem-name" value="'+esc(v('name'))+'" placeholder="Básico"></div>'+
-    '</div>'+
-    '<div class="fr2">'+
-      colorSel('color').replace('class="fr"','')+
-      '<div class="fr"><label class="fl">Peso capacidad</label><input type="number" step="0.1" min="0.1" class="fld" id="cem-peso" value="'+v('peso',1)+'" placeholder="1.0"></div>'+
-    '</div>'+
-    '<div class="fr"><label class="fl">Prioridad (1=más exigente)</label><input type="number" min="1" class="fld" id="cem-prioridad" value="'+v('prioridad',3)+'"></div>'+
-    // Combos actuales
-    '<div style="margin:12px 0 4px"><label class="fl" style="font-weight:700">🔗 Combinaciones actuales <span style="font-weight:400;color:var(--muted);font-size:11px">— aplica si el cliente tiene TODOS los módulos de alguna</span></label></div>'+
-    '<div id="cx-combos-list" style="margin-bottom:10px">'+_cxRenderCombosList(curCombos)+'</div>'+
-    '<input type="hidden" id="cem-combos" value="'+combosJson+'">'+
-    // Añadir combo con checklist
-    '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px">'+
-      '<div style="font-weight:700;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">'+
-        '☑️ Seleccionar módulos para nueva combinación'+
-      '</div>'+
-      '<div style="max-height:200px;overflow-y:auto;margin-bottom:8px">'+modsChecks+'</div>'+
-      '<button type="button" onclick="cxAddComboFromChecks()" '+
-        'style="background:#1B4FD8;color:#fff;border:none;border-radius:7px;padding:6px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%">'+
-        '+ Agregar como nueva combinación'+
-      '</button>'+
-    '</div>'+
-    '<div class="fr"><label class="fl">Descripción</label><input type="text" class="fld" id="cem-desc" value="'+esc(v('desc'))+'" placeholder="Descripción del nivel"></div>';
-  }
+    if(type==='complexity') return _buildCxModal(item);
   
+
   if(type==='billingTypes') return [
     `<div class="fr2">`,
     `<div class="fr"><label class="fl">Ícono</label><input type="text" class="fld" id="cem-icon" value="${esc(v('icon'))}" placeholder="💰"></div>`,
@@ -4582,7 +4609,7 @@ function _catModalBody(type,item){
 
 function _catModalSave(type,id){
   const arr=cats[type];
-  const item=arr.find(x=>x.id===id);
+  const item=arr.find(x=>String(x.id)===String(id));
   if(!item)return;
   const g=(f,def='')=>{const e=document.getElementById('cem-'+f);return e?e.value.trim():def;};
   const gn=(f,def=0)=>{const e=document.getElementById('cem-'+f);return e?parseFloat(e.value)||def:def;};
@@ -4595,18 +4622,25 @@ function _catModalSave(type,id){
   else if(type==='phases'){item.icon=g('icon');item.name=g('name')||item.name;item.desc=g('desc');/* tasks[] preserved — managed via openPhaseTasksEditor */}
   else if(type==='implTimes'){item.name=g('name')||item.name;item.semanas=parseInt(document.getElementById('cem-semanas')?.value)||item.semanas;item.color=g('color','#1B4FD8');item.desc=g('desc');}
   else if(type==='complexity'){
-    item.icon=g('icon'); item.name=g('name')||item.name; item.color=g('color','#637087');
-    item.peso=gn('peso',1.0); item.prioridad=parseInt(document.getElementById('cem-prioridad')?.value)||item.prioridad;
+    item.icon=g('icon'); item.name=g('name')||item.name;
+    const newColor=g('color','#637087') || document.getElementById('cem-color')?.value || item.color;
+    item.color=newColor;
+    // Calcular bg y border según color
+    const bgMap={'#0F7E4F':'#ECFDF5','#B45309':'#FFFBEB','#BE123C':'#FFF1F2','#5B21B6':'#F5F3FF','#0891B2':'#ECFEFF','#637087':'#F3F4F6'};
+    const brMap={'#0F7E4F':'#6EE7B7','#B45309':'#FDE68A','#BE123C':'#FECDD3','#5B21B6':'#DDD6FE','#0891B2':'#A5F3FC','#637087':'#D1D5DB'};
+    item.bg=bgMap[newColor]||'#EFF6FF'; item.border=brMap[newColor]||'#BFDBFE';
+    item.peso=gn('peso',1.0);
+    item.prioridad=parseInt(document.getElementById('cem-prioridad')?.value)||item.prioridad;
     item.desc=g('desc');
     // Leer combos del campo oculto
     const combosEl=document.getElementById('cem-combos');
     if(combosEl){
       try{
-        const combos=JSON.parse(combosEl.value.replace(/&quot;/g,'"'));
+        const raw=combosEl.value.replace(/&quot;/g,'"');
+        const combos=JSON.parse(raw).filter(function(c){return Array.isArray(c)&&c.length>0;});
         item.combos=combos;
-        // También actualizar mods (primer combo como legado) para compatibilidad
         item.mods=combos[0]?combos[0].join(','):'';
-      }catch(e){}
+      }catch(e){ console.warn('combos parse error',e); }
     }
   }
   else if(type==='billingTypes'){item.icon=g('icon');item.name=g('name')||item.name;item.tipo=g('tipo');item.unidad=g('unidad');item.desc=g('desc');}
@@ -4628,11 +4662,11 @@ function openEditCat(type,id){
     md:'Editar Módulo',modal:'Editar Modalidad',phases:'Editar Fase',
     implTimes:'Editar Tiempo de Implementación',complexity:'Editar Nivel de Complejidad',
     billingTypes:'Editar Tipo de Cobro',risk:'Editar Estado de Riesgo'};
-  const item=(cats[type]||[]).find(x=>x.id===id);
+  const item=(cats[type]||[]).find(x=>String(x.id)===String(id));
   if(!item)return;
   document.getElementById('cat-mt').textContent=titles[type]||'Editar';
   document.getElementById('cat-mb').innerHTML=_catModalBody(type,item);
-  document.getElementById('cat-ms').onclick=()=>_catModalSave(type,id);
+  document.getElementById('cat-ms').onclick=()=>_catModalSave(type,String(id));
   document.getElementById('cat-modal').classList.add('open');
 }
 
@@ -4640,7 +4674,7 @@ function openEditCat(type,id){
 function editCatItem(type,id){openEditCat(type,id);}
 function delCat(type,id,name){
   if(!confirm('¿Eliminar "'+name+'" del catálogo?'))return;
-  cats[type]=(cats[type]||[]).filter(x=>x.id!==id);sv();renderCats();
+  cats[type]=(cats[type]||[]).filter(x=>String(x.id)!==String(id));sv();renderCats();
 }
 
 // ═══ AUTH & BOOT ═════════════════════════════════════
@@ -5425,11 +5459,19 @@ function depInlineDateEdit(id, field, tdEl){
   if(tdEl.querySelector('input')) return;
   const d=deps.find(x=>x.id===id); if(!d) return;
   const cur=d[field]||'';
-  tdEl.innerHTML=`<input type="date" class="dep-inline-input" value="${esc(cur)}"
-    onblur="depInlineSave(${id},'${field}',this.value,this.parentElement)"
-    onkeydown="if(event.key==='Escape'){depInlineCancel(${id},'${field}',this.parentElement,'${esc(cur)}')}"
-    style="width:100%;min-width:110px">`;
-  tdEl.querySelector('input').focus();
+  // createElement para evitar problemas y controlar el estilo
+  const inp=document.createElement('input');
+  inp.type='date';
+  inp.className='dep-inline-input';
+  inp.value=cur;
+  inp.style.cssText='width:100%;min-width:0;max-width:100%;font-size:11px;padding:2px 4px;box-sizing:border-box';
+  inp.addEventListener('blur', function(){ depInlineSave(id,field,this.value,tdEl); });
+  inp.addEventListener('keydown', function(e){
+    if(e.key==='Escape') depInlineCancel(id,field,tdEl,cur);
+  });
+  tdEl.innerHTML='';
+  tdEl.appendChild(inp);
+  inp.focus();
 }
 
 // Clic en celda numérica → input number inline
@@ -5465,12 +5507,23 @@ function depInlineTextareaEdit(id, field, tdEl){
   if(tdEl.querySelector('textarea')) return;
   const d=deps.find(x=>x.id===id); if(!d) return;
   const cur=d[field]||'';
-  tdEl.innerHTML=`<textarea class="dep-inline-input" rows="2"
-    onblur="depInlineSave(${id},'${field}',this.value,this.parentElement)"
-    onkeydown="if(event.key==='Escape'){depInlineCancel(${id},'${field}',this.parentElement,'${esc(cur)}')}"
-    style="width:100%;min-width:120px;resize:vertical">${esc(cur)}</textarea>`;
-  const ta=tdEl.querySelector('textarea');
-  ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+  // Construir el textarea con createElement para evitar problemas de comillas
+  const ta=document.createElement('textarea');
+  ta.className='dep-inline-input';
+  ta.rows=3;
+  ta.value=cur;
+  ta.style.cssText='width:100%;min-width:0;resize:vertical;font-size:12.5px';
+  ta.placeholder='Una línea por ítem...\n(Enter para nueva línea)';
+  ta.addEventListener('blur', function(){ depInlineSave(id, field, this.value, tdEl); });
+  ta.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){ depInlineCancel(id, field, tdEl, cur); }
+    // Ctrl+Enter = guardar
+    if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); this.blur(); }
+  });
+  tdEl.innerHTML='';
+  tdEl.appendChild(ta);
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
 }
 
 // Guardar y re-renderizar
@@ -5574,15 +5627,19 @@ function _cxRenderCombosList(combos){
 }
 function _cxGetCombos(){
   const el=document.getElementById('cem-combos'); if(!el) return [];
-  try{ return JSON.parse(el.value.replace(/&quot;/g,'"')); }catch(e){ return []; }
+  try{
+    const raw=el.value.replace(/&quot;/g,'"').replace(/&#34;/g,'"');
+    const parsed=JSON.parse(raw);
+    return Array.isArray(parsed)?parsed:[];
+  }catch(e){ console.warn('_cxGetCombos parse error:',e); return []; }
 }
 function _cxSetCombos(combos){
   const el=document.getElementById('cem-combos'); if(!el) return;
+  // Guardar como JSON — &quot; para que sea seguro en atributo HTML value
   el.value=JSON.stringify(combos).replace(/"/g,'&quot;');
-  document.getElementById('cx-combos-list').innerHTML=_cxRenderCombosList(combos);
+  const listEl=document.getElementById('cx-combos-list');
+  if(listEl) listEl.innerHTML=_cxRenderCombosList(combos);
 }
-
-// Agregar combo desde los checks marcados
 function cxAddComboFromChecks(){
   const checks=document.querySelectorAll('.cx-mod-check:checked');
   const selected=Array.from(checks).map(c=>c.value).filter(Boolean);
@@ -5622,6 +5679,193 @@ function cxRemoveModFromCombo(ci, modName){
   combos[ci]=combos[ci].filter(function(m){ return m!==modName; });
   if(!combos[ci].length) combos.splice(ci,1);
   _cxSetCombos(combos);
+}
+
+
+// ═══ MODAL EDITOR DE COMPLEJIDAD ════════════════════════════════════════
+function _buildCxModal(item){
+  if(!item) return '<p>Error: ítem no encontrado</p>';
+  const allMods=(cats.md&&cats.md.length?cats.md:BASE_MD).map(function(m){return m.name;});
+  // Construir combos limpios
+  const rawCombos=Array.isArray(item.combos)&&item.combos.length ? item.combos
+    : [String(item.mods||'').split(',').map(function(s){return s.trim();}).filter(Boolean)];
+  const curCombos=rawCombos.map(function(c){
+    return (Array.isArray(c)?c:[]).filter(function(m){return m&&m.trim();});
+  }).filter(function(c){return c.length>0;});
+
+  // Opciones de color
+  const colors=[
+    {val:'#0F7E4F',label:'🟢 Verde'},
+    {val:'#B45309',label:'🟡 Ámbar'},
+    {val:'#BE123C',label:'🔴 Rojo'},
+    {val:'#5B21B6',label:'🟣 Violeta'},
+    {val:'#0891B2',label:'🔵 Azul'},
+    {val:'#637087',label:'⬛ Gris'},
+  ];
+  const colorOpts=colors.map(function(c){
+    return '<option value="'+c.val+'"'+(item.color===c.val?' selected':'')+'>'+c.label+'</option>';
+  }).join('');
+
+  // Checklist de módulos para agregar combo
+  const modChecks=allMods.map(function(m){
+    return '<label class="cx-mod-check-row">'+
+      '<input type="checkbox" class="cx-mod-check" value="'+esc(m)+'">'+
+      '<span style="flex:1;font-size:13px">'+esc(m)+'</span>'+
+      '<button type="button" class="btn-solo-mod" onclick="cxAddCombo(this)" style="background:#EFF6FF;color:#1B4FD8;border:none;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;flex-shrink:0">+ Solo este</button>'+
+    '</label>';
+  }).join('');
+
+  return ''+
+    '<div style="display:flex;gap:10px;margin-bottom:8px">'+
+      '<div style="flex:1"><label class="fl">Ícono</label><input type="text" class="fld" id="cem-icon" value="'+esc(item.icon||'')+'" placeholder="🟢" style="max-width:70px"></div>'+
+      '<div style="flex:3"><label class="fl">Nombre</label><input type="text" class="fld" id="cem-name" value="'+esc(item.name||'')+'"></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;margin-bottom:8px">'+
+      '<div style="flex:2"><label class="fl">Color</label><select class="fld" id="cem-color">'+colorOpts+'</select></div>'+
+      '<div style="flex:1"><label class="fl">Peso</label><input type="number" step="0.1" min="0.1" class="fld" id="cem-peso" value="'+esc(String(item.peso||1))+'"></div>'+
+      '<div style="flex:1"><label class="fl">Prioridad</label><input type="number" min="1" class="fld" id="cem-prioridad" value="'+esc(String(item.prioridad||3))+'"></div>'+
+    '</div>'+
+    '<div style="margin:10px 0 6px"><label class="fl" style="font-weight:700;font-size:12px">🔗 Combinaciones <span style="font-weight:400;color:var(--muted)">(aplica si el cliente tiene TODOS los módulos de alguna)</span></label></div>'+
+    '<div id="cx-combos-list" style="margin-bottom:10px;min-height:32px">'+_cxRenderCombosList(curCombos)+'</div>'+
+    '<input type="hidden" id="cem-combos" value="'+JSON.stringify(curCombos).replace(/"/g,'&quot;')+'">'+
+    '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px">'+
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">☑️ Selecciona módulos → Agregar como nueva combinación</div>'+
+      '<div style="max-height:180px;overflow-y:auto;margin-bottom:8px">'+modChecks+'</div>'+
+      '<button type="button" onclick="cxAddComboFromChecks()" style="background:#1B4FD8;color:#fff;border:none;border-radius:7px;padding:7px 0;font-size:12.5px;font-weight:700;cursor:pointer;width:100%">+ Agregar combinación seleccionada</button>'+
+    '</div>'+
+    '<div><label class="fl">Descripción</label><input type="text" class="fld" id="cem-desc" value="'+esc(item.desc||'')+'" placeholder="Descripción del nivel"></div>';
+}
+
+
+// ═══ MODAL DEDICADO PARA EDITAR COMPLEJIDAD ══════════════════════════════
+let _cxEditId = null; // id del item siendo editado
+let _cxCombos = [];   // combos en memoria durante la edición
+
+function openCxEdit(id){
+  // Buscar el item por id (comparar como string)
+  const item = (cats.complexity||[]).find(function(x){ return String(x.id)===String(id); });
+  if(!item){ alert('No se encontró el nivel. Recarga la página.'); return; }
+  _cxEditId = String(id);
+  // Cargar combos limpios
+  const raw = Array.isArray(item.combos)&&item.combos.length ? item.combos
+    : [String(item.mods||'').split(',').map(function(s){return s.trim();}).filter(Boolean)];
+  _cxCombos = raw.map(function(c){
+    return (Array.isArray(c)?c:[]).filter(function(m){return m&&m.trim();});
+  }).filter(function(c){return c.length>0;});
+  // Rellenar campos
+  document.getElementById('cxem-title').textContent = 'Editar: ' + (item.icon||'') + ' ' + item.name;
+  document.getElementById('cxem-icon').value  = item.icon||'';
+  document.getElementById('cxem-name').value  = item.name||'';
+  document.getElementById('cxem-peso').value  = item.peso||1;
+  document.getElementById('cxem-prio').value  = item.prioridad||3;
+  document.getElementById('cxem-desc').value  = item.desc||'';
+  // Color
+  const colorSel = document.getElementById('cxem-color');
+  colorSel.value = item.color||'#0F7E4F';
+  // Poblar lista de módulos
+  cxemRenderMods();
+  // Mostrar combos actuales
+  cxemRenderCombos();
+  // Abrir modal
+  document.getElementById('cx-edit-modal').classList.add('open');
+}
+
+function closeCxEdit(){
+  document.getElementById('cx-edit-modal').classList.remove('open');
+  _cxEditId = null;
+  _cxCombos = [];
+}
+
+function cxemRenderMods(){
+  const allMods = (cats.md&&cats.md.length?cats.md:BASE_MD).map(function(m){return m.name;});
+  const el = document.getElementById('cxem-mods-list'); if(!el) return;
+  el.innerHTML = allMods.map(function(m){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;margin-bottom:2px" class="cx-mod-check-row">'+
+      '<input type="checkbox" class="cxem-mod-check" value="'+esc(m)+'" style="width:15px;height:15px;accent-color:#1B4FD8;cursor:pointer">'+
+      '<span style="font-size:13px;flex:1">'+esc(m)+'</span>'+
+      '<button type="button" data-mod="'+esc(m)+'" onclick="cxemAddSingle(this.dataset.mod)" style="background:#EFF6FF;color:#1B4FD8;border:none;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap">+ Solo este</button>'+
+
+    '</label>';
+  }).join('');
+}
+
+function cxemRenderCombos(){
+  const el = document.getElementById('cxem-combos-list'); if(!el) return;
+  if(!_cxCombos.length){
+    el.innerHTML = '<div style="color:var(--subtle);font-size:12px;padding:8px;background:#F8FAFC;border-radius:8px">Sin combinaciones. Agrega una abajo.</div>';
+    return;
+  }
+  el.innerHTML = _cxCombos.map(function(combo, ci){
+    const chips = combo.map(function(m){
+      return '<span style="display:inline-flex;align-items:center;gap:3px;background:#EFF6FF;color:#1B4FD8;padding:3px 8px;border-radius:12px;font-size:11.5px;font-weight:600;margin:2px">'+
+        esc(m)+
+        '<button type="button" data-ci="'+ci+'" data-mod="'+esc(m)+'" onclick="cxemRemoveMod(+this.dataset.ci,this.dataset.mod)" style="border:none;background:none;color:#94A3B8;cursor:pointer;font-size:12px;padding:0 0 0 2px;line-height:1">✕</button>'+
+      '</span>';
+    }).join('');
+    return '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">'+
+      '<span style="font-size:10px;font-weight:700;color:var(--muted);margin-right:4px">C'+(ci+1)+'</span>'+
+      chips+
+      '<button type="button" onclick="cxemRemoveCombo('+ci+')" '+
+        'style="margin-left:auto;border:none;background:none;color:#BE123C;cursor:pointer;font-size:13px;padding:2px 6px" title="Eliminar combinación">🗑</button>'+
+    '</div>';
+  }).join('');
+}
+
+function cxemAddCombo(){
+  const checks = document.querySelectorAll('#cxem-mods-list .cxem-mod-check:checked');
+  const selected = Array.from(checks).map(function(c){return c.value;}).filter(Boolean);
+  if(!selected.length){ alert('Marca al menos un módulo'); return; }
+  _cxCombos.push(selected);
+  cxemRenderCombos();
+  // Desmarcar
+  checks.forEach(function(c){ c.checked=false; });
+}
+
+function cxemAddSingle(modName){
+  if(!modName) return;
+  _cxCombos.push([modName]);
+  cxemRenderCombos();
+}
+
+function cxemRemoveCombo(ci){
+  _cxCombos.splice(ci,1);
+  cxemRenderCombos();
+}
+
+function cxemRemoveMod(ci, modName){
+  if(!_cxCombos[ci]) return;
+  _cxCombos[ci] = _cxCombos[ci].filter(function(m){return m!==modName;});
+  if(!_cxCombos[ci].length) _cxCombos.splice(ci,1);
+  cxemRenderCombos();
+}
+
+function saveCxEdit(){
+  if(!_cxEditId){ alert('Error: sin ID'); return; }
+  const item = (cats.complexity||[]).find(function(x){ return String(x.id)===String(_cxEditId); });
+  if(!item){ alert('No se encontró el nivel'); return; }
+  const colorVal = document.getElementById('cxem-color').value || item.color;
+  const bgMap={'#0F7E4F':'#ECFDF5','#B45309':'#FFFBEB','#BE123C':'#FFF1F2','#5B21B6':'#F5F3FF','#0891B2':'#ECFEFF','#637087':'#F3F4F6','#1d4ed8':'#EFF6FF'};
+  const brMap={'#0F7E4F':'#6EE7B7','#B45309':'#FDE68A','#BE123C':'#FECDD3','#5B21B6':'#DDD6FE','#0891B2':'#A5F3FC','#637087':'#D1D5DB','#1d4ed8':'#BFDBFE'};
+  item.icon      = document.getElementById('cxem-icon').value.trim() || item.icon;
+  item.name      = document.getElementById('cxem-name').value.trim() || item.name;
+  item.color     = colorVal;
+  item.bg        = bgMap[colorVal] || '#EFF6FF';
+  item.border    = brMap[colorVal] || '#BFDBFE';
+  item.peso      = parseFloat(document.getElementById('cxem-peso').value) || 1;
+  item.prioridad = parseInt(document.getElementById('cxem-prio').value)   || 1;
+  item.desc      = document.getElementById('cxem-desc').value.trim();
+  item.combos    = _cxCombos.filter(function(c){return c.length>0;});
+  item.mods      = item.combos[0] ? item.combos[0].join(',') : '';
+  sv();
+  renderCxs();
+  closeCxEdit();
+}
+
+
+function cxDelete(id, name){
+  if(!confirm('¿Eliminar el nivel "'+name+'"?')) return;
+  cats.complexity = (cats.complexity||[]).filter(function(x){ return String(x.id)!==String(id); });
+  sv(); renderCxs();
 }
 
 function bootApp(){
@@ -5766,6 +6010,69 @@ if(location.search.includes('demo=1')){
       <button class="btn btn-p btn-sm" onclick="addPhaseTask()">+ Agregar</button>
     </div>
     <div class="m-actions"><button class="btn btn-g" onclick="closeM('phase-tasks-modal')">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL DEDICADO COMPLEJIDAD ═══ -->
+<div class="modal-ov" id="cx-edit-modal">
+  <div class="modal" style="max-width:580px;max-height:88vh;overflow-y:auto">
+    <div class="m-title">
+      <span id="cxem-title">Editar Nivel</span>
+      <button class="m-close" onclick="closeCxEdit()">✕</button>
+    </div>
+    <!-- Campos básicos -->
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <div style="flex:0 0 70px">
+        <label class="fl">Ícono</label>
+        <input type="text" class="fld" id="cxem-icon" placeholder="🟢" style="text-align:center;font-size:18px">
+      </div>
+      <div style="flex:1">
+        <label class="fl">Nombre</label>
+        <input type="text" class="fld" id="cxem-name" placeholder="Ej: Básico">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <div style="flex:2">
+        <label class="fl">Color</label>
+        <select class="fld" id="cxem-color">
+          <option value="#0F7E4F">🟢 Verde</option>
+          <option value="#B45309">🟡 Ámbar</option>
+          <option value="#BE123C">🔴 Rojo</option>
+          <option value="#5B21B6">🟣 Violeta</option>
+          <option value="#0891B2">🔵 Azul</option>
+          <option value="#637087">⬛ Gris</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label class="fl">Peso ×</label>
+        <input type="number" class="fld" id="cxem-peso" step="0.1" min="0.1" value="1.0">
+      </div>
+      <div style="flex:1">
+        <label class="fl">Prioridad</label>
+        <input type="number" class="fld" id="cxem-prio" min="1" value="3">
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <label class="fl">Descripción</label>
+      <input type="text" class="fld" id="cxem-desc" placeholder="Descripción del nivel">
+    </div>
+    <!-- Combinaciones -->
+    <div style="font-weight:700;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
+      🔗 Combinaciones <span style="font-weight:400;font-size:11px;text-transform:none">(aplica si el cliente tiene TODOS los módulos de alguna)</span>
+    </div>
+    <div id="cxem-combos-list" style="margin-bottom:10px;min-height:32px"></div>
+    <!-- Agregar nueva combinación -->
+    <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px">☑️ NUEVA COMBINACIÓN — marca módulos y agrega</div>
+      <div id="cxem-mods-list" style="max-height:200px;overflow-y:auto;margin-bottom:8px"></div>
+      <button type="button" onclick="cxemAddCombo()" style="width:100%;background:#1B4FD8;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer">
+        + Agregar combinación marcada
+      </button>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-g" onclick="closeCxEdit()">Cancelar</button>
+      <button class="btn btn-p" onclick="saveCxEdit()">💾 Guardar cambios</button>
+    </div>
   </div>
 </div>
 </body>
