@@ -569,6 +569,13 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
 /* Operativos headers fijos */
 #view-operativos .tbl-wrap{max-height:calc(100vh - 220px);overflow-y:auto;overflow-x:auto}
 #tbl-o thead th{position:sticky;top:0;z-index:3;background:#f8fafc;box-shadow:0 1px 0 var(--border)}
+
+/* ── Performance: paginación y optimizaciones ─── */
+.pg-more-row td { background:var(--bg2); border-top:2px dashed var(--border) !important; }
+.pg-more-row button { transition:opacity .15s; }
+.pg-more-row button:hover { opacity:.85; }
+/* Reducir repaints en hover de tablas largas */
+#tbl-d tbody, #tbl-o tbody, #tbl-c tbody { will-change:contents; }
 </style>
 </head>
 <body>
@@ -626,7 +633,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.23 · 13 Abr 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.27 · 13 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -694,7 +701,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
       </div>
 
       <div class="filters">
-        <input type="text" class="fi" id="sd" placeholder="🔍 Buscar..." oninput="renderDeps()">
+        <input type="text" class="fi" id="sd" placeholder="🔍 Buscar..." oninput="renderDepsD()">
         <select class="fi" id="fsd" onchange="renderDeps()"><option value="">Todos los estados</option><option>🔧 En proceso</option><option>🆕 Por iniciar</option><option>🆕 Capacitación</option></select>
         <select class="fi" id="ftd" onchange="renderDeps()"><option value="">Todas las modalidades</option></select>
         <select class="fi" id="fld" onchange="renderDeps()"><option value="">Todos los launchers</option></select>
@@ -707,7 +714,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
     <div id="view-operativos" class="view">
       <div class="sec-hdr"><div><div class="sec-title">Clientes Operativos</div><div class="sec-sub">Implementaciones completadas · Edición por fila con estado, fase, launcher y fechas; módulos leídos desde Clientes</div></div></div>
       <div class="filters">
-        <input type="text" class="fi" id="so" placeholder="🔍 Buscar..." oninput="renderOps()">
+        <input type="text" class="fi" id="so" placeholder="🔍 Buscar..." oninput="renderOpsD()">
         <select class="fi" id="flo" onchange="renderOps()"><option value="">Todos los launchers</option></select>
         <input type="date" class="fi" id="fdo" onchange="renderOps()" title="Entrega desde">
         <input type="date" class="fi" id="fto" onchange="renderOps()" title="Entrega hasta">
@@ -720,7 +727,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
     <div id="view-inactivos" class="view">
       <div class="sec-hdr"><div><div class="sec-title">Clientes Inactivos</div><div class="sec-sub">Clientes deshabilitados o perdidos · Para reactivar edita el cliente en CRM</div></div></div>
       <div class="filters">
-        <input type="text" class="fi" id="si" placeholder="🔍 Buscar..." oninput="renderInact()">
+        <input type="text" class="fi" id="si" placeholder="🔍 Buscar..." oninput="renderInactD()">
         <select class="fi" id="fsi" onchange="renderInact()">
           <option value="">Deshabilitados y Perdidos</option>
           <option value="deshabilitado">⛔ Deshabilitados</option>
@@ -752,7 +759,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
         <div><div class="sec-title">Gestión de Clientes</div><div class="sec-sub">Los cambios se sincronizan automáticamente con Despliegues y Operativos</div></div>
       </div>
       <div class="filters">
-        <input type="text" class="fi" id="sc" placeholder="🔍 Buscar..." oninput="renderCls()">
+        <input type="text" class="fi" id="sc" placeholder="🔍 Buscar..." oninput="renderClsD()">
         <select class="fi" id="fac" onchange="renderCls()"><option value="">Todos los aplicativos</option></select>
         <select class="fi" id="ftc" onchange="renderCls()"><option value="">Todos los tipos</option></select>
         <select class="fi" id="fes-cl" onchange="renderCls()">
@@ -1122,7 +1129,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
 
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.23</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.27</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
 
       <!-- REFERENCE TABLE -->
       <div class="card" style="margin-bottom:16px">
@@ -1493,7 +1500,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
         <div class="card-h">
           <div class="card-title">👥 Usuarios del Sistema</div>
           <div style="display:flex;gap:8px">
-            <input class="fi" id="s-usr" placeholder="🔍 Buscar..." oninput="renderUsuarios()" style="width:180px">
+            <input class="fi" id="s-usr" placeholder="🔍 Buscar..." oninput="renderUsuariosD()" style="width:180px">
             <select class="fi" id="f-rol" onchange="renderUsuarios()">
               <option value="">Todos los roles</option>
             </select>
@@ -2099,6 +2106,8 @@ function closeM(id){const el=document.getElementById(id);if(el)el.classList.remo
 let _saving=false;
 function sv(){
   _saving=true;
+  clearAllRowCache(); // invalidar caché al guardar
+  _cxCache={}; _cxCacheVersion++; // invalidar caché de complejidad
   localStorage.setItem('od27',JSON.stringify(deps));
   localStorage.setItem('oc27',JSON.stringify(cls));
   localStorage.setItem('ct27',JSON.stringify(cats));
@@ -2227,7 +2236,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.23'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.27'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -2261,6 +2270,89 @@ function setV(v){
   };
   if(actions[v])actions[v]();
 }
+
+
+// ════ PERFORMANCE LAYER ════════════════════════════════════════════════
+
+// 1. DEBOUNCE — evita renders en cada tecla
+function debounce(fn, delay){
+  var t;
+  return function(){
+    var args=arguments, ctx=this;
+    clearTimeout(t);
+    t=setTimeout(function(){ fn.apply(ctx,args); }, delay||180);
+  };
+}
+
+// Versiones debounced — también resetean la página al filtrar
+var renderDepsD     = debounce(function(){ resetPage('tbl-d'); renderDeps(); },     180);
+var renderOpsD      = debounce(function(){ resetPage('tbl-o'); renderOps(); },      180);
+var renderClsD      = debounce(function(){ resetPage('tbl-c'); renderCls(); },      180);
+var renderInactD    = debounce(function(){ resetPage('tbl-i'); renderInact(); },    180);
+var renderUsuariosD = debounce(function(){ renderUsuarios(); }, 180);
+
+// 2. PAGINACIÓN LIGERA — renderiza solo N filas, botón "cargar más"
+var _PAGE_SIZE = 50; // filas por página
+var _pageState = {}; // { tblId: currentPage }
+
+function getPage(tblId){ return _pageState[tblId]||1; }
+function setPage(tblId, p){ _pageState[tblId]=p; }
+function resetPage(tblId){ _pageState[tblId]=1; }
+
+// Aplica paginación a un array ya filtrado y ordenado
+function paginateRows(rows, tblId){
+  var page = getPage(tblId);
+  var total = rows.length;
+  var end = page * _PAGE_SIZE;
+  var slice = rows.slice(0, end);
+  return { rows: slice, total: total, shown: slice.length, hasMore: end < total };
+}
+
+// Genera el footer de paginación
+function paginationFooter(tblId, result, colSpan){
+  if(!result.hasMore) return '';
+  var remaining = result.total - result.shown;
+  var btnId = 'pg-btn-'+tblId;
+  return '<tr class="pg-more-row"><td colspan="'+colSpan+'" style="text-align:center;padding:10px">'+
+    '<button id="'+btnId+'" class="btn btn-g btn-sm" data-tbl="'+tblId+'" onclick="_loadMore(this.dataset.tbl)" style="font-size:12px">'+
+      '&#9660; Cargar '+Math.min(remaining,_PAGE_SIZE)+' más &nbsp;('+remaining+' restantes)'+
+    '</button>'+
+    '<span style="margin-left:10px;font-size:11px;color:var(--muted)">'+result.shown+' de '+result.total+'</span>'+
+  '</td></tr>';
+}
+
+function _loadMore(tblId){
+  _pageState[tblId]=(_pageState[tblId]||1)+1;
+  renderAfterSave();
+}
+
+// 3. CACHÉ DE ROWS — evita reconstruir HTML de filas que no cambiaron
+var _rowCache = {}; // { depId_version: htmlString }
+var _dataVersion = 0; // incrementa con cada sv()
+
+function getCachedRow(id, version, buildFn){
+  var key = id+'_'+version;
+  if(!_rowCache[key]) _rowCache[key] = buildFn();
+  return _rowCache[key];
+}
+
+function invalidateRowCache(id){
+  // Borrar todas las versiones cacheadas de este id
+  Object.keys(_rowCache).forEach(function(k){
+    if(k.startsWith(id+'_')) delete _rowCache[k];
+  });
+}
+
+function clearAllRowCache(){ _rowCache={}; _dataVersion++; }
+
+// 4. BATCH DOM — usar requestAnimationFrame para renders no urgentes
+var _pendingRender = null;
+function scheduleRender(fn){
+  if(_pendingRender) cancelAnimationFrame(_pendingRender);
+  _pendingRender = requestAnimationFrame(function(){ fn(); _pendingRender=null; });
+}
+
+// ════ FIN PERFORMANCE LAYER ═════════════════════════════════════════════
 
 function renderAfterSave(){
   switch(curV){
@@ -2417,7 +2509,20 @@ function updBadges(){
 }
 
 // ═══ COMPLEXITY ══════════════════════════════════════
+// Cache de complejidad por cid — se invalida al cambiar cats.complexity
+var _cxCache = {};
+var _cxCacheVersion = 0;
+
 function getComplexityFromCatalog(dep){
+  var cid = dep&&(dep.cid||dep.c||'');
+  var cacheKey = String(cid)+'_'+_cxCacheVersion;
+  if(_cxCache[cacheKey]!==undefined) return _cxCache[cacheKey];
+  var result = _getComplexityRaw(dep);
+  _cxCache[cacheKey] = result;
+  return result;
+}
+
+function _getComplexityRaw(dep){
   if(!cats.complexity||!cats.complexity.length) return null;
   let mods=[];
   if(Array.isArray(dep?.mo)&&dep.mo.length) mods=dep.mo;
@@ -2434,14 +2539,18 @@ function getComplexityFromCatalog(dep){
     const combos=_normCombos(lvl);
     const match=combos.find(function(combo){
       const cm=combo.mods.map(m=>String(m||'').toLowerCase().trim()).filter(Boolean);
-      return cm.length>0 && cm.every(t=>modsLow.some(m=>m===t));
+      if(!cm.length) return false;
+      // COINCIDENCIA EXACTA: el cliente debe tener EXACTAMENTE los módulos del combo
+      // ni más ni menos
+      if(cm.length !== modsLow.length) return false;
+      return cm.every(t=>modsLow.some(m=>m===t)) &&
+             modsLow.every(t=>cm.some(m=>m===t));
     });
-    if(match) return {lvl:lvl, combo:match}; // devuelve lvl Y el combo que coincidió
+    if(match) return {lvl:lvl, combo:match};
   }
   return null;
 }
 
-// Normaliza combos al formato {mods:[], dias:N} sin importar si son viejos o nuevos
 function _normCombos(lvl){
   const raw=Array.isArray(lvl.combos)&&lvl.combos.length ? lvl.combos
     : [String(lvl.mods||'').split(',').map(s=>s.trim()).filter(Boolean)];
@@ -2653,6 +2762,13 @@ function dashQF(preset){
   renderDash();
 }
 function renderDash(){
+  // Skip si los datos no cambiaron (evita re-render innecesario)
+  var _hash = String(deps.length)+'_'+String(cls.length)+'_'+String(cobros.length);
+  var _sf=document.getElementById('sf')?.value||'';
+  var _st=document.getElementById('st')?.value||'';
+  _hash += '_'+_sf+'_'+_st;
+  if(renderDash._lastHash===_hash && renderDash._rendered) return;
+  renderDash._lastHash=_hash; renderDash._rendered=true;
   popAllSelects();
   const from=document.getElementById('sf')?.value,to=document.getElementById('st')?.value,fLn=document.getElementById('sf-ln')?.value||'';
   const allF=deps.filter(d=>!fLn||d.ln===fLn);
@@ -3039,7 +3155,7 @@ function depPendingRead(dep){
     }).join('')+
   '</ul>';
 }
-function depRowRead(d){
+function depRowRead(d, _rowNum){
   const cl=cls.find(c=>c.id===d.cid)||null;
   const clientMeta=[d.pa,d.ci].filter(Boolean).join(' · ');
   const mode=(_editDepMode||'dep');
@@ -3050,9 +3166,8 @@ function depRowRead(d){
   const inlineSelect=(val,field,opts)=>`<td onclick="depInlineSelectEdit(${d.id},'${field}',this,${JSON.stringify(opts)})" class="dep-inline-cell" title="Clic para editar">${val||'—'}</td>`;
 
   return `<tr>
-    <td class="dep-cell-id" style="white-space:nowrap">
-      <div style="font-size:10px;color:var(--subtle);font-family:monospace">${String(d.id).padStart(2,'0')}</div>
-      <button class="icon-btn edit" title="Editar fila completa" onclick="depEnterEdit(${d.id},'${mode}')" style="margin-top:2px;font-size:11px">✏️</button>
+    <td class="dep-cell-id" style="text-align:center;width:36px">
+      <span style="font-size:10px;color:var(--subtle);font-family:monospace">${String(_rowNum||d.id).padStart(2,'0')}</span>
     </td>
     <td onclick="depEnterEdit(${d.id},'${mode}')" style="cursor:pointer" title="Clic para editar">
       <div class="dep-client-name">${esc(d.c||'')}</div>
@@ -3068,17 +3183,22 @@ function depRowRead(d){
     <td onclick="depInlineSelectEdit(${d.id},'ln',this,depLauncherOptions())" class="dep-inline-cell" title="Clic para cambiar launcher"><span class="dep-text">${esc(d.ln||'—')}</span></td>
     <td class="dep-col-fconf" style="width:115px;max-width:115px;overflow:hidden"><span class="dep-date" title="Fecha de Confirmación del cliente">${cl&&cl.fconf?fmtD(cl.fconf):'—'}</span></td>
     ${inlineDate(d.fi,'fi')}
-    <td class="dep-inline-date" style="width:100px;max-width:100px;overflow:hidden;position:relative">
+    <td class="dep-inline-date" style="width:100px;max-width:100px;overflow:hidden">
       ${(()=>{
         const _dias=getIdealDays(d);
         const _fIdeal=calcFIdeal(d);
-        const _auto=_dias&&_fIdeal&&_fIdeal!==d.fd;
         const _txt=_fIdeal?fmtD(_fIdeal):'—';
-        const _tip=_dias?('Auto: F.Inicio + '+_dias+' días lab = '+(_fIdeal||'—')):'Fecha manual (sin complejidad asignada)';
-        const _badge=_dias
-          ? '<div style="font-size:9px;color:#0F7E4F;font-weight:700;margin-top:1px">⚡ auto</div>'
-          : '<div style="font-size:9px;color:#94A3B8;margin-top:1px">manual</div>';
-        return '<span class="dep-date" title="'+_tip+'">'+_txt+'</span>'+_badge;
+        if(_dias){
+          // AUTO — solo lectura
+          return '<span class="dep-date" title="Auto: F.Inicio + '+_dias+' días lab">'+_txt+'</span>'+
+                 '<div style="font-size:9px;color:#0F7E4F;font-weight:700;margin-top:1px">⚡ auto</div>';
+        } else {
+          // MANUAL — editable con clic
+          return '<span class="dep-date" style="cursor:pointer;text-decoration:underline dotted" '+
+                 'data-id="'+d.id+'" onclick="depInlineDateEdit(+this.dataset.id,\'fd\',this.parentElement)" '+
+                 'title="Clic para editar F.Ideal">'+_txt+'</span>'+
+                 '<div style="font-size:9px;color:#94A3B8;margin-top:1px">manual ✏️</div>'; 
+        }
       })()}
     </td>
     ${inlineDate(d.fe,'fe')}
@@ -3091,6 +3211,7 @@ function depRowRead(d){
     <td onclick="depInlineTextareaEdit(${d.id},'no',this)" class="dep-inline-cell" title="Clic para editar notas">${depNotesRead(d.no)}</td>
     <td>${depLinkCell(d.lk)}</td>
     <td class="dep-actions">
+      <button class="icon-btn edit" title="Editar" onclick="openDfem(${d.id},'${mode}')">✏️</button>
       <button class="icon-btn del" title="Eliminar" onclick="confDel('dep',${d.id},'${esc(d.c)}')">🗑</button>
     </td>
   </tr>`;
@@ -3099,7 +3220,7 @@ function depModulesClientRead(mods){
   if(!mods||!mods.length) return `<span class="dep-text muted">El cliente no tiene módulos asignados</span>`;
   return `<div class="dep-modules">${mods.map(m=>`<span class="mt" title="${esc(m)}">${esc(m)}</span>`).join('')}</div>`;
 }
-function depRowEditFor(d, mode='dep'){
+function depRowEditFor(d, _rowNum, mode='dep'){
   const draft = _depDraft || depDraftFrom(d);
   const linked=depClientMatch(draft.c,draft.cid);
   const effectiveModules=(Array.isArray(draft.mo)&&draft.mo.length)?draft.mo:(Array.isArray(linked?.mo)?linked.mo:[]);
@@ -3110,7 +3231,7 @@ function depRowEditFor(d, mode='dep'){
     ? 'Se calcula automáticamente según el catálogo de complejidad y los módulos del cliente.'
     : 'Se calcula automáticamente según catálogo de complejidad y módulos del cliente.';
   return `<tr class="dep-editing">
-    <td class="dep-cell-id">${String(d.id).padStart(2,'0')}</td>
+    <td class="dep-cell-id">${String(_rowNum||d.id).padStart(2,'0')}</td>
     <td>
       ${depClientDatalist()}
       <input class="dep-inline-input" list="dep-client-list" value="${esc(draft.c||'')}" placeholder="Cliente" oninput="depHandleClientInput(this.value)">
@@ -3153,17 +3274,17 @@ function depRowEditFor(d, mode='dep'){
     </td>
   </tr>`;
 }
-function depRowEdit(d){
-  return depRowEditFor(d,'dep');
+function depRowEdit(d, _rowNum){
+  return depRowEditFor(d, _rowNum,'dep');
 }
-function depRowEditOps(d){
-  return depRowEditFor(d,'ops');
+function depRowEditOps(d, _rowNum){
+  return depRowEditFor(d, _rowNum,'ops');
 }
-function depRowView(d){
-  return _editDepId===d.id ? depRowEdit(d) : depRowRead(d);
+function depRowView(d, _rowNum){
+  return _editDepId===d.id ? depRowEdit(d, _rowNum) : depRowRead(d, _rowNum);
 }
-function depRowViewOps(d){
-  return _editDepId===d.id ? depRowEditOps(d) : depRowReadOps(d);
+function depRowViewOps(d, _rowNum){
+  return _editDepId===d.id ? depRowEditOps(d, _rowNum) : depRowReadOps(d);
 }
 function depRowReadOps(d){
   // depRowRead ya tiene todo el inline — solo cambiar modo 'dep' → 'ops'
@@ -3188,10 +3309,12 @@ function renderDeps(){
     return true;
   });
   const fS=applySort(f,'tbl-d',[null,function(d){return d.c||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.tp||'';},function(d){return d.es||'';},function(d){return d.fase||0;},null,null,function(d){return d.ln||'';},function(d){var _cl=cls.find(function(c){return c.id===d.cid;});return _cl&&_cl.fconf||'';},function(d){return d.fi||'';},function(d){return d.fd||'';},function(d){return d.fe||'';},function(d){if(!d.fi||!d.fe)return 99999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},function(d){return d.pe||'';},function(d){return d.hrsOp||0;},function(d){return d.hrsNew||0;},function(d){return d.no||'';},function(d){return d.lk||'';},null]);
+  var _pgDeps=paginateRows(fS,'tbl-d');
+  var fP=_pgDeps.rows;
 
   const cd=document.getElementById('cd');if(cd)cd.textContent=`${f.length} de ${deps.filter(d=>d.es!==EL).length}`;
   const tb=document.getElementById('dtb');
-  if(tb)tb.innerHTML=fS.length?fS.map(depRowViewOps).join('')
+  if(tb)tb.innerHTML=fP.length||_pgDeps.total?fP.map(function(d,i){return depRowViewOps(d,i+1);}).join('')+paginationFooter('tbl-d',_pgDeps,20)
     : `<tr><td colspan="20" class="dep-empty">
         <div style="font-size:34px">🚀</div>
         <div class="dep-empty-title">Sin despliegues activos</div>
@@ -3213,12 +3336,17 @@ function renderOps(){
     if(to && d.fe && d.fe>to) return false;
     return true;
   });
-  const fS=applySort(f,'tbl-o',[null,function(d){return d.c||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.tp||'';},function(d){return d.es||'';},function(d){return d.fase||0;},null,null,function(d){return d.ln||'';},function(d){var _cl=cls.find(function(c){return c.id===d.cid;});return _cl&&_cl.fconf||'';},function(d){return d.fi||'';},function(d){return d.fd||'';},function(d){return d.fe||'';},function(d){if(!d.fi||!d.fe)return 99999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},function(d){return d.pe||'';},function(d){return d.hrsOp||0;},function(d){return d.hrsNew||0;},function(d){return d.no||'';},function(d){return d.lk||'';},null]);
+  const fS=applySort(f,'tbl-o',[null,function(d){return d.c||'';
+  var _pgOps=paginateRows(fS,'tbl-o');
+  var fP=_pgOps.rows;
+},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.tp||'';},function(d){return d.es||'';},function(d){return d.fase||0;},null,null,function(d){return d.ln||'';},function(d){var _cl=cls.find(function(c){return c.id===d.cid;});return _cl&&_cl.fconf||'';},function(d){return d.fi||'';},function(d){return d.fd||'';},function(d){return d.fe||'';},function(d){if(!d.fi||!d.fe)return 99999;return Math.round((new Date(d.fe+'T12:00:00')-new Date(d.fi+'T12:00:00'))/86400000);},function(d){return d.pe||'';},function(d){return d.hrsOp||0;},function(d){return d.hrsNew||0;},function(d){return d.no||'';},function(d){return d.lk||'';},null]);
+  var _pgOps=paginateRows(fS,'tbl-o');
+  var fP=_pgOps.rows;
 
   const total=deps.filter(d=>d.es===EL).length;
   const co=document.getElementById('co');if(co)co.textContent=`${f.length} de ${total}`;
   const tb=document.getElementById('otb');
-  if(tb)tb.innerHTML=fS.length?fS.map(depRowView).join('')
+  if(tb)tb.innerHTML=fP.length||_pgOps.total?fP.map(function(d,i){return depRowView(d,i+1);}).join('')+paginationFooter('tbl-o',_pgOps,20)
     : `<tr><td colspan="20" class="dep-empty">
         <div style="font-size:34px">✅</div>
         <div class="dep-empty-title">Sin clientes operativos</div>
@@ -3230,11 +3358,11 @@ function renderInact(){
   const f=cls.filter(c=>c.es==='deshabilitado'||c.es==='perdido');
   const fS=applySort(f,'tbl-i',[null,function(d){return d.nm||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.ap||'';},function(d){return d.tp||'';},function(d){return d.es||'';},null,function(d){return d.co||'';},function(d){return d.ph||'';},function(d){return d.no||'';},null]);
   const tb=document.getElementById('itb');if(!tb)return;
-  tb.innerHTML=fS.length?fS.map((c,idx)=>{
+  tb.innerHTML=fS.length?fS.map(function(c,idx){ const _gIdx=(getPage('tbl-i')-1)*_PAGE_SIZE+idx;
     const moHtml=c.mo&&c.mo.length?c.mo.map(m=>`<span class="mt">${esc(m)}</span>`).join(''):'—';
     const cx=complexBadge(c);
     return`<tr>
-    <td style="color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace">${String(idx+1).padStart(2,'0')}</td>
+    <td style="color:var(--subtle);font-size:11px;font-family:'DM Mono',monospace">${String(_gIdx+1).padStart(2,'0')}</td>
     <td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="openClSummary(${c.id})">${esc(c.nm)}</td>
     <td style="font-size:12px">${esc(c.pa||'')}</td>
     <td style="font-size:12px">${esc(c.ci||'')}</td>
@@ -3249,7 +3377,7 @@ function renderInact(){
       <button class="icon-btn edit" onclick="editCl(${c.id})" title="Editar">✏️</button>
       <button class="icon-btn del" onclick="confDel('cl',${c.id},'${esc(c.nm)}')" title="Eliminar">🗑</button>
     </td>
-  </tr>`;}).join(''):`<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes inactivos</td></tr>`;
+  </tr>`; }).join(''):`<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--subtle)">Sin clientes inactivos</td></tr>`;
   initSortHeaders(document.getElementById('tbl-i'),[null,function(d){return d.nm||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.ap||'';},function(d){return d.tp||'';},function(d){return d.es||'';},null,function(d){return d.co||'';},function(d){return d.ph||'';},function(d){return d.no||'';},null]);
 }
 
@@ -3291,13 +3419,15 @@ function renderCls(){
   const _tot=fEs?cls.filter(c=>c.es===fEs).length:cls.length;const ccl=document.getElementById('ccl');if(ccl)ccl.textContent=`${f.length} de ${_tot}`;
   const tb=document.getElementById('ctb');if(!tb)return;
   const fSorted=applySort(f,'tbl-c',[null,function(d){return d.nm||'';},function(d){return d.pa||'';},function(d){return d.ci||'';},function(d){return d.ap||'';},function(d){return d.tp||'';},function(d){return d.bot||'';},function(d){return d.es||'';},function(d){return d.fconf||'';},null,null,function(d){return d.co||'';},function(d){return d.ph||'';},null,function(d){return d.no||'';},null]);
+  var _pgCls=paginateRows(fSorted,'tbl-c');
+  var fPage=_pgCls.rows;
 
-  tb.innerHTML=fSorted.length?fSorted.map((c,idx)=>{
+  tb.innerHTML=fPage.length||_pgCls.total?fPage.map(function(c,idx){ const _gIdx=(getPage('tbl-c')-1)*_PAGE_SIZE+idx;
     const cx=complexBadge({mo:c.mo});
     const _validMods=new Set((cats.md&&cats.md.length?cats.md:BASE_MD).map(m=>m.name));
     const moHtml=(c.mo||[]).filter(m=>_validMods.has(m)).map(m=>`<span class="mt">${esc(m)}</span>`).join('');
     return`<tr>
-      <td class="cl-num">${String(idx+1).padStart(2,'0')}</td>
+      <td class="cl-num">${String(_gIdx+1).padStart(2,'0')}</td>
       <td class="cl-name" onclick="openClSummary(${c.id})" title="${esc(c.nm)}">${esc(c.nm)}</td>
       <td class="cl-txt">${esc(c.pa||'—')}</td>
       <td class="cl-txt">${esc(c.ci||'—')}</td>
@@ -3385,7 +3515,15 @@ function saveCl(){
   if(editClId){
     const c=cls.find(x=>x.id===editClId);if(c)Object.assign(c,obj);
     // Sync modules to all deps of this client
-    deps.filter(d=>d.cid===editClId||d.c===obj.nm).forEach(d=>d.mo=[...obj.mo]);
+    // Sincronizar nombre, ciudad, país y módulos en todos los despliegues vinculados
+    const oldCl=cls.find(x=>x.id===editClId);
+    const oldNm=oldCl?oldCl.nm:'';
+    deps.filter(d=>d.cid===editClId||d.c===oldNm||d.c===obj.nm).forEach(function(d){
+      d.c  = obj.nm;   // nombre actualizado
+      d.pa = obj.pa||d.pa;
+      d.ci = obj.ci||d.ci;
+      d.mo = [...(obj.mo||[])];
+    });
   } else {
     const id=Math.max(...cls.map(c=>c.id),0)+1;
     cls.push({id,...obj});
@@ -3592,6 +3730,9 @@ function clearTlFilters(){
   renderTimeline();
 }
 function renderTimeline(){
+  var _hash=String(deps.length)+'_'+String(cls.length);
+  if(renderTimeline._lastHash===_hash && curV!=='timeline') return;
+  renderTimeline._lastHash=_hash;
   const yearEl=document.getElementById('tl-year');
   const launcher=document.getElementById('tl-launcher')?.value||'';
   const modal=document.getElementById('tl-modal')?.value||'';
@@ -3974,7 +4115,7 @@ function renderCapacidad(){
 // ═══ CONTRATOS ═══════════════════════════════════════
 function renderContratos(){
   const tb=document.getElementById('cont-tbody');if(!tb)return;
-  tb.innerHTML=contratos.length?applySort(contratos,'cont-table',[null,function(c){return c.cliente||'';},null,function(c){return c.botsActivos||0;},null,function(c){return c.es||'';},function(c){return c.nota||'';},null]).map(c=>{
+  tb.innerHTML=contratos.length?applySort(contratos,'cont-table',[null,function(c){return c.cliente||'';},null,function(c){return c.botsActivos||0;},null,function(c){return c.es||'';},function(c){return c.nota||'';},null]).map((c,_ci)=>{
     const comps=c.componentes||[];
     const botComp=comps.find(comp=>comp.tipo==='bot_wa');
     const compBadges=comps.length?comps.map(comp=>`<span class="tag" style="font-size:10.5px">${esc(comp.nombre||comp.tipo)}: $${comp.precio}${comp.minimo?' (mín '+comp.minimo+')':''}</span>`).join(' '):'<span style="color:var(--subtle);font-size:11px">Legacy</span>';
@@ -3982,7 +4123,7 @@ function renderContratos(){
     const estBadge=`<span style="background:#ECFDF5;color:#0F7E4F;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">✅ ${esc(c.es||'activo')}</span>`;
     const botInfo=botComp?`${botComp.cantidad||1} × $${botComp.precio}`:'—';
     return`<tr>
-      <td style="color:var(--subtle);font-family:monospace;font-size:11px">${String(c.id).padStart(2,'0')}</td>
+      <td style="color:var(--subtle);font-family:monospace;font-size:11px">${String(_ci+1).padStart(2,'0')}</td>
       <td style="font-weight:600">${esc(c.cliente)}</td>
       <td style="min-width:200px">${compBadges}</td>
       <td style="color:${botComp?'#1B4FD8':'var(--subtle)'};font-size:12.5px">${botInfo}</td>
@@ -4501,11 +4642,19 @@ function renderCxs(){
     const combos=Array.isArray(c.combos)&&c.combos.length ? c.combos
       : [String(c.mods||'').split(',').map(function(s){return s.trim();}).filter(Boolean)];
     const combosHtml=combos.map(function(combo,ci){
-      const chips=combo.map(function(m){
-        return '<span style="background:'+c.bg+';color:'+c.color+';padding:1px 7px;border-radius:8px;font-size:11px;font-weight:600">'+esc(m)+'</span>';
+      const mods=Array.isArray(combo)?combo:(combo.mods||[]);
+      const dias=Array.isArray(combo)?0:(combo.dias||0);
+      const chips=mods.map(function(m){
+        return '<span style="background:'+c.bg+';color:'+c.color+';padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600">'+esc(m)+'</span>';
       }).join('<span style="color:var(--muted);font-size:11px;margin:0 2px">+</span>');
-      return '<div style="font-size:11.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px">'+
-        '<span style="color:var(--muted);font-size:10px;font-weight:700;min-width:20px">C'+(ci+1)+'</span>'+chips+
+      // Badge de días — prominente y visible
+      const diasBadge = dias
+        ? '<span style="background:#1B4FD8;color:#fff;padding:2px 9px;border-radius:10px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0">⏱ '+dias+'d</span>'
+        : '<span style="background:#FEF9C3;color:#92400E;padding:2px 9px;border-radius:10px;font-size:11px;white-space:nowrap;flex-shrink:0">sin días</span>';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed #F1F5F9;margin-bottom:4px;flex-wrap:nowrap">'+
+        '<span style="color:var(--muted);font-size:10px;font-weight:700;min-width:22px;flex-shrink:0">C'+(ci+1)+'</span>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:3px;flex:1">'+chips+'</div>'+
+        diasBadge+
       '</div>';
     }).join('');
     const editFn = "openCxEdit('"+c.id+"')";
@@ -5365,8 +5514,14 @@ function subscribeRealtime(){
       if(!cats.modal||!cats.modal.length)cats.modal=BASE_MODAL.map(x=>Object.assign({},x));
       if(!cats.risk||!cats.risk.length)cats.risk=BASE_RISK.map(x=>Object.assign({},x));
       if(!cats.md||!cats.md.length)cats.md=BASE_MD.map(x=>Object.assign({},x));
-      renderCurrentView();updBadges();updTrashBadge();
-      setSyncStatus('↺ Actualizado','#0F7E4F');setTimeout(()=>setSyncStatus(''),2000);
+      // Throttle: evitar floods de renders por múltiples cambios
+      if(subscribeRealtime._t) clearTimeout(subscribeRealtime._t);
+      subscribeRealtime._t=setTimeout(function(){
+        _cxCache={}; _cxCacheVersion++;
+        renderCurrentView(); updBadges(); updTrashBadge();
+        setSyncStatus('↺ Actualizado','#0F7E4F');
+        setTimeout(()=>setSyncStatus(''),2000);
+      },300);
     }
   }).subscribe();
 }
@@ -5860,11 +6015,8 @@ function openCxEdit(id){
   if(!item){ alert('No se encontró el nivel. Recarga la página.'); return; }
   _cxEditId = String(id);
   // Cargar combos limpios
-  const raw = Array.isArray(item.combos)&&item.combos.length ? item.combos
-    : [String(item.mods||'').split(',').map(function(s){return s.trim();}).filter(Boolean)];
-  _cxCombos = raw.map(function(c){
-    return (Array.isArray(c)?c:[]).filter(function(m){return m&&m.trim();});
-  }).filter(function(c){return c.length>0;});
+  // Normalizar combos como {mods:[], dias:N}
+  _cxCombos = _normCombos(item);
   // Rellenar campos
   document.getElementById('cxem-title').textContent = 'Editar: ' + (item.icon||'') + ' ' + item.name;
   document.getElementById('cxem-icon').value  = item.icon||'';
@@ -5872,7 +6024,6 @@ function openCxEdit(id){
   document.getElementById('cxem-peso').value  = item.peso||1;
   document.getElementById('cxem-prio').value  = item.prioridad||3;
   document.getElementById('cxem-desc').value  = item.desc||'';
-  document.getElementById('cxem-dias').value  = item.dias||'';
   // Color
   const colorSel = document.getElementById('cxem-color');
   colorSel.value = item.color||'#0F7E4F';
@@ -5904,23 +6055,41 @@ function cxemRenderMods(){
 }
 
 function cxemRenderCombos(){
-  const el = document.getElementById('cxem-combos-list'); if(!el) return;
+  const el=document.getElementById('cxem-combos-list'); if(!el) return;
   if(!_cxCombos.length){
-    el.innerHTML = '<div style="color:var(--subtle);font-size:12px;padding:8px;background:#F8FAFC;border-radius:8px">Sin combinaciones. Agrega una abajo.</div>';
+    el.innerHTML='<div style="color:var(--subtle);font-size:12px;padding:10px;background:#F8FAFC;border-radius:8px">Sin combinaciones. Agrega una abajo.</div>';
     return;
   }
-  el.innerHTML = _cxCombos.map(function(combo, ci){
-    const chips = combo.map(function(m){
+  el.innerHTML=_cxCombos.map(function(combo,ci){
+    const mods  = Array.isArray(combo) ? combo : (combo.mods||[]);
+    const dias  = Array.isArray(combo) ? 0     : (combo.dias||0);
+    const chips = mods.map(function(m){
       return '<span style="display:inline-flex;align-items:center;gap:3px;background:#EFF6FF;color:#1B4FD8;padding:3px 8px;border-radius:12px;font-size:11.5px;font-weight:600;margin:2px">'+
         esc(m)+
-        '<button type="button" data-ci="'+ci+'" data-mod="'+esc(m)+'" onclick="cxemRemoveMod(+this.dataset.ci,this.dataset.mod)" style="border:none;background:none;color:#94A3B8;cursor:pointer;font-size:12px;padding:0 0 0 2px;line-height:1">✕</button>'+
+        '<button type="button" data-ci="'+ci+'" data-mod="'+esc(m)+'" onclick="cxemRemoveMod(+this.dataset.ci,this.dataset.mod)" '+
+          'style="border:none;background:none;color:#94A3B8;cursor:pointer;font-size:12px;padding:0 0 0 2px;line-height:1" title="Quitar módulo">✕</button>'+
       '</span>';
     }).join('');
-    return '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">'+
-      '<span style="font-size:10px;font-weight:700;color:var(--muted);margin-right:4px">C'+(ci+1)+'</span>'+
-      chips+
-      '<button type="button" onclick="cxemRemoveCombo('+ci+')" '+
-        'style="margin-left:auto;border:none;background:none;color:#BE123C;cursor:pointer;font-size:13px;padding:2px 6px" title="Eliminar combinación">🗑</button>'+
+    return '<div style="padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px">'+
+      // Header: número + módulos + botón eliminar combo
+      '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+
+        '<span style="font-size:10px;font-weight:700;color:var(--muted);min-width:22px">C'+(ci+1)+'</span>'+
+        chips+
+        '<button type="button" data-ci="'+ci+'" onclick="cxemRemoveCombo(+this.dataset.ci)" '+
+          'style="margin-left:auto;border:none;background:none;color:#BE123C;cursor:pointer;font-size:13px;padding:2px 6px" title="Eliminar combinación">🗑</button>'+
+      '</div>'+
+      // Campo días
+      '<div style="display:flex;align-items:center;gap:8px;padding-top:6px;border-top:1px dashed #E4E9F0">'+
+        '<span style="font-size:11.5px;color:var(--muted);white-space:nowrap">⏱ Días ideales:</span>'+
+        '<input type="number" min="1" step="1" value="'+dias+'" placeholder="Ej: 30" '+
+          'data-ci="'+ci+'" '+
+          'onchange="cxemSetDias(+this.dataset.ci,+this.value)" '+
+          'oninput="cxemSetDias(+this.dataset.ci,+this.value)" '+
+          'style="width:80px;padding:4px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-weight:700;color:var(--fg)">'+
+        '<span style="font-size:11px;color:var(--muted)">días laborables desde F.Inicio</span>'+
+        (dias ? '<span style="background:#ECFDF5;color:#0F7E4F;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700">= F.Ideal auto</span>' :
+                '<span style="background:#FEF9C3;color:#92400E;padding:2px 8px;border-radius:8px;font-size:11px">sin días → usa F.Ideal manual</span>')+
+      '</div>'+
     '</div>';
   }).join('');
 }
@@ -5929,7 +6098,7 @@ function cxemAddCombo(){
   const checks = document.querySelectorAll('#cxem-mods-list .cxem-mod-check:checked');
   const selected = Array.from(checks).map(function(c){return c.value;}).filter(Boolean);
   if(!selected.length){ alert('Marca al menos un módulo'); return; }
-  _cxCombos.push(selected);
+  _cxCombos.push({mods:selected, dias:0});
   cxemRenderCombos();
   // Desmarcar
   checks.forEach(function(c){ c.checked=false; });
@@ -5937,7 +6106,7 @@ function cxemAddCombo(){
 
 function cxemAddSingle(modName){
   if(!modName) return;
-  _cxCombos.push([modName]);
+  _cxCombos.push({mods:[modName], dias:0});
   cxemRenderCombos();
 }
 
@@ -5948,8 +6117,12 @@ function cxemRemoveCombo(ci){
 
 function cxemRemoveMod(ci, modName){
   if(!_cxCombos[ci]) return;
-  _cxCombos[ci] = _cxCombos[ci].filter(function(m){return m!==modName;});
-  if(!_cxCombos[ci].length) _cxCombos.splice(ci,1);
+  var combo=_cxCombos[ci];
+  var mods=Array.isArray(combo)?combo:(combo.mods||[]);
+  var dias=Array.isArray(combo)?0:(combo.dias||0);
+  var newMods=mods.filter(function(m){return m!==modName;});
+  if(!newMods.length){ _cxCombos.splice(ci,1); }
+  else { _cxCombos[ci]={mods:newMods, dias:dias}; }
   cxemRenderCombos();
 }
 
@@ -5968,10 +6141,19 @@ function saveCxEdit(){
   item.peso      = parseFloat(document.getElementById('cxem-peso').value) || 1;
   item.prioridad = parseInt(document.getElementById('cxem-prio').value)   || 1;
   item.desc      = document.getElementById('cxem-desc').value.trim();
-  const diasVal  = parseInt(document.getElementById('cxem-dias').value)||0;
-  item.dias      = diasVal > 0 ? diasVal : item.dias;
-  item.combos    = _cxCombos.filter(function(c){return c.length>0;});
-  item.mods      = item.combos[0] ? item.combos[0].join(',') : '';
+  // Leer días actuales de los inputs (por si no se disparó onchange)
+  document.querySelectorAll('#cxem-combos-list input[type=number]').forEach(function(inp){
+    var ci = +inp.dataset.ci;
+    if(!_cxCombos[ci]) return;
+    var d = parseInt(inp.value)||0;
+    if(Array.isArray(_cxCombos[ci])) _cxCombos[ci] = {mods:_cxCombos[ci], dias:d};
+    else _cxCombos[ci].dias = d;
+  });
+  // Guardar combos en formato {mods:[], dias:N} — filtrar los vacíos correctamente
+  item.combos = _cxCombos
+    .map(function(c){ return Array.isArray(c) ? {mods:c.filter(Boolean), dias:0} : c; })
+    .filter(function(c){ return Array.isArray(c.mods) && c.mods.length > 0; });
+  item.mods = item.combos[0] ? item.combos[0].mods.join(',') : '';
   sv();
   renderCxs();
   closeCxEdit();
@@ -6048,6 +6230,190 @@ function addBizDays(dateStr, n){
     if(d.getDay()!==0&&d.getDay()!==6) added++;
   }
   return d.toISOString().slice(0,10);
+}
+
+// ═══ MODAL EDICIÓN COMPLETA DE DESPLIEGUE ══════════════════════════════
+var _dfemId   = null;
+var _dfemMode = 'dep';
+
+function openDfem(id, mode){
+  const d = deps.find(x=>x.id===id); if(!d) return;
+  _dfemId   = id;
+  _dfemMode = mode||'dep';
+  const cl  = cls.find(c=>String(c.id)===String(d.cid))||null;
+  const isOps = _dfemMode==='ops';
+
+  document.getElementById('dfem-title').textContent = (isOps?'✏️ Editar Operativo: ':'✏️ Editar Despliegue: ') + (d.c||'');
+
+  // Cliente (solo lectura en ops, editable en dep)
+  const wrap = document.getElementById('dfem-client-wrap');
+  if(isOps){
+    wrap.innerHTML = '<div style="padding:6px 0;font-weight:600;font-size:13px">'+(d.c||'—')+'</div>';
+  } else {
+    wrap.innerHTML = depClientDatalist()+'<input class="fld" list="dep-client-list" id="dfem-c" value="'+esc(d.c||'')+'" placeholder="Cliente" oninput="dfemHandleClient(this.value)">';
+  }
+
+  // Campos básicos
+  document.getElementById('dfem-pa').value   = d.pa||'';
+  document.getElementById('dfem-ci').value   = d.ci||'';
+  document.getElementById('dfem-fi').value   = d.fi||'';
+  document.getElementById('dfem-fe').value   = d.fe||'';
+  document.getElementById('dfem-hrsOp').value  = d.hrsOp!=null?d.hrsOp:'';
+  document.getElementById('dfem-hrsNew').value = d.hrsNew!=null?d.hrsNew:'';
+  document.getElementById('dfem-pe').value   = d.pe||'';
+  document.getElementById('dfem-no').value   = d.no||'';
+  document.getElementById('dfem-lk').value   = d.lk||'';
+
+  // F. Confirmación del cliente (solo lectura)
+  document.getElementById('dfem-fconf').textContent = cl&&cl.fconf?fmtD(cl.fconf):'—';
+
+  // Selects: Modalidad
+  const tpSel = document.getElementById('dfem-tp');
+  tpSel.innerHTML = depModalOptions().map(o=>'<option value="'+esc(o.value)+'"'+(d.tp===o.value?' selected':'')+'>'+esc(o.label)+'</option>').join('');
+
+  // Estado
+  const esSel = document.getElementById('dfem-es');
+  esSel.innerHTML = ESTADOS.map(e=>'<option value="'+esc(e)+'"'+(d.es===e?' selected':'')+'>'+esc(e)+'</option>').join('');
+
+  // Launcher
+  const lnSel = document.getElementById('dfem-ln');
+  lnSel.innerHTML = depLauncherOptions().map(o=>'<option value="'+esc(o.value)+'"'+(d.ln===o.value?' selected':'')+'>'+esc(o.label)+'</option>').join('');
+
+  // Fase
+  const phases = cats.phases&&cats.phases.length?cats.phases:BASE_PHASES;
+  const faseSel = document.getElementById('dfem-fase');
+  faseSel.innerHTML = phases.map(function(p,i){
+    return '<option value="'+i+'"'+(d.fase===i?' selected':'')+'>'+esc((p.icon||'')+' '+p.name)+'</option>';
+  }).join('');
+
+  // Complejidad (auto)
+  const cxResult = getComplexityFromCatalog(d);
+  const cxBadge = document.getElementById('dfem-cx-badge');
+  if(cxResult&&cxResult.lvl){
+    const lvl=cxResult.lvl;
+    cxBadge.innerHTML='<span style="background:'+lvl.bg+';color:'+lvl.color+';padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700">'+(lvl.icon||'')+' '+esc(lvl.name)+'</span>';
+  } else {
+    cxBadge.textContent='Sin complejidad asignada';
+  }
+
+  // Módulos
+  const modsSection = document.getElementById('dfem-mods-section');
+  if(isOps){
+    const mods=Array.isArray(cl?.mo)?cl.mo:(d.mo||[]);
+    modsSection.innerHTML='<label class="fl">📦 Módulos <span style="font-size:11px;font-weight:400;color:var(--muted)">(leídos desde el cliente)</span></label>'+
+      '<div style="padding:6px 0">'+( mods.length?mods.map(m=>'<span class="mt">'+esc(m)+'</span>').join(''):'<span style="color:var(--subtle)">Sin módulos</span>')+'</div>';
+  } else {
+    const curMods=Array.isArray(d.mo)?d.mo:[];
+    modsSection.innerHTML='<label class="fl">📦 Módulos</label><div id="dfem-mods-inner">'+depModulePicker(curMods)+'</div>';
+  }
+
+  // F.Ideal calculada
+  dfemRecalcIdeal();
+
+  document.getElementById('dep-full-edit-modal').classList.add('open');
+}
+
+function dfemHandleClient(val){
+  // Al cambiar cliente, auto-rellenar país/ciudad desde cls
+  const match = cls.find(c=>(c.nm||'').toLowerCase()===val.toLowerCase());
+  if(match){
+    document.getElementById('dfem-pa').value = match.pa||'';
+    document.getElementById('dfem-ci').value = match.ci||'';
+  }
+}
+
+function dfemRecalcIdeal(){
+  const fi = document.getElementById('dfem-fi').value;
+  const d  = deps.find(x=>x.id===_dfemId);
+  if(!d||!fi) return;
+  const tempDep = Object.assign({},d,{fi:fi});
+  const dias = getIdealDays(tempDep);
+  const fIdeal = dias ? addBizDays(fi,dias) : (d.fd||null);
+  const display = document.getElementById('dfem-fd-display');
+  const srcSpan  = document.getElementById('dfem-ideal-src');
+  if(fIdeal){
+    display.textContent = fmtD(fIdeal);
+    srcSpan.textContent = dias ? '⚡ auto ('+dias+'d lab)' : '(manual)';
+    srcSpan.style.color = dias?'#0F7E4F':'#94A3B8';
+  } else {
+    display.textContent = '—';
+    srcSpan.textContent = '';
+  }
+}
+
+function closeDfem(){
+  document.getElementById('dep-full-edit-modal').classList.remove('open');
+  _dfemId=null;
+}
+
+function saveDfem(){
+  if(!_dfemId) return;
+  const d = deps.find(x=>x.id===_dfemId); if(!d) return;
+  const isOps = _dfemMode==='ops';
+
+  // Leer campos
+  if(!isOps){
+    const cInput = document.getElementById('dfem-c');
+    if(cInput){
+      d.c = cInput.value.trim();
+      // Vincular cliente si existe
+      const match = cls.find(c=>(c.nm||'').toLowerCase()===d.c.toLowerCase());
+      if(match){ d.cid=match.id; }
+    }
+  }
+  d.pa     = document.getElementById('dfem-pa').value.trim();
+  d.ci     = document.getElementById('dfem-ci').value.trim();
+  d.tp     = document.getElementById('dfem-tp').value;
+  d.es     = document.getElementById('dfem-es').value;
+  d.ln     = document.getElementById('dfem-ln').value;
+  d.fase   = parseInt(document.getElementById('dfem-fase').value)||0;
+  d.fi     = document.getElementById('dfem-fi').value;
+  d.fe     = document.getElementById('dfem-fe').value;
+  d.pe     = document.getElementById('dfem-pe').value.trim();
+  d.no     = document.getElementById('dfem-no').value.trim();
+  d.lk     = document.getElementById('dfem-lk').value.trim();
+  d.hrsOp  = parseFloat(document.getElementById('dfem-hrsOp').value)||null;
+  d.hrsNew = parseFloat(document.getElementById('dfem-hrsNew').value)||null;
+
+  // Módulos (solo en dep)
+  if(!isOps){
+    const moInner = document.getElementById('dfem-mods-inner');
+    if(moInner){
+      const checked = moInner.querySelectorAll('.mod-cb:checked');
+      d.mo = Array.from(checked).map(cb=>cb.value);
+    }
+  }
+
+  // Recalcular F.Ideal con días laborables
+  const dias = getIdealDays(d);
+  if(dias && isD(d.fi)) d.fd = addBizDays(d.fi, dias);
+
+  // Limpiar peChecks si cambiaron los pendientes
+  // (mantener los existentes)
+
+  sv();
+  closeDfem();
+  if(isOps) renderOps(); else renderDeps();
+  updBadges();
+}
+
+function cxemSetDias(ci, dias){
+  if(!_cxCombos[ci]) return;
+  var combo=_cxCombos[ci];
+  if(Array.isArray(combo)) _cxCombos[ci]={mods:combo, dias:dias};
+  else _cxCombos[ci].dias=dias;
+  // Refrescar solo los badges de días (no el combo entero para no perder el foco)
+  var inputs=document.querySelectorAll('#cxem-combos-list input[type=number]');
+  inputs.forEach(function(inp,i){
+    var parent=inp.closest('div[style*="border-top"]');
+    if(!parent) return;
+    var badge=parent.querySelector('span:last-child');
+    if(!badge) return;
+    var d=+inp.value;
+    badge.style.background=d?'#ECFDF5':'#FEF9C3';
+    badge.style.color=d?'#0F7E4F':'#92400E';
+    badge.textContent=d?'= F.Ideal auto':'sin días → usa F.Ideal manual';
+  });
 }
 function bootApp(){
   // DATA RESET: force reload when version changes
@@ -6237,10 +6603,7 @@ if(location.search.includes('demo=1')){
       <label class="fl">Descripción</label>
       <input type="text" class="fld" id="cxem-desc" placeholder="Descripción del nivel">
     </div>
-    <div style="margin-bottom:10px">
-      <label class="fl">⏱ Días ideales de implementación <span style="font-weight:400;color:var(--muted);font-size:11px">— se usa para calcular F.Ideal automáticamente desde F.Inicio</span></label>
-      <input type="number" class="fld" id="cxem-dias" min="1" step="1" placeholder="Ej: 30" style="max-width:120px">
-    </div>
+    
     <!-- Combinaciones -->
     <div style="font-weight:700;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
       🔗 Combinaciones <span style="font-weight:400;font-size:11px;text-transform:none">(aplica si el cliente tiene TODOS los módulos de alguna)</span>
@@ -6257,6 +6620,121 @@ if(location.search.includes('demo=1')){
     <div class="m-actions">
       <button class="btn btn-g" onclick="closeCxEdit()">Cancelar</button>
       <button class="btn btn-p" onclick="saveCxEdit()">💾 Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL EDICIÓN COMPLETA DESPLIEGUE ══ -->
+<div class="modal-ov" id="dep-full-edit-modal">
+  <div class="modal" style="max-width:680px;max-height:90vh;overflow-y:auto">
+    <div class="m-title">
+      <span id="dfem-title">✏️ Editar Despliegue</span>
+      <button class="m-close" onclick="closeDfem()">✕</button>
+    </div>
+
+    <!-- Fila 1: Cliente + País + Ciudad -->
+    <div class="fr2" style="margin-bottom:10px">
+      <div class="fr" style="flex:2">
+        <label class="fl">👥 Cliente</label>
+        <div id="dfem-client-wrap"></div>
+      </div>
+      <div class="fr">
+        <label class="fl">🌎 País</label>
+        <input class="fld" id="dfem-pa" placeholder="País">
+      </div>
+      <div class="fr">
+        <label class="fl">🏙 Ciudad</label>
+        <input class="fld" id="dfem-ci" placeholder="Ciudad">
+      </div>
+    </div>
+
+    <!-- Fila 2: Modalidad + Estado + Launcher -->
+    <div class="fr2" style="margin-bottom:10px">
+      <div class="fr">
+        <label class="fl">🏷 Modalidad</label>
+        <select class="fld" id="dfem-tp"></select>
+      </div>
+      <div class="fr">
+        <label class="fl">📊 Estado</label>
+        <select class="fld" id="dfem-es"></select>
+      </div>
+      <div class="fr">
+        <label class="fl">👤 Launcher</label>
+        <select class="fld" id="dfem-ln"></select>
+      </div>
+    </div>
+
+    <!-- Fila 3: Fase + Complejidad (auto) -->
+    <div class="fr2" style="margin-bottom:10px">
+      <div class="fr">
+        <label class="fl">📍 Fase</label>
+        <select class="fld" id="dfem-fase"></select>
+      </div>
+      <div class="fr">
+        <label class="fl">🎯 Complejidad</label>
+        <div id="dfem-cx-badge" style="padding:6px 0;font-size:12px;color:var(--muted)">Se calcula automáticamente</div>
+      </div>
+    </div>
+
+    <!-- Fila 4: Fechas -->
+    <div class="fr2" style="margin-bottom:10px">
+      <div class="fr">
+        <label class="fl">📅 F. Confirmación</label>
+        <div id="dfem-fconf" style="padding:6px 0;font-size:13px;color:var(--muted)">—</div>
+      </div>
+      <div class="fr">
+        <label class="fl">🚀 F. Inicio</label>
+        <input type="date" class="fld" id="dfem-fi" onchange="dfemRecalcIdeal()">
+      </div>
+      <div class="fr">
+        <label class="fl">🎯 F. Ideal <span id="dfem-ideal-src" style="font-size:10px;color:#0F7E4F"></span></label>
+        <div id="dfem-fd-display" style="padding:6px 0;font-size:13px;font-weight:600">—</div>
+      </div>
+      <div class="fr">
+        <label class="fl">✅ F. Entrega</label>
+        <input type="date" class="fld" id="dfem-fe">
+      </div>
+    </div>
+
+    <!-- Módulos (solo en despliegues, no ops) -->
+    <div id="dfem-mods-section" style="margin-bottom:10px">
+      <label class="fl">📦 Módulos</label>
+      <div id="dfem-mods-picker"></div>
+    </div>
+
+    <!-- Horas -->
+    <div class="fr2" style="margin-bottom:10px">
+      <div class="fr">
+        <label class="fl">⏱ Hrs Soporte/mes</label>
+        <input type="number" class="fld" id="dfem-hrsOp" min="0" step="0.5" placeholder="0">
+      </div>
+      <div class="fr">
+        <label class="fl">⏱ Hrs Despliegue/mes</label>
+        <input type="number" class="fld" id="dfem-hrsNew" min="0" step="0.5" placeholder="0">
+      </div>
+    </div>
+
+    <!-- Pendientes -->
+    <div style="margin-bottom:10px">
+      <label class="fl">📋 Pendientes <span style="font-weight:400;font-size:11px;color:var(--muted)">(una línea por ítem)</span></label>
+      <textarea class="fld" id="dfem-pe" rows="3" placeholder="Ítem 1&#10;Ítem 2&#10;Ítem 3..."></textarea>
+    </div>
+
+    <!-- Notas -->
+    <div style="margin-bottom:10px">
+      <label class="fl">📝 Notas</label>
+      <textarea class="fld" id="dfem-no" rows="3" placeholder="Notas internas..."></textarea>
+    </div>
+
+    <!-- Link -->
+    <div style="margin-bottom:14px">
+      <label class="fl">🔗 Link adjunto</label>
+      <input class="fld" id="dfem-lk" type="url" placeholder="https://...">
+    </div>
+
+    <div class="m-actions">
+      <button class="btn btn-g" onclick="closeDfem()">Cancelar</button>
+      <button class="btn btn-p" onclick="saveDfem()">💾 Guardar cambios</button>
     </div>
   </div>
 </div>
