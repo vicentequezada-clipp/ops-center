@@ -637,7 +637,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.31 · 14 Abr 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.34 · 14 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -842,7 +842,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
 
     <!-- ══ CAPACIDAD OPERATIVA ══ -->
     <div id="view-capacidad" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">Capacidad Operativa <span class="sec-stat" id="cap-stat">—</span> <button class="info-btn" onclick="toggleInfo('cap-info')" title="¿Cómo se calculan estos datos?">i</button></div><div class="sec-sub">Horas disponibles vs consumidas · Escenarios de crecimiento</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">Capacidad Operativa <span class="sec-stat" id="cap-stat">—</span> <button class="info-btn" onclick="toggleInfo('cap-info')" title="¿Cómo se calculan estos datos?">i</button></div><div class="sec-sub">Carga real histórica por soporte y despliegues · Despliegues calculados por mes</div></div></div>
 
       <div class="deploy-subnav-wrap">
         <div class="deploy-subnav" aria-label="Menú horizontal de despliegue">
@@ -855,69 +855,51 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
       </div>
 
       <div class="info-panel" id="cap-info">
-        <strong>¿Cómo se calculan estos valores?</strong>
+        <strong>¿Cómo se calculan estos datos?</strong>
         <ul>
-          <li><strong>Horas Disponibles/Mes</strong> = Operadores × Horas/día × Días laborables/mes</li>
-          <li><strong>Horas Consumidas</strong> = (Clientes activos × Hrs soporte/cliente) + (Clientes en despliegue × Hrs nuevo cliente)</li>
-          <li><strong>Capacidad Máx. Clientes</strong> = Horas disponibles ÷ Horas de soporte por cliente activo</li>
-          <li><strong>Nuevos Despliegues Posibles</strong> = (Hrs disponibles − Hrs clientes activos) ÷ Hrs por cliente nuevo</li>
-          <li><strong>Proyección 6 meses</strong>: según el escenario seleccionado, suma nuevos clientes por mes y recalcula el consumo</li>
-          <li><strong>Riesgo Operativo</strong>: Verde si uso &lt;65%, Ámbar 65‑85%, Rojo &gt;85%</li>
+          <li><strong>Horas disponibles por mes</strong> = Operadores × Horas/día × Días laborables/mes.</li>
+          <li><strong>Horas de soporte del mes</strong> = suma de <strong>Hrs soporte</strong> de clientes que ya están operativos en ese mes. Si un cliente no tiene ese valor, se usa la base global.</li>
+          <li><strong>Horas de despliegue del mes</strong> = suma de <strong>Hrs despliegue</strong> de los despliegues que estuvieron en proceso en ese mes. Este cálculo siempre se hace <strong>por mes</strong>, aunque el gráfico principal muestre todo el año.</li>
+          <li><strong>Horas reales del mes</strong> = Horas de soporte + Horas de despliegue.</li>
+          <li><strong>% de uso del mes</strong> = Horas reales ÷ Horas disponibles × 100.</li>
+          <li><strong>Diagnóstico de capacidad</strong>:<br>• <strong>Sobredimensionada</strong> si el uso es menor a 50%<br>• <strong>Bien dimensionada</strong> si el uso está entre 50% y 85%<br>• <strong>Insuficiente</strong> si el uso supera 85%</li>
+          <li><strong>Vista anual</strong>: el gráfico mantiene los 12 meses del año seleccionado para comparar la carga mes a mes.</li>
+          <li><strong>Vista mensual</strong>: cuando eliges un mes, el resumen y el desglose muestran solo ese período.</li>
         </ul>
       </div>
-      <!-- Quick actions -->
-      <div class="action-grid" style="grid-template-columns:repeat(4,1fr);max-width:600px;margin-bottom:14px">
-        <div class="action-card" onclick="setScenario('mod')">
-          <div class="action-card-icon">📈</div>
-          <div class="action-card-label">Moderado</div>
-          <div class="action-card-sub">+3 clientes/mes</div>
-        </div>
-        <div class="action-card" onclick="setScenario('agr')">
-          <div class="action-card-icon">🚀</div>
-          <div class="action-card-label">Agresivo</div>
-          <div class="action-card-sub">+8 clientes/mes</div>
-        </div>
-        <div class="action-card" onclick="setScenario('est')">
-          <div class="action-card-icon">⚖️</div>
-          <div class="action-card-label">Estabilización</div>
-          <div class="action-card-sub">Sin nuevos</div>
-        </div>
-        <div class="action-card" onclick="toggleInfo('cap-info')">
-          <div class="action-card-icon">ℹ️</div>
-          <div class="action-card-label">¿Cómo se calcula?</div>
-          <div class="action-card-sub">Ver fórmulas</div>
-        </div>
+
+      <div class="filter-bar" style="margin-bottom:18px;flex-wrap:wrap;gap:10px">
+        <label>👤 Operadores:</label><input type="number" class="fi" id="cap-ops" value="3" min="1" max="20" style="width:74px" onchange="renderCapacidad()">
+        <label>⏰ Hrs/día:</label><input type="number" class="fi" id="cap-hd" value="8" min="1" max="16" style="width:74px" onchange="renderCapacidad()">
+        <label>📅 Días/mes:</label><input type="number" class="fi" id="cap-dm" value="22" min="15" max="31" style="width:74px" onchange="renderCapacidad()">
+        <label>🏠 Hrs soporte base:</label><input type="number" class="fi" id="cap-hca" value="8" min="1" max="40" style="width:74px" onchange="renderCapacidad()">
+        <label>🚀 Hrs despliegue base:</label><input type="number" class="fi" id="cap-hcn" value="24" min="1" max="120" style="width:74px" onchange="renderCapacidad()">
+        <label>📆 Año:</label><select class="fi" id="cap-year" onchange="renderCapacidad()"></select>
+        <label>🗓 Mes:</label><select class="fi" id="cap-month" onchange="renderCapacidad()">
+          <option value="">Todo el año</option>
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option>
+          <option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option>
+          <option value="9">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
       </div>
-      <!-- Config row -->
-      <div class="filter-bar" style="margin-bottom:18px">
-        <label>👤 Operadores:</label><input type="number" class="fi" id="cap-ops" value="3" min="1" max="20" style="width:70px" onchange="renderCapacidad()">
-        <label>⏰ Hrs/día:</label><input type="number" class="fi" id="cap-hd" value="8" min="1" max="16" style="width:70px" onchange="renderCapacidad()">
-        <label>📅 Días/mes:</label><input type="number" class="fi" id="cap-dm" value="22" min="15" max="31" style="width:70px" onchange="renderCapacidad()">
-        <label>🏠 Hrs cliente activo/mes:</label><input type="number" class="fi" id="cap-hca" value="8" min="1" max="40" style="width:70px" onchange="renderCapacidad()">
-        <label>🆕 Hrs cliente nuevo/mes:</label><input type="number" class="fi" id="cap-hcn" value="24" min="8" max="80" style="width:70px" onchange="renderCapacidad()">
-      </div>
-      <div id="cap-kpis" class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px"></div>
-      <!-- Scenario selector -->
-      <div class="scenario-tabs">
-        <div class="sc-tab active" id="sc-mod" onclick="setScenario('mod')">📈 Crecimiento Moderado<br><small style="font-weight:400;font-size:11px">+3 clientes/mes</small></div>
-        <div class="sc-tab" id="sc-agr" onclick="setScenario('agr')">🚀 Crecimiento Agresivo<br><small style="font-weight:400;font-size:11px">+8 clientes/mes</small></div>
-        <div class="sc-tab" id="sc-est" onclick="setScenario('est')">⚖️ Estabilización<br><small style="font-weight:400;font-size:11px">0 clientes nuevos</small></div>
-      </div>
+
+      <div id="cap-kpis" class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:18px"></div>
+
       <div class="two-col" style="margin-bottom:16px">
-        <div class="card"><div class="card-h"><div class="card-title">Proyección 6 meses</div><div class="card-sub">Horas disponibles vs consumidas</div></div><div class="card-b"><div class="chart-wrap"><canvas id="cap-chart"></canvas></div></div></div>
-        <div class="card"><div class="card-h"><div class="card-title">Punto de Saturación</div><div class="card-sub">Capacidad máxima del equipo actual</div></div>
+        <div class="card"><div class="card-h"><div class="card-title">Carga Real por Mes</div><div class="card-sub">Horas disponibles vs soporte vs despliegues del año seleccionado</div></div><div class="card-b"><div class="chart-wrap"><canvas id="cap-chart"></canvas></div></div></div>
+        <div class="card"><div class="card-h"><div class="card-title">Composición del Período</div><div class="card-sub">Distribución real del período filtrado</div></div>
           <div class="card-b" id="cap-saturation"></div>
         </div>
       </div>
-      <div class="card"><div class="card-h"><div class="card-title">Detalle por Mes (Escenario Seleccionado)</div></div>
+      <div class="card"><div class="card-h"><div class="card-title">Detalle Real por Mes</div><div class="card-sub">Soporte + despliegues en proceso, usando tus fechas y horas reales</div></div>
         <div style="overflow-x:auto"><table class="cont-table"><thead><tr>
-          <th>Mes</th><th>Clientes Activos</th><th>Clientes Nuevos</th><th>Hrs Consumidas</th><th>Hrs Disponibles</th><th>% Uso</th><th>Estado</th><th>Nuevos Despliegues Posibles</th>
+          <th>Año</th><th>Mes</th><th>Clientes con soporte</th><th>Despliegues en proceso</th><th>Hrs soporte</th><th>Hrs despliegue</th><th>Hrs reales</th><th>Hrs disponibles</th><th>% Uso</th><th>Estado</th>
         </tr></thead><tbody id="cap-tbody"></tbody></table></div>
       </div>
       <div class="card" style="margin-top:14px">
-        <div class="card-h"><div class="card-title">Desglose por Cliente — Horas Asignadas</div><div class="card-sub">Columna <strong>Hrs/mes</strong> editable directamente en la tabla de Despliegues · vacío = usa global × complejidad</div></div>
+        <div class="card-h"><div class="card-title">Desglose del Período</div><div class="card-sub">Se listan los clientes operativos con soporte y los despliegues en proceso del período filtrado</div></div>
         <div style="overflow-x:auto"><table class="cont-table"><thead><tr>
-          <th>Cliente</th><th>Estado</th><th>Complejidad</th><th>Peso</th><th>Hrs/mes asignadas</th><th>Fuente</th>
+          <th>Tipo</th><th>Cliente</th><th>Estado</th><th>Período</th><th>Horas</th><th>Fuente</th>
         </tr></thead><tbody id="cap-clients-tbody"></tbody></table></div>
       </div>
     </div>
@@ -1127,7 +1109,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
 
     <!-- ══ MANUAL DE USO ══ -->
     <div id="view-manual" class="view">
-      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.29</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
+      <div class="sec-hdr"><div><div class="sec-title">📖 Manual de Uso — Ops Center v5.32</div><div class="sec-sub">Guía de referencia · Clipp Operations</div></div></div>
 
       <!-- REFERENCE TABLE -->
       <div class="card" style="margin-bottom:16px">
@@ -1137,9 +1119,9 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
           <tbody>
             <tr><td><strong>F. Confirmación</strong> del cliente</td><td>Línea de Tiempo → Confirmados por mes</td></tr>
             <tr><td><strong>F. Entrega</strong> del despliegue</td><td>Línea de Tiempo → Finalizados · Dashboard KPIs · Días de implementación</td></tr>
-            <tr><td><strong>F. Inicio</strong> del despliegue</td><td>Línea de Tiempo → En Proceso · Capacidad Operativa</td></tr>
+            <tr><td><strong>F. Inicio</strong> del despliegue</td><td>Línea de Tiempo → En Proceso · Capacidad Operativa mensual</td></tr>
             <tr><td><strong>Estado ✅ Listo</strong> en despliegue</td><td>Mueve el cliente a Clientes Operativos automáticamente</td></tr>
-            <tr><td><strong>Horas soporte / Horas despliegue</strong></td><td>Capacidad Operativa → cálculo de carga real por cliente</td></tr>
+            <tr><td><strong>Horas soporte / Horas despliegue reales</strong></td><td>Capacidad Operativa → carga real por soporte y despliegue</td></tr>
             <tr><td><strong>Módulos activos</strong> del cliente</td><td>Complejidad automática · Estrategia de Despliegue · Capacidad</td></tr>
             <tr><td><strong>Contrato</strong> con componentes de cobro</td><td>Cobranzas → generación automática de facturas mensuales</td></tr>
             <tr><td><strong>Launcher</strong> del despliegue</td><td>Filtros en Dashboard, Despliegues, Línea de Tiempo, Capacidad</td></tr>
@@ -2261,7 +2243,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.29'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.34'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -4094,123 +4076,172 @@ function destroyCapCharts(){
 }
 function renderCapacidad(){
   try{
-    const ops=(deps||[]).filter(d=>d && d.es===EL);
-    const scenarios={
-      mod:{key:'mod',label:'Moderado',nuevos:3},
-      agr:{key:'agr',label:'Agresivo',nuevos:8},
-      est:{key:'est',label:'Estabilización',nuevos:0}
-    };
-    const sc=scenarios[curScenario]||scenarios.mod;
+    const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const shortMonthNames=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     const operators=Math.max(1, parseInt(document.getElementById('cap-ops')?.value)||3);
     const hrsDay=Math.max(1, parseFloat(document.getElementById('cap-hd')?.value)||8);
     const daysMonth=Math.max(1, parseFloat(document.getElementById('cap-dm')?.value)||22);
-    const hrsActive=Math.max(1, parseFloat(document.getElementById('cap-hca')?.value)||8);
-    const hrsNew=Math.max(1, parseFloat(document.getElementById('cap-hcn')?.value)||24);
+    const hrsSupportDefault=Math.max(0, parseFloat(document.getElementById('cap-hca')?.value)||8);
+    const hrsDeployDefault=Math.max(0, parseFloat(document.getElementById('cap-hcn')?.value)||24);
     const availableHours=Math.round(operators*hrsDay*daysMonth);
 
-    const monthNames=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const now=new Date();
-    const labels=[];
-    const activeSeries=[];
-    const newSeries=[];
-    const consumedSeries=[];
-    const availableSeries=[];
-    const usageSeries=[];
-    const detailRows=[];
+    const allYearsSet=new Set();
+    (cls||[]).forEach(c=>{ if(c&&isD(c.fconf)) allYearsSet.add(+String(c.fconf).slice(0,4)); });
+    (deps||[]).forEach(d=>{
+      ['fi','fd','fe'].forEach(k=>{ if(d&&isD(d[k])) allYearsSet.add(+String(d[k]).slice(0,4)); });
+    });
+    const currentYear=(new Date()).getFullYear();
+    if(!allYearsSet.size) allYearsSet.add(currentYear);
+    allYearsSet.add(currentYear);
+    const allYears=Array.from(allYearsSet).filter(Boolean).sort((a,b)=>a-b);
 
-    let currentActive=ops.length;
-    for(let i=0;i<6;i++){
-      const dt=new Date(now.getFullYear(), now.getMonth()+i, 1);
-      const lbl=monthNames[dt.getMonth()]+' '+String(dt.getFullYear()).slice(-2);
-      const nuevos=sc.nuevos;
-      const consumed=Math.round((currentActive*hrsActive)+(nuevos*hrsNew));
-      const usage=availableHours?Math.round((consumed/availableHours)*100):0;
-      const gap=availableHours-(currentActive*hrsActive);
-      const possible=Math.max(0, Math.floor(gap/hrsNew));
-      const status=usage>=100?'Saturado':usage>=85?'Crítico':usage>=70?'En riesgo':'Saludable';
-      const statusColor=usage>=100?'#BE123C':usage>=85?'#C2410C':usage>=70?'#B45309':'#0F7E4F';
+    const yearEl=document.getElementById('cap-year');
+    if(yearEl){
+      const currentVal=yearEl.value;
+      yearEl.innerHTML=allYears.map(y=>`<option value="${y}">${y}</option>`).join('');
+      yearEl.value=allYears.includes(+currentVal)?String(currentVal):String(allYears.includes(currentYear)?currentYear:allYears[allYears.length-1]);
+    }
+    const selectedYear=parseInt(yearEl?.value)||currentYear;
+    const selectedMonth=parseInt(document.getElementById('cap-month')?.value||'')||0;
 
-      labels.push(lbl);
-      activeSeries.push(currentActive);
-      newSeries.push(nuevos);
-      consumedSeries.push(consumed);
-      availableSeries.push(availableHours);
-      usageSeries.push(Math.min(usage, 180));
-      detailRows.push({lbl,active:currentActive,nuevos,consumed,available:availableHours,usage,status,statusColor,possible});
-      currentActive += nuevos;
+    const monthStart=(year,month)=>new Date(year,month-1,1);
+    const monthEnd=(year,month)=>new Date(year,month,0);
+    const parseDate=v=>isD(v)?new Date(v+'T00:00:00'):null;
+    const overlapsMonth=(start,end,year,month)=>{
+      const s=parseDate(start);
+      if(!s) return false;
+      const e=parseDate(end)||new Date();
+      const ms=monthStart(year,month);
+      const me=monthEnd(year,month);
+      return s<=me && e>=ms;
+    };
+    const isSupportActiveInMonth=(dep,year,month)=>{
+      const end=parseDate(dep.fe);
+      if(!end) return false;
+      return end<=monthEnd(year,month);
+    };
+    const capacityMeta=usage=> usage<50
+      ? {label:'Sobredimensionada', short:'Sobredimensionada', color:'#2563EB', note:'Hay bastante holgura frente a la carga real.'}
+      : usage<=85
+      ? {label:'Bien dimensionada', short:'Bien', color:'#0F7E4F', note:'La capacidad cubre la carga con un margen sano.'}
+      : {label:'Insuficiente', short:'Insuficiente', color:'#BE123C', note:'La carga está alta y requiere más capacidad o redistribución.'};
+
+    const monthRows=[];
+    for(let month=1; month<=12; month++){
+      const supportDeps=(deps||[]).filter(d=>d && d.es===EL && isSupportActiveInMonth(d,selectedYear,month));
+      const deployDeps=(deps||[]).filter(d=>d && d.es!==EL && overlapsMonth(d.fi, d.fe, selectedYear, month));
+      const supportHours=Math.round(supportDeps.reduce((sum,d)=>sum + (parseFloat(d.hrsOp)||hrsSupportDefault),0));
+      const deployHours=Math.round(deployDeps.reduce((sum,d)=>sum + (parseFloat(d.hrsNew)||hrsDeployDefault),0));
+      const realHours=supportHours+deployHours;
+      const usage=availableHours?Math.round((realHours/availableHours)*100):0;
+      const risk=capacityMeta(usage);
+      monthRows.push({
+        year:selectedYear,
+        month,
+        monthLabel:monthNames[month-1],
+        shortLabel:shortMonthNames[month-1],
+        supportCount:supportDeps.length,
+        deployCount:deployDeps.length,
+        supportHours,
+        deployHours,
+        realHours,
+        availableHours,
+        usage,
+        status:risk.label,
+        statusColor:risk.color,
+        supportDeps,
+        deployDeps
+      });
     }
 
-    const currentConsumed=Math.round(ops.reduce((sum,d)=>sum + (parseFloat(d.hrsOp)||hrsActive), 0));
-    const currentUsage=availableHours?Math.round((currentConsumed/availableHours)*100):0;
-    const maxActiveByTeam=Math.max(0, Math.floor(availableHours/hrsActive));
-    const extraDeploymentsNow=Math.max(0, Math.floor((availableHours-currentConsumed)/hrsNew));
-    let monthsToSaturation='No aplica';
-    if(sc.nuevos>0){
-      const pending=Math.max(0, maxActiveByTeam-ops.length);
-      const mts=Math.ceil(pending/sc.nuevos);
-      monthsToSaturation=!isFinite(mts)?'—':mts===0?'Este mes':mts+' mes(es)';
-    }
+    const visibleRows=selectedMonth?monthRows.filter(r=>r.month===selectedMonth):monthRows;
+    const periodSupport=visibleRows.reduce((s,r)=>s+r.supportHours,0);
+    const periodDeploy=visibleRows.reduce((s,r)=>s+r.deployHours,0);
+    const periodReal=periodSupport+periodDeploy;
+    const periodAvailable=visibleRows.reduce((s,r)=>s+r.availableHours,0);
+    const periodUsage=periodAvailable?Math.round((periodReal/periodAvailable)*100):0;
+    const periodRisk=capacityMeta(periodUsage);
+    const periodLabel=selectedMonth ? `${monthNames[selectedMonth-1]} ${selectedYear}` : `Año ${selectedYear}`;
 
     const kpis=[
-      ['👥 Clientes Op.',ops.length,'operativos activos','#1B4FD8'],
-      ['⏱ Capacidad mensual',availableHours+'h/mes',operators+' operador(es) × '+hrsDay+'h × '+daysMonth+' días','#0F7E4F'],
-      ['📦 Consumo actual',currentConsumed+'h/mes',currentUsage+'% de uso actual','#B45309'],
-      ['📈 Escenario',sc.label,'+'+sc.nuevos+' nuevos/mes','#5B21B6'],
+      ['⏱ Capacidad disponible', `${availableHours}h/mes`, `${operators} operador(es) × ${hrsDay}h × ${daysMonth} días`, '#0F7E4F'],
+      ['🏠 Hrs soporte período', `${periodSupport}h`, `${visibleRows.reduce((s,r)=>s+r.supportCount,0)} registros operativos sumados`, '#1B4FD8'],
+      ['🚀 Hrs despliegue período', `${periodDeploy}h`, `${visibleRows.reduce((s,r)=>s+r.deployCount,0)} despliegues en proceso`, '#B45309'],
+      ['📊 Uso real', `${periodUsage}%`, `${periodReal}h consumidas en ${periodLabel}`, periodRisk.color],
+      ['🧭 Diagnóstico', `${periodRisk.short}`, periodRisk.note, periodRisk.color]
     ];
     const capKpis=document.getElementById('cap-kpis');
-    if(capKpis)capKpis.innerHTML=kpis.map(([l,v,n,c])=>`<div class="kpi" style="--ac:${c}"><div class="kpi-lbl">${l}</div><div class="kpi-val" style="color:${c}">${v}</div><div class="kpi-note">${n}</div></div>`).join('');
+    if(capKpis){
+      capKpis.style.gridTemplateColumns='repeat(5,1fr)';
+      capKpis.innerHTML=kpis.map(([l,v,n,c])=>`<div class="kpi" style="--ac:${c}"><div class="kpi-lbl">${l}</div><div class="kpi-val" style="color:${c}">${v}</div><div class="kpi-note">${n}</div></div>`).join('');
+    }
 
     const capStat=document.getElementById('cap-stat');
-    if(capStat)capStat.textContent=currentUsage+'% uso actual';
+    if(capStat)capStat.textContent=`${periodLabel} · ${periodUsage}% uso real · ${periodRisk.short}`;
 
     const capTb=document.getElementById('cap-tbody');
     if(capTb){
-      capTb.innerHTML=detailRows.length?detailRows.map(r=>`<tr>
-        <td><strong>${r.lbl}</strong></td>
-        <td style="text-align:center">${r.active}</td>
-        <td style="text-align:center">${r.nuevos}</td>
-        <td style="text-align:center;font-weight:700;color:${r.consumed>r.available?'#BE123C':'#1B4FD8'}">${r.consumed}h</td>
-        <td style="text-align:center">${r.available}h</td>
+      capTb.innerHTML=visibleRows.length?visibleRows.map(r=>`<tr>
+        <td style="text-align:center">${r.year}</td>
+        <td><strong>${r.monthLabel}</strong><div style="font-size:11px;color:var(--muted);margin-top:2px">Período mensual</div></td>
+        <td style="text-align:center">${r.supportCount}</td>
+        <td style="text-align:center">${r.deployCount}</td>
+        <td style="text-align:center;color:#1B4FD8;font-weight:700">${r.supportHours}h</td>
+        <td style="text-align:center;color:#B45309;font-weight:700">${r.deployHours}h</td>
+        <td style="text-align:center;font-weight:700;color:${r.realHours>r.availableHours?'#BE123C':'#111827'}">${r.realHours}h</td>
+        <td style="text-align:center">${r.availableHours}h</td>
         <td style="text-align:center">${r.usage}%</td>
         <td><span class="tag" style="font-size:11px;background:${r.statusColor}15;color:${r.statusColor};border-color:${r.statusColor}55">${r.status}</span></td>
-        <td style="text-align:center">${r.possible}</td>
-      </tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--subtle)">Sin datos para calcular la capacidad.</td></tr>`;
+      </tr>`).join(''):`<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--subtle)">Sin datos para el período seleccionado.</td></tr>`;
     }
+
+    const clientRows=[];
+    visibleRows.forEach(r=>{
+      r.supportDeps.forEach(d=>{
+        clientRows.push({
+          type:'Soporte',
+          client:d.c||'—',
+          status:d.es||EL,
+          period:`${r.monthLabel} ${r.year}`,
+          hours:Math.round(parseFloat(d.hrsOp)||hrsSupportDefault),
+          source:d.hrsOp?'Manual en Hrs soporte':'Global Hrs soporte base',
+          color:'#1B4FD8'
+        });
+      });
+      r.deployDeps.forEach(d=>{
+        clientRows.push({
+          type:'Despliegue',
+          client:d.c||'—',
+          status:d.es||'—',
+          period:`${r.monthLabel} ${r.year}`,
+          hours:Math.round(parseFloat(d.hrsNew)||hrsDeployDefault),
+          source:d.hrsNew?'Manual en Hrs despliegue':'Global Hrs despliegue base',
+          color:'#B45309'
+        });
+      });
+    });
 
     const capClientsTb=document.getElementById('cap-clients-tbody');
     if(capClientsTb){
-      capClientsTb.innerHTML=ops.length?ops.map(d=>{
-        const cxItem=(cats.complexity||[]).find(c=>String(c.id)===String(d.cx) || c.name===d.cxName || c.name===d.cx) || null;
-        const peso=Number(cxItem?.peso||1);
-        const baseHours=parseFloat(d.hrsOp)||Math.round(hrsActive*peso);
-        const source=d.hrsOp?'Manual':'Global × complejidad';
-        return `<tr>
-          <td style="font-weight:600">${esc(d.c||'—')}</td>
-          <td><span class="tag tag-green" style="font-size:11px">${esc(d.es||EL)}</span></td>
-          <td>${cxItem?esc(cxItem.name):'<span style="color:var(--subtle)">Sin definir</span>'}</td>
-          <td style="text-align:center">${peso.toFixed(1)}</td>
-          <td style="text-align:center;font-weight:700;color:#1B4FD8">${baseHours}h</td>
-          <td style="font-size:11.5px;color:var(--muted)">${source}</td>
-        </tr>`;
-      }).join(''):`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--subtle)">Sin clientes operativos.</td></tr>`;
+      capClientsTb.innerHTML=clientRows.length?clientRows.map(r=>`<tr>
+        <td><span class="tag" style="font-size:11px;background:${r.color}15;color:${r.color};border-color:${r.color}55">${r.type}</span></td>
+        <td style="font-weight:600">${esc(r.client)}</td>
+        <td>${esc(r.status)}</td>
+        <td><strong>${r.period}</strong><div style="font-size:11px;color:var(--muted);margin-top:2px">Cálculo mensual</div></td>
+        <td style="text-align:center;font-weight:700;color:${r.color}">${r.hours}h</td>
+        <td style="font-size:11.5px;color:var(--muted)">${r.source}</td>
+      </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--subtle)">Sin registros para el período seleccionado.</td></tr>`;
     }
-
-    ['mod','agr','est'].forEach(s=>{
-      const b=document.getElementById('sc-'+s);
-      if(b){
-        b.classList.toggle('active', curScenario===s);
-        b.style.fontWeight=curScenario===s?'700':'500';
-        b.style.borderColor=curScenario===s?'var(--blue)':'var(--border)';
-      }
-    });
 
     const satWrap=document.getElementById('cap-saturation');
     if(satWrap){
+      const freeHours=Math.max(periodAvailable-periodReal,0);
       satWrap.innerHTML=`
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-          <div class="mini-stat"><div class="mini-stat-l">Máx. clientes activos</div><div class="mini-stat-v">${maxActiveByTeam}</div></div>
-          <div class="mini-stat"><div class="mini-stat-l">Nuevos posibles hoy</div><div class="mini-stat-v">${extraDeploymentsNow}</div></div>
-          <div class="mini-stat"><div class="mini-stat-l">Saturación estimada</div><div class="mini-stat-v">${monthsToSaturation}</div></div>
+          <div class="mini-stat"><div class="mini-stat-l">Período analizado</div><div class="mini-stat-v">${periodLabel}</div></div>
+          <div class="mini-stat"><div class="mini-stat-l">Horas reales</div><div class="mini-stat-v">${periodReal}h</div></div>
+          <div class="mini-stat"><div class="mini-stat-l">Holgura</div><div class="mini-stat-v">${freeHours}h</div></div>
+          <div class="mini-stat" style="grid-column:1 / -1"><div class="mini-stat-l">Diagnóstico</div><div class="mini-stat-v" style="color:${periodRisk.color}">${periodRisk.label}</div><div style="font-size:12px;color:var(--muted);margin-top:4px">${periodRisk.note}</div></div>
         </div>
         <div style="height:190px;position:relative"><canvas id="cap-saturation-chart"></canvas></div>
       `;
@@ -4226,22 +4257,25 @@ function renderCapacidad(){
       }else{
         capCharts.projection=new Chart(projectionCanvas.getContext('2d'),{
           type:'bar',
-          data:{labels,datasets:[
-            {label:'Hrs disponibles', data:availableSeries, type:'line', borderColor:'#0F7E4F', backgroundColor:'#0F7E4F22', tension:0.3, fill:false, pointRadius:3, borderWidth:3},
-            {label:'Hrs consumidas', data:consumedSeries, backgroundColor:'#1B4FD8BB', borderColor:'#1B4FD8', borderWidth:1, borderRadius:6, maxBarThickness:34},
-            {label:'Nuevos clientes', data:newSeries, type:'line', borderColor:'#B45309', backgroundColor:'#B4530922', tension:0.25, fill:false, yAxisID:'y1', pointRadius:3, borderDash:[5,4]}
+          data:{labels:monthRows.map(r=>r.shortLabel),datasets:[
+            {label:'Hrs disponibles', data:monthRows.map(r=>r.availableHours), type:'line', borderColor:'#0F7E4F', backgroundColor:'#0F7E4F22', tension:0.3, fill:false, pointRadius:3, borderWidth:3},
+            {label:'Hrs soporte', data:monthRows.map(r=>r.supportHours), backgroundColor:'#1B4FD8BB', borderColor:'#1B4FD8', borderWidth:1, borderRadius:6, stack:'consumo', maxBarThickness:34},
+            {label:'Hrs despliegue', data:monthRows.map(r=>r.deployHours), backgroundColor:'#B45309CC', borderColor:'#B45309', borderWidth:1, borderRadius:6, stack:'consumo', maxBarThickness:34}
           ]},
-          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'h'}},y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},ticks:{precision:0}},x:{grid:{display:false}}}}
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'h'}},x:{stacked:true,grid:{display:false}}}}
         });
       }
     }
 
     const satCanvas=document.getElementById('cap-saturation-chart');
     if(satCanvas && typeof Chart!=='undefined'){
+      const freeHours=Math.max(periodAvailable-periodReal,0);
+      const supportVal=Math.max(periodSupport,0);
+      const deployVal=Math.max(periodDeploy,0);
       capCharts.saturation=new Chart(satCanvas.getContext('2d'),{
         type:'doughnut',
-        data:{labels:['Uso actual','Disponible'],datasets:[{data:[Math.min(currentConsumed,availableHours), Math.max(availableHours-currentConsumed,0)],backgroundColor:['#1B4FD8','#E5E7EB'],borderColor:['#1B4FD8','#E5E7EB'],borderWidth:1}]},
-        options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{position:'bottom'}}},
+        data:{labels:['Soporte','Despliegue','Disponible'],datasets:[{data:[supportVal,deployVal,freeHours],backgroundColor:['#1B4FD8','#B45309','#E5E7EB'],borderColor:['#1B4FD8','#B45309','#E5E7EB'],borderWidth:1}]},
+        options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom'}}},
         plugins:[{
           id:'cap-center-text',
           afterDraw(chart){
@@ -4253,10 +4287,10 @@ function renderCapacidad(){
             ctx.textAlign='center';
             ctx.fillStyle='#111827';
             ctx.font='700 22px DM Sans';
-            ctx.fillText(currentUsage+'%', x, y-2);
+            ctx.fillText(periodUsage+'%', x, y-2);
             ctx.fillStyle='#6B7280';
             ctx.font='12px DM Sans';
-            ctx.fillText('uso actual', x, y+16);
+            ctx.fillText('uso real', x, y+16);
             ctx.restore();
           }
         }]
@@ -4267,7 +4301,7 @@ function renderCapacidad(){
     const capKpis=document.getElementById('cap-kpis');
     if(capKpis)capKpis.innerHTML='<div class="kpi"><div class="kpi-lbl">⚠️ Error</div><div class="kpi-val" style="color:#BE123C">No se pudo cargar</div><div class="kpi-note">Revisa la consola para más detalle</div></div>';
     const capTb=document.getElementById('cap-tbody');
-    if(capTb)capTb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:#BE123C">No se pudo renderizar la capacidad operativa.</td></tr>';
+    if(capTb)capTb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:24px;color:#BE123C">No se pudo renderizar la capacidad operativa.</td></tr>';
   }
 }
 
@@ -6786,13 +6820,13 @@ function bootApp(){
 
   // Load roles
   try{bootRoles();}catch(e){console.warn('bootRoles:',e);}
-  // Si hay Supabase, NO renderizar con datos de localStorage — esperar Supabase
+  // Si hay Supabase, renderizar de inmediato con datos locales y sincronizar en segundo plano
   if(supabase){
-    // Mostrar pantalla de carga
     setV('dashboard');
-    var _kg=document.getElementById('kpi-grid');
-    if(_kg)_kg.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--muted)"><div style="font-size:32px;margin-bottom:10px">⏳</div><div style="font-size:14px;font-weight:600">Conectando con Supabase...</div><div style="font-size:12px;margin-top:4px">Cargando datos en tiempo real</div></div>';
-    setSyncStatus('↺ Cargando...','#1B4FD8');
+    renderDash();
+    updBadges();
+    updTrashBadge();
+    setSyncStatus('↺ Sincronizando...','#1B4FD8');
     loadFromSupabase().then(function(){
       // If cls from Supabase is empty or outdated, push the BC data up
       if(!cls.length){
