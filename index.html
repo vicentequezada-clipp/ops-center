@@ -1246,11 +1246,11 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
     <div class="login-err" id="li-err"></div>
     <div class="login-status" id="li-status"></div>
     <div style="margin-top:16px;border-top:1px solid #E4E9F0;padding-top:14px">
-      <button 
+      <button onclick="document.getElementById('li-email').value='demo@clipp.com';document.getElementById('li-pass').value='demo';doLogin();"
         style="background:none;border:1.5px solid #E4E9F0;border-radius:8px;padding:9px 18px;font-size:13px;color:#637087;cursor:pointer;width:100%;font-family:inherit;transition:all .2s"
         onmouseover="this.style.borderColor='#1B4FD8';this.style.color='#1B4FD8'"
         onmouseout="this.style.borderColor='#E4E9F0';this.style.color='#637087'">
-        🚀 Entrar en modo demo
+        
       </button>
       <div style="font-size:11px;color:#94A3B8;margin-top:6px">Los datos se guardan solo en este navegador</div>
     <div id="li-debug" style="font-size:10px;color:#94A3B8;margin-top:4px;display:none"></div>
@@ -1282,7 +1282,7 @@ td.dep-col-fconf{width:115px;max-width:115px;overflow:hidden}
     <div class="s-item" onclick="setV('usuarios')" id="nav-usuarios"><span>👤</span> Usuarios y Roles</div>
     <div class="s-item" onclick="openTrash()" id="nav-trash"><span>🗑</span> Papelera <span class="s-badge" id="trash-count" style="background:#DC2626;display:none">0</span></div>
   </nav>
-  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.51 · 15 Abr 2026</span></div>
+  <div class="s-foot">Ops Center · Clipp<br><span style="opacity:.5;font-size:9.5px">v5.52 · 15 Abr 2026</span></div>
 </aside>
 
 <!-- MAIN -->
@@ -3243,7 +3243,7 @@ function syncDeploySubnav(){
 
 function setV(v){
   curV=v;
-  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.50'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
+  const TITLES={'dashboard':['Dashboard Ejecutivo','Resumen operativo · Clipp · '+new Date().toLocaleDateString('es-EC',{month:'long',year:'numeric'})],'timeline':['Línea de Tiempo','Historial y proyección por categoría'],'despliegues':['Despliegues','Seguimiento operativo de implementaciones'],'operativos':['Clientes Operativos','Clientes con despliegue finalizado'],'inactivos':['Clientes Inactivos','Clientes deshabilitados y perdidos'],'capacidad':['Capacidad Operativa','Carga del equipo en tiempo real'],'clientes':['Gestión de Clientes','Los cambios se sincronizan automáticamente'],'contratos':['Contratos','Condiciones de cobro por cliente'],'cobranzas':['Cobranzas','Facturación y cobros mensuales'],'estrategia':['Estrategia de Despliegue','Fases y complejidad por cliente'],'catalogos':['Gestión de Catálogos','Aplicativos, Tipos, Módulos y más'],'manual':['Manual de Uso','Guía de referencia · Ops Center v5.52'],'usuarios':['Usuarios y Roles','Gestiona accesos y permisos por módulo']};
   if(TITLES[v]){
     const tEl=document.getElementById('tb-t');if(tEl)tEl.textContent=TITLES[v][0];
     const sEl=document.getElementById('tb-s');if(sEl)sEl.textContent=TITLES[v][1];
@@ -6189,7 +6189,9 @@ function safeStartApp(){
     }
   }
 }
-};
+function enterDemo(){
+  try{
+    _currentUser={email:'demo@clipp.com',id:'demo-user',user_metadata:{name:'Demo'}};
     sessionStorage.setItem('clipp_authed','1');
     sessionStorage.setItem('clipp_demo','1');
     safeStartApp();
@@ -6206,11 +6208,6 @@ function doLogin(){
   const status=document.getElementById('li-status');
   if(!email||!pass){err.textContent='Ingresa email y contraseña';return;}
   btn.disabled=true;btn.textContent='Ingresando...';err.textContent=''; if(status) status.textContent='';
-  if(email==='demo@clipp.com' || (email==='demo' && pass==='demo')){
-    enterDemo();
-    btn.disabled=false;btn.textContent='Ingresar';
-    return;
-  }
   loadSupabase().then(function(){
     try{
       const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false,storageKey:'clipp_ops_session'}});
@@ -6226,7 +6223,7 @@ function doLogin(){
         btn.disabled=false;btn.textContent='Ingresar';
       }).catch(function(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='Ingresar';});
     }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='Ingresar';}
-  }).catch(function(){err.textContent='Sin conexión. Usa "🚀 Modo demo".';btn.disabled=false;btn.textContent='Ingresar';});
+  }).catch(function(){err.textContent='Sin conexión con el servicio de acceso.';btn.disabled=false;btn.textContent='Ingresar';});
 }
 
 // ═══ COLUMN RESIZE ══════════════════════════════════
