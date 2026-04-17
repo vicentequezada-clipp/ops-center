@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roaming Quito — Dashboard Completo</title>
+<title>Roaming Quito — Dashboard Anual</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -157,6 +157,35 @@ b.acc{color:var(--accent);font-weight:600;} b.acc2{color:var(--accent2);font-wei
 .unify-copy strong{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text);}
 .unify-copy span{font-family:var(--mono);font-size:8px;color:var(--muted);}
 
+/* ANNUAL-SPECIFIC STYLES */
+.year-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(139,68,212,.1);border:1px solid rgba(139,68,212,.3);border-radius:3px;padding:3px 10px;font-family:var(--mono);font-size:9px;color:var(--purple);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.month-timeline{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin-bottom:18px;}
+.month-card{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:8px 6px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.month-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border);}
+.month-card.has-data::before{background:var(--accent);}
+.month-card.active-filter::before{background:var(--purple);}
+.month-card.active-filter{border-color:rgba(139,68,212,.4);background:rgba(139,68,212,.05);}
+.month-card:hover{border-color:rgba(0,184,156,.3);}
+.month-name{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.month-val{font-size:11px;font-weight:800;color:var(--accent);line-height:1;}
+.month-sub{font-family:var(--mono);font-size:7px;color:var(--muted);margin-top:2px;}
+.month-card.empty .month-val{color:rgba(0,0,0,.15);font-size:9px;}
+.month-sparkline{height:28px;margin-top:4px;}
+.annual-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.ascard{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center;}
+.ascard-val{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px;}
+.ascard-label{font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:rgba(139,68,212,.05);border:1px solid rgba(139,68,212,.2);border-radius:6px;}
+.filter-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.month-pill{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--muted);}
+.month-pill.active{border-color:var(--purple);background:rgba(139,68,212,.1);color:var(--purple);}
+.month-pill.all-pill{border-color:rgba(0,184,156,.4);background:rgba(0,184,156,.08);color:var(--accent);}
+.bar-chart-h{display:flex;flex-direction:column;gap:6px;}
+.bar-row{display:flex;align-items:center;gap:8px;}
+.bar-row-label{font-family:var(--mono);font-size:9px;color:var(--muted);width:60px;text-align:right;flex-shrink:0;}
+.bar-row-track{flex:1;height:16px;background:rgba(0,0,0,.04);border-radius:3px;overflow:hidden;}
+.bar-row-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.8);}
+.bar-row-val{font-family:var(--mono);font-size:9px;color:var(--muted);width:56px;flex-shrink:0;}
 
 </style>
 </head>
@@ -167,8 +196,8 @@ b.acc{color:var(--accent);font-weight:600;} b.acc2{color:var(--accent2);font-wei
 <nav class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-tag">Clipp B2B · Roaming</div>
-    <div class="sidebar-title">Dashboard<br><span>Quito</span></div>
-    <div class="sidebar-sub">Fase 1 · Feb 2026</div>
+    <div class="sidebar-title">Dashboard<br><span>Anual</span></div>
+    <div class="sidebar-sub">Vista por año · Multi-mes</div>
   </div>
   <div class="nav-group">Principal</div>
   <div class="nav-item active" onclick="show('dashboard',this)">
@@ -205,10 +234,10 @@ b.acc{color:var(--accent);font-weight:600;} b.acc2{color:var(--accent2);font-wei
     <div><div>Waterfall</div><div class="nav-desc">Ingresos por par</div></div>
   </div>
   <div class="sidebar-footer">
-    <span>1,103</span> viajes · <span>$3,149</span><br>
-    16 días · 10 empresas<br>
-    Éxito: <span>71.6%</span><br>
-    Clipp 4%: <span>$125.96</span>
+    <span>0</span> viajes · <span>$0</span><br>
+    0 meses · 0 empresas<br>
+    Éxito: <span>—</span><br>
+    Clipp 4%: <span>$0.00</span>
   </div>
 </nav>
 
@@ -800,46 +829,9 @@ b.acc{color:var(--accent);font-weight:600;} b.acc2{color:var(--accent2);font-wei
 <div class="tip" id="tip"></div>
 
 <script>
-// DATA
-let FLOWS = [
-  {src:"Clipp",tgt:"Unitaxi",v:290,ing:1057.42,ok:236,err:54},
-  {src:"Clipp",tgt:"Taxi JJ",v:115,ing:319.78,ok:87,err:28},
-  {src:"Clipp",tgt:"V&M",v:28,ing:71.90,ok:14,err:14},
-  {src:"Clipp",tgt:"Expresstaxilan",v:7,ing:14.28,ok:5,err:2},
-  {src:"Clipp",tgt:"TaxMonteserin",v:8,ing:20.06,ok:5,err:3},
-  {src:"Unitaxi",tgt:"Taxi JJ",v:102,ing:273.25,ok:75,err:27},
-  {src:"Unitaxi",tgt:"V&M",v:27,ing:65.34,ok:19,err:8},
-  {src:"Unitaxi",tgt:"Expresstaxilan",v:24,ing:63.74,ok:16,err:8},
-  {src:"Unitaxi",tgt:"TaxMonteserin",v:16,ing:40.77,ok:10,err:6},
-  {src:"Unitaxi",tgt:"OK Prado Speed",v:4,ing:11.92,ok:3,err:1},
-  {src:"Azutaxi",tgt:"Unitaxi",v:83,ing:187.93,ok:44,err:39},
-  {src:"Azutaxi",tgt:"Taxi JJ",v:30,ing:82.66,ok:17,err:13},
-  {src:"Azutaxi",tgt:"V&M",v:3,ing:7.06,ok:2,err:1},
-  {src:"Azutaxi",tgt:"Expresstaxilan",v:2,ing:3.00,ok:0,err:2},
-  {src:"Azutaxi",tgt:"TaxMonteserin",v:3,ing:9.69,ok:3,err:0},
-  {src:"Azutaxi",tgt:"OK Prado Speed",v:1,ing:1.45,ok:1,err:0},
-  {src:"Ktaxi",tgt:"Unitaxi",v:53,ing:164.41,ok:42,err:11},
-  {src:"Ktaxi",tgt:"Taxi JJ",v:39,ing:99.97,ok:30,err:9},
-  {src:"Ktaxi",tgt:"V&M",v:5,ing:9.82,ok:2,err:3},
-  {src:"Ktaxi",tgt:"Expresstaxilan",v:1,ing:2.38,ok:1,err:0},
-  {src:"Ktaxi",tgt:"TaxMonteserin",v:5,ing:8.87,ok:5,err:0},
-  {src:"Ktaxi",tgt:"OK Prado Speed",v:5,ing:8.33,ok:5,err:0},
-  {src:"Taxi JJ",tgt:"Unitaxi",v:97,ing:259.62,ok:76,err:21},
-  {src:"Taxi JJ",tgt:"V&M",v:6,ing:10.65,ok:4,err:2},
-  {src:"Taxi JJ",tgt:"Expresstaxilan",v:5,ing:13.24,ok:5,err:0},
-  {src:"Taxi JJ",tgt:"TaxMonteserin",v:4,ing:8.29,ok:3,err:1},
-  {src:"Taxi JJ",tgt:"OK Prado Speed",v:3,ing:4.65,ok:2,err:1},
-  {src:"V&M",tgt:"Unitaxi",v:28,ing:37.22,ok:13,err:15},
-  {src:"V&M",tgt:"Taxi JJ",v:5,ing:12.46,ok:3,err:2},
-  {src:"TaxMonteserin",tgt:"Unitaxi",v:5,ing:15.09,ok:4,err:1},
-  {src:"TaxMonteserin",tgt:"Taxi JJ",v:4,ing:8.29,ok:3,err:1},
-  {src:"Clipp",tgt:"31 de Mayo",v:8,ing:18.94,ok:0,err:8},
-  {src:"Unitaxi",tgt:"31 de Mayo",v:1,ing:4.54,ok:0,err:1},
-  {src:"Ktaxi",tgt:"31 de Mayo",v:2,ing:3.50,ok:0,err:2},
-  {src:"Taxi JJ",tgt:"31 de Mayo",v:1,ing:1.75,ok:0,err:1},
-  {src:"V&M",tgt:"31 de Mayo",v:2,ing:0,ok:0,err:2},
-];
-let COMPANIES=["Clipp","Unitaxi","Azutaxi","Ktaxi","Taxi JJ","V&M","TaxMonteserin","Expresstaxilan","OK Prado Speed","31 de Mayo"];
+// DATA — starts empty; populated dynamically from uploaded XLSX files
+let FLOWS = [];
+let COMPANIES = [];
 const COL={"Clipp":"#00e5c3","Unitaxi":"#4d9fff","Azutaxi":"#f7a600","Ktaxi":"#a855f7","Taxi JJ":"#ff6b6b","V&M":"#ff9f43","TaxMonteserin":"#26de81","Expresstaxilan":"#45aaf2","OK Prado Speed":"#fd9644","31 de Mayo":"#e8445a"};
 
 // NAV
@@ -1156,18 +1148,34 @@ window.addEventListener('resize',()=>{Object.keys(drawn).forEach(k=>{drawn[k]=fa
 
 <script>
 (function(){
-  const DEFAULT_DIGITAL_BREAKDOWN = {"Unitaxi":494,"Taxi JJ":89};
-  let DATASETS = {};
-  let CURRENT_DATASET_KEY = '';
-  let CURRENT_COMPARE_KEY = '';
-  let ACTIVE_META = {label:'', source:'', days:0, city:''};
-  let RAW_ROWS = [];
-  let PAYMENT_BREAKDOWN = {digital:0, efectivo:0, byConductora:{}};
+  // ─── ANNUAL DASHBOARD LOGIC ───────────────────────────────────────────────
+  // Stores one entry per uploaded month file. Key = slugified label (e.g. "febrero-2026")
+  // Each entry: { meta:{label,source,days,city,year,monthIndex}, originalRows:[], flows:[], pay:{} }
+  //
+  // The annual view AGGREGATES all loaded months (or a filtered subset) into a
+  // single FLOWS array that feeds the exact same buildDashboard() / charts.
+  // A new "month timeline" section above the KPIs shows per-month breakdown.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  let MONTH_DATASETS = {};      // key → dataset
+  let ACTIVE_YEAR_FILTER = '';  // '' = all years, '2026' etc.
+  let ACTIVE_MONTH_FILTER = null; // null = all months, or slug key for single month view
   let UNIFY_COMPANIES = false;
 
+  // Month ordering helpers
+  const MONTH_NAMES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const MONTH_ABBR = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+  function monthIndex(label){
+    const s=(label||'').toLowerCase();
+    return MONTH_NAMES_ES.findIndex(m=>s.includes(m.toLowerCase()));
+  }
+  function yearFromLabel(label){
+    return parseInt(((label||'').match(/20\d{2}/)||['2026'])[0],10);
+  }
+
   function unifiedCompanyName(v){
-    const name=normalizeName(v);
-    const clean=name.toLowerCase();
+    const name=normalizeName(v); const clean=name.toLowerCase();
     if(!clean) return name;
     if(clean.includes('clipp')) return 'Clipp';
     if(clean.includes('unitaxi')) return 'Unitaxi';
@@ -1175,11 +1183,11 @@ window.addEventListener('resize',()=>{Object.keys(drawn).forEach(k=>{drawn[k]=fa
     if(clean.includes('taxi jj')) return 'Taxi JJ';
     if(clean.includes('azutaxi')) return 'Azutaxi';
     if(clean.includes('v&m')) return 'V&M';
-    if(clean.includes('express taxilan') || clean.includes('expresstaxilan')) return 'Express Taxilan';
+    if(clean.includes('express taxilan')||clean.includes('expresstaxilan')) return 'Express Taxilan';
     if(clean.includes('taxmonteserin')) return 'TaxMonteserin';
     if(clean.includes('ecutaxi')) return 'Ecutaxi';
     if(clean.includes('31 de mayo')) return '31 de Mayo';
-    if(clean.includes('pradospeed') || clean.includes('prado speed')) return 'OK Prado Speed';
+    if(clean.includes('pradospeed')||clean.includes('prado speed')) return 'OK Prado Speed';
     if(clean.includes('cityejecutiv')) return 'Cityexecutiv';
     return name;
   }
@@ -1188,174 +1196,275 @@ window.addEventListener('resize',()=>{Object.keys(drawn).forEach(k=>{drawn[k]=fa
     return UNIFY_COMPANIES ? unifiedCompanyName(base) : base;
   }
 
-  function slugify(v){return String(v||'dataset').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||('dataset-'+Date.now());}
-  function sum(arr, fn){return arr.reduce((a,b)=>a+(fn?fn(b):b),0);}
+  function slugify(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||('m-'+Date.now());}
+  function sum(arr,fn){return arr.reduce((a,b)=>a+(fn?fn(b):b),0);}
   function money(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
   function money2(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
   function pct(a,b){return b?((a/b)*100):0;}
   function safeRate(ok,v){return v?ok/v:0;}
   function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function normalizeName(v){if(v===null||v===undefined) return ''; return String(v).replace(/\s+/g,' ').trim();}
   function monthFromFilename(name){
     const s=(name||'').toLowerCase();
     const map=[['enero','Enero'],['febrero','Febrero'],['marzo','Marzo'],['abril','Abril'],['mayo','Mayo'],['junio','Junio'],['julio','Julio'],['agosto','Agosto'],['septiembre','Septiembre'],['setiembre','Septiembre'],['octubre','Octubre'],['noviembre','Noviembre'],['diciembre','Diciembre']];
-    let month='';
-    for(const [k,v] of map){ if(s.includes(k)){ month=v; break; } }
+    let month=''; for(const [k,v] of map){if(s.includes(k)){month=v;break;}}
     const year=(s.match(/20\d{2}/)||[])[0]||'2026';
-    return month ? `${month} ${year}` : ((name||'').replace(/\.[^.]+$/,'') || `Periodo ${year}`);
+    return month?`${month} ${year}`:((name||'').replace(/\.[^.]+$/,'')||`Periodo ${year}`);
   }
   function daysFromLabel(label){
-    const s=(label||'').toLowerCase();
-    const year=parseInt((s.match(/20\d{2}/)||['2026'])[0],10);
+    const s=(label||'').toLowerCase(); const year=parseInt((s.match(/20\d{2}/)||['2026'])[0],10);
     const months={enero:31,febrero:((year%4===0&&year%100!==0)||year%400===0)?29:28,marzo:31,abril:30,mayo:31,junio:30,julio:31,agosto:31,septiembre:30,setiembre:30,octubre:31,noviembre:30,diciembre:31};
-    for(const k in months){ if(s.includes(k)) return months[k]; }
+    for(const k in months){if(s.includes(k)) return months[k];}
     return 30;
   }
-  function normalizeName(v){
-    if(v===null||v===undefined) return '';
-    return String(v).replace(/\s+/g,' ').trim();
-  }
-  
-function inferCompanyOrder(flows){
-    const set=new Set();
-    flows.forEach(f=>{if(f.src) set.add(f.src); if(f.tgt) set.add(f.tgt);});
-    const names=[...set];
-    return names.sort((a,b)=>{
-      const ta=sum(flows.filter(f=>f.src===a||f.tgt===a),f=>f.v);
-      const tb=sum(flows.filter(f=>f.src===b||f.tgt===b),f=>f.v);
-      return tb-ta || a.localeCompare(b);
-    });
-  }
+
   function aggregateFromRows(rows){
-    const agg = new Map();
-    const pay={digital:0,efectivo:0,byConductora:{}};
+    const agg=new Map(); const pay={digital:0,efectivo:0,byConductora:{}};
     const cleanRows=[];
     for(const row of rows){
-      const src=mappedCompanyName(row.application_cliente || row.generadora || row.src || row.origen || row.emisora);
-      const tgt=mappedCompanyName(row.empresa || row.conductora || row.application_clipper || row.tgt || row.destino || row.receptora);
-      const v=Number(row.total ?? row.viajes ?? row.v ?? 0) || 0;
-      if(!src || !tgt || !v) continue;
-      const ok=Number(row.succes ?? row.success ?? row.correctos ?? row.ok ?? 0) || 0;
-      const digital=Number(row.digital ?? 0) || 0;
-      const efectivo=Number(row.efectivo ?? row.cash ?? 0) || 0;
-      const ing = Number((row.ingreso ?? row.ing ?? (digital+efectivo)) || 0);
-      const err = Math.max(0, v-ok);
-      const key = src+'||'+tgt;
+      const src=mappedCompanyName(row.application_cliente||row.generadora||row.src||row.origen||row.emisora);
+      const tgt=mappedCompanyName(row.empresa||row.conductora||row.application_clipper||row.tgt||row.destino||row.receptora);
+      const v=Number(row.total??row.viajes??row.v??0)||0;
+      if(!src||!tgt||!v) continue;
+      const ok=Number(row.succes??row.success??row.correctos??row.ok??0)||0;
+      const digital=Number(row.digital??0)||0;
+      const efectivo=Number(row.efectivo??row.cash??0)||0;
+      const ing=Number((row.ingreso??row.ing??(digital+efectivo))||0);
+      const err=Math.max(0,v-ok);
+      const key=src+'||'+tgt;
       if(!agg.has(key)) agg.set(key,{src,tgt,v:0,ing:0,ok:0,err:0});
-      const rec=agg.get(key);
-      rec.v += v; rec.ing += ing; rec.ok += ok; rec.err += err;
-      pay.digital += digital; pay.efectivo += efectivo; pay.byConductora[tgt]=(pay.byConductora[tgt]||0)+digital;
+      const rec=agg.get(key); rec.v+=v; rec.ing+=ing; rec.ok+=ok; rec.err+=err;
+      pay.digital+=digital; pay.efectivo+=efectivo; pay.byConductora[tgt]=(pay.byConductora[tgt]||0)+digital;
       cleanRows.push({src,tgt,v,ok,err,ing,digital,efectivo,city:row.city||row.ciudad||''});
     }
     return {flows:[...agg.values()].sort((a,b)=>b.ing-a.ing), rawRows:cleanRows, pay};
   }
-  function getStats(flows){
-    const totalViajes=sum(flows,f=>f.v), totalIngreso=sum(flows,f=>f.ing), totalOk=sum(flows,f=>f.ok), totalErr=sum(flows,f=>f.err);
-    return {totalViajes,totalIngreso,totalOk,totalErr, tasaExito:safeRate(totalOk,totalViajes), tasaError:safeRate(totalErr,totalViajes), ticketProm: totalOk?totalIngreso/totalOk:0, companies: inferCompanyOrder(flows)};
-  }
-  function groupByRole(flows, role){
-    const map={};
-    flows.forEach(f=>{
-      const k=role==='src'?f.src:f.tgt;
-      if(!map[k]) map[k]={name:k,v:0,ing:0,ok:0,err:0};
-      map[k].v+=f.v; map[k].ing+=f.ing; map[k].ok+=f.ok; map[k].err+=f.err;
-    });
-    return Object.values(map).map(x=>({...x,rate:safeRate(x.ok,x.v)})).sort((a,b)=>b.v-a.v||b.ing-a.ing);
-  }
-  function matrixData(flows, companies){
-    const rows=companies.filter(c=>flows.some(f=>f.tgt===c));
-    const cols=companies.filter(c=>flows.some(f=>f.src===c));
-    return {rows, cols};
-  }
-  function compareStats(a,b){
-    if(!a||!b) return '';
-    const deltas=[
-      ['Ingreso', a.totalIngreso-b.totalIngreso, '$'],
-      ['Viajes', a.totalViajes-b.totalViajes, ''],
-      ['Éxito', (a.tasaExito-b.tasaExito)*100, 'pp'],
-      ['Ticket prom.', a.ticketProm-b.ticketProm, '$']
-    ];
-    return `<div class="card full"><div class="ctitle">Comparativo rápido</div><div class="csub">${esc(ACTIVE_META.label)} vs ${esc((DATASETS[CURRENT_COMPARE_KEY]||{}).meta?.label||'')}</div><div class="compare-grid">${deltas.map(([label,val,suf])=>{const cls=val>0?'delta-up':val<0?'delta-down':'delta-flat'; const sign=val>0?'+':''; const txt=suf==='pp'?`${sign}${val.toFixed(1)} pp`:suf==='$'?`${sign}${money2(val)}`:`${sign}${Math.round(val)}`; return `<div class="card"><div class="plabel">${label}</div><div style="font-size:24px" class="${cls}">${txt}</div></div>`;}).join('')}</div></div>`;
-  }
-  function buildUnifyToggle(){
-    return `<label class="unify-toggle ${UNIFY_COMPANIES?'active':''}" id="unify-toggle">
-      <input type="checkbox" id="unify-checkbox" ${UNIFY_COMPANIES?'checked':''}>
-      <span class="unify-switch"></span>
-      <span class="unify-copy">
-        <strong>Vista unificada</strong>
-        <span>${UNIFY_COMPANIES?'APP + BOT consolidados':'Mostrar nombres exactos del archivo'}</span>
-      </span>
-    </label>`;
+
+  function mergeFlows(flowArrays){
+    // Merge multiple flow arrays into one by summing matching src+tgt pairs
+    const agg=new Map();
+    for(const flows of flowArrays){
+      for(const f of flows){
+        const key=f.src+'||'+f.tgt;
+        if(!agg.has(key)) agg.set(key,{src:f.src,tgt:f.tgt,v:0,ing:0,ok:0,err:0});
+        const r=agg.get(key); r.v+=f.v; r.ing+=f.ing; r.ok+=f.ok; r.err+=f.err;
+      }
+    }
+    return [...agg.values()].sort((a,b)=>b.ing-a.ing);
   }
 
+  function mergePay(payArray){
+    const out={digital:0,efectivo:0,byConductora:{}};
+    for(const p of payArray){
+      out.digital+=(p.digital||0); out.efectivo+=(p.efectivo||0);
+      for(const [k,v] of Object.entries(p.byConductora||{})) out.byConductora[k]=(out.byConductora[k]||0)+v;
+    }
+    return out;
+  }
+
+  function getActiveDatasets(){
+    const all=Object.values(MONTH_DATASETS);
+    if(!all.length) return [];
+    // If filtering by a single month, return only that one
+    if(ACTIVE_MONTH_FILTER && MONTH_DATASETS[ACTIVE_MONTH_FILTER]) return [MONTH_DATASETS[ACTIVE_MONTH_FILTER]];
+    // If filtering by year
+    if(ACTIVE_YEAR_FILTER) return all.filter(d=>String(d.meta.year)===String(ACTIVE_YEAR_FILTER));
+    return all;
+  }
+
+  function getActiveFlowsAndPay(){
+    const datasets=getActiveDatasets();
+    if(!datasets.length) return {flows:[], pay:{digital:0,efectivo:0,byConductora:{}}};
+    // Re-aggregate from original rows respecting UNIFY_COMPANIES toggle
+    const allRows=datasets.flatMap(d=>d.originalRows||[]);
+    const result=aggregateFromRows(allRows);
+    return {flows:result.flows, pay:result.pay};
+  }
+
+  function getStats(flows){
+    const totalViajes=sum(flows,f=>f.v), totalIngreso=sum(flows,f=>f.ing), totalOk=sum(flows,f=>f.ok), totalErr=sum(flows,f=>f.err);
+    return {totalViajes,totalIngreso,totalOk,totalErr, tasaExito:safeRate(totalOk,totalViajes), tasaError:safeRate(totalErr,totalViajes), ticketProm:totalOk?totalIngreso/totalOk:0, companies:inferCompanyOrder(flows)};
+  }
+  function inferCompanyOrder(flows){
+    const set=new Set(); flows.forEach(f=>{if(f.src)set.add(f.src);if(f.tgt)set.add(f.tgt);}); const names=[...set];
+    return names.sort((a,b)=>{const ta=sum(flows.filter(f=>f.src===a||f.tgt===a),f=>f.v); const tb=sum(flows.filter(f=>f.src===b||f.tgt===b),f=>f.v); return tb-ta||a.localeCompare(b);});
+  }
+  function groupByRole(flows,role){
+    const map={}; flows.forEach(f=>{const k=role==='src'?f.src:f.tgt; if(!map[k])map[k]={name:k,v:0,ing:0,ok:0,err:0}; map[k].v+=f.v;map[k].ing+=f.ing;map[k].ok+=f.ok;map[k].err+=f.err;});
+    return Object.values(map).map(x=>({...x,rate:safeRate(x.ok,x.v)})).sort((a,b)=>b.v-a.v||b.ing-a.ing);
+  }
+
+  function getAvailableYears(){
+    return [...new Set(Object.values(MONTH_DATASETS).map(d=>d.meta.year))].sort();
+  }
+
+  // ─── MONTH TIMELINE BUILDER ───────────────────────────────────────────────
+  function buildMonthTimeline(){
+    const datasets=Object.values(MONTH_DATASETS);
+    if(!datasets.length) return '';
+
+    const years=getAvailableYears();
+    const yearLabel = ACTIVE_MONTH_FILTER
+      ? (MONTH_DATASETS[ACTIVE_MONTH_FILTER]?.meta.label||'')
+      : (ACTIVE_YEAR_FILTER ? `Año ${ACTIVE_YEAR_FILTER}` : (years.length===1?`Año ${years[0]}`:`${years[0]}–${years[years.length-1]}`));
+
+    // Find max ingreso for sparkline scaling
+    const maxIng = Math.max(...datasets.map(d=>sum(d.flows,f=>f.ing)),1);
+
+    // Build 12-month grid (Jan-Dec) for each year loaded
+    const allYears = ACTIVE_YEAR_FILTER ? [parseInt(ACTIVE_YEAR_FILTER)] : years;
+    let cards='';
+    const monthsForGrid = allYears.length===1 ? allYears.flatMap(y=>MONTH_NAMES_ES.map((_,mi)=>({y,mi}))) : [];
+
+    if(allYears.length===1){
+      const yr=allYears[0];
+      for(let mi=0;mi<12;mi++){
+        const ds=datasets.find(d=>d.meta.year===yr && d.meta.monthIndex===mi);
+        const abbr=MONTH_ABBR[mi];
+        const isActive = ACTIVE_MONTH_FILTER && ds && ACTIVE_MONTH_FILTER===ds.meta.key;
+        if(ds){
+          const st=getStats(ds.flows);
+          const barH=Math.round((sum(ds.flows,f=>f.ing)/maxIng)*24);
+          cards+=`<div class="month-card has-data${isActive?' active-filter':''}" onclick="toggleMonthFilter('${esc(ds.meta.key)}')" title="${esc(ds.meta.label)}">
+            <div class="month-name">${abbr}</div>
+            <div class="month-val">${money(st.totalIngreso)}</div>
+            <div class="month-sub">${Math.round(st.totalViajes)} v.</div>
+            <svg class="month-sparkline" viewBox="0 0 40 28" preserveAspectRatio="none" style="width:100%;display:block">
+              <rect x="5" y="${28-barH}" width="30" height="${barH}" rx="2" fill="${isActive?'var(--purple)':'var(--accent)'}" opacity="0.6"/>
+            </svg>
+          </div>`;
+        } else {
+          cards+=`<div class="month-card empty"><div class="month-name">${abbr}</div><div class="month-val">—</div><div class="month-sub">sin datos</div><svg class="month-sparkline" viewBox="0 0 40 28" style="width:100%;display:block"><rect x="5" y="24" width="30" height="2" rx="1" fill="rgba(0,0,0,.08)"/></svg></div>`;
+        }
+      }
+    } else {
+      // Multi-year: list loaded months as pills
+      datasets.sort((a,b)=>a.meta.year-b.meta.year||(a.meta.monthIndex-b.meta.monthIndex)).forEach(ds=>{
+        const st=getStats(ds.flows); const isActive=ACTIVE_MONTH_FILTER===ds.meta.key;
+        const barH=Math.round((sum(ds.flows,f=>f.ing)/maxIng)*24);
+        cards+=`<div class="month-card has-data${isActive?' active-filter':''}" onclick="toggleMonthFilter('${esc(ds.meta.key)}')" title="${esc(ds.meta.label)}">
+          <div class="month-name">${esc(ds.meta.label).substring(0,7)}</div>
+          <div class="month-val">${money(st.totalIngreso)}</div>
+          <div class="month-sub">${Math.round(st.totalViajes)} v.</div>
+          <svg class="month-sparkline" viewBox="0 0 40 28" preserveAspectRatio="none" style="width:100%;display:block">
+            <rect x="5" y="${28-barH}" width="30" height="${barH}" rx="2" fill="${isActive?'var(--purple)':'var(--accent)'}" opacity="0.6"/>
+          </svg>
+        </div>`;
+      });
+    }
+
+    // Annual summary totals (from ALL loaded months, not filtered)
+    const allFlows=mergeFlows(Object.values(MONTH_DATASETS).map(d=>d.flows));
+    const allStats=getStats(allFlows);
+    const totalDays=sum(Object.values(MONTH_DATASETS),d=>d.meta.days||0);
+    const loadedMonths=datasets.length;
+
+    return `
+    <div class="year-badge">📅 Dashboard Anual · ${esc(yearLabel)}</div>
+    <div class="card full" style="padding:14px 16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div class="ctitle" style="margin:0;">Timeline mensual — Haz clic para filtrar por mes</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          ${getAvailableYears().map(y=>`<button onclick="setYearFilter('${y}')" style="font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:2px;border:1px solid ${ACTIVE_YEAR_FILTER===String(y)?'var(--purple)':'var(--border)'};background:${ACTIVE_YEAR_FILTER===String(y)?'rgba(139,68,212,.1)':'var(--surface)'};color:${ACTIVE_YEAR_FILTER===String(y)?'var(--purple)':'var(--muted)'};cursor:pointer;">${y}</button>`).join('')}
+          <button onclick="setYearFilter('')" style="font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:2px;border:1px solid ${!ACTIVE_YEAR_FILTER?'var(--accent)':'var(--border)'};background:${!ACTIVE_YEAR_FILTER?'rgba(0,184,156,.08)':'var(--surface)'};color:${!ACTIVE_YEAR_FILTER?'var(--accent)':'var(--muted)'};cursor:pointer;">Todos</button>
+          ${ACTIVE_MONTH_FILTER?`<button onclick="toggleMonthFilter(null)" style="font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:2px;border:1px solid rgba(139,68,212,.4);background:rgba(139,68,212,.1);color:var(--purple);cursor:pointer;">✕ Quitar filtro mes</button>`:''}
+        </div>
+      </div>
+      <div class="month-timeline" style="grid-template-columns:repeat(${Math.min(12,Math.max(allYears.length===1?12:loadedMonths,1))},1fr);">${cards}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;">
+        <div class="ascard"><div class="ascard-val" style="color:var(--accent)">${money(allStats.totalIngreso)}</div><div class="ascard-label">Ingreso total acumulado</div></div>
+        <div class="ascard"><div class="ascard-val" style="color:var(--blue)">${Math.round(allStats.totalViajes).toLocaleString('en-US')}</div><div class="ascard-label">Viajes totales</div></div>
+        <div class="ascard"><div class="ascard-val" style="color:var(--accent2)">${(allStats.tasaExito*100).toFixed(1)}%</div><div class="ascard-label">Tasa de éxito promedio</div></div>
+        <div class="ascard"><div class="ascard-val" style="color:var(--purple)">${loadedMonths}</div><div class="ascard-label">Meses cargados · ${totalDays} días</div></div>
+      </div>
+    </div>
+    ${buildMonthlyBarChart()}
+    `;
+  }
+
+  function buildMonthlyBarChart(){
+    const datasets=Object.values(MONTH_DATASETS).sort((a,b)=>a.meta.year-b.meta.year||(a.meta.monthIndex-b.meta.monthIndex));
+    if(datasets.length<2) return '';
+    const maxIng=Math.max(...datasets.map(d=>sum(d.flows,f=>f.ing)),1);
+    const rows=datasets.map(d=>{
+      const ing=sum(d.flows,f=>f.ing); const viajes=sum(d.flows,f=>f.v); const ok=sum(d.flows,f=>f.ok);
+      const w=((ing/maxIng)*100).toFixed(1);
+      const isActive=ACTIVE_MONTH_FILTER===d.meta.key;
+      return `<div class="bar-row">
+        <div class="bar-row-label">${esc(d.meta.label).substring(0,10)}</div>
+        <div class="bar-row-track"><div class="bar-row-fill" style="width:${w}%;background:${isActive?'var(--purple)':'var(--accent)'};">${money(ing)}</div></div>
+        <div class="bar-row-val">${Math.round(viajes)} v · ${(safeRate(ok,viajes)*100).toFixed(0)}%</div>
+      </div>`;
+    }).join('');
+    return `<div class="card full" style="margin-bottom:14px;"><div class="ctitle">Ingresos por mes</div><div class="csub">Comparativo de todos los meses cargados</div><div class="bar-chart-h">${rows}</div></div>`;
+  }
+
+  // ─── MAIN DASHBOARD BUILDER ───────────────────────────────────────────────
   function buildDashboard(meta, flows, pay){
     const stats=getStats(flows); COMPANIES=stats.companies; FLOWS=flows;
     const gen=groupByRole(flows,'src'); const cond=groupByRole(flows,'tgt');
-    const {rows, cols}=matrixData(flows, stats.companies);
+    const rows_m=stats.companies.filter(c=>flows.some(f=>f.tgt===c));
+    const cols_m=stats.companies.filter(c=>flows.some(f=>f.src===c));
     const alertItem=cond.filter(x=>x.v>=5).sort((a,b)=>safeRate(a.ok,a.v)-safeRate(b.ok,b.v))[0];
     const topPairs=[...flows].sort((a,b)=>b.ing-a.ing).slice(0,8);
-    const days=meta.days || daysFromLabel(meta.label);
-    const projIngreso = days ? (stats.totalIngreso/days)*30 : stats.totalIngreso;
-    const projExtra = days ? ((stats.totalIngreso*Math.max(0,0.85-stats.tasaExito))/Math.max(stats.tasaExito,0.0001)) : 0;
-    const digital = pay.digital||0, efectivo=pay.efectivo||0, totalCobro=digital+efectivo || stats.totalIngreso;
-    const digitalByCond = Object.entries(pay.byConductora||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const clipp4 = stats.totalIngreso*0.04;
-    const companyCount = stats.companies.length;
-    const monthRange = meta.label || 'Periodo cargado';
-    const compareHtml = CURRENT_COMPARE_KEY && DATASETS[CURRENT_COMPARE_KEY] ? compareStats(stats, getStats(aggregateFromRows(DATASETS[CURRENT_COMPARE_KEY].originalRows||DATASETS[CURRENT_COMPARE_KEY].rawRows||[]).flows)) : '';
+    const activeDSets=getActiveDatasets();
+    const days=sum(activeDSets,d=>d.meta.days||daysFromLabel(d.meta.label));
+    const projIngreso=days?(stats.totalIngreso/days)*365:stats.totalIngreso;
+    const digital=pay.digital||0, efectivo=pay.efectivo||0, totalCobro=digital+efectivo||stats.totalIngreso;
+    const digitalByCond=Object.entries(pay.byConductora||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const clipp4=stats.totalIngreso*0.04;
+    const companyCount=stats.companies.length;
+    const filterLabel=ACTIVE_MONTH_FILTER?(MONTH_DATASETS[ACTIVE_MONTH_FILTER]?.meta.label||'mes seleccionado'):(ACTIVE_YEAR_FILTER?`Año ${ACTIVE_YEAR_FILTER}`:`Todo el año`);
+    const monthsLoaded=Object.keys(MONTH_DATASETS).length;
 
-    function colorClass(rate,v,ing){
-      if(v===0) return 'me';
-      if(rate<0.4 || ing===0) return 'mer';
-      if(v>=80 || ing>=180) return 'mhi';
-      if(v>=30 || ing>=70) return 'mmd';
-      return 'mlo';
-    }
-    function roleCard(items,title,sub){
-      return `<div class="card"><div class="ctitle">${title}</div><div class="csub">${sub}</div><div class="blist">${items.map(x=>`<div><div class="bmeta"><span class="blabel">${esc(x.name)}</span><span class="bvals">${x.v} · ${money(x.ing)} · <span class="chip ${x.rate>=0.7?'cok':x.rate>=0.55?'cwa':'cer'}">${(x.rate*100).toFixed(1)}%</span></span></div><div class="dbar"><div class="dok" style="width:${(x.rate*100).toFixed(1)}%"></div><div class="derr" style="width:${(100-x.rate*100).toFixed(1)}%"></div></div><div style="display:flex;gap:12px;margin-top:3px;"><span style="font-family:var(--mono);font-size:9px;color:var(--accent);">✓ ${Math.round(x.ok)}</span><span style="font-family:var(--mono);font-size:9px;color:var(--accent3);">✗ ${Math.round(x.err)}</span></div></div>`).join('')}</div></div>`;
-    }
-    const matrixHead = cols.map(c=>`<th class="ch">${esc(c)}</th>`).join('');
-    const matrixBody = rows.map(r=>{
+    function colorClass(rate,v,ing){if(v===0)return 'me'; if(rate<0.4||ing===0)return 'mer'; if(v>=80||ing>=180)return 'mhi'; if(v>=30||ing>=70)return 'mmd'; return 'mlo';}
+    function roleCard(items,title,sub){return `<div class="card"><div class="ctitle">${title}</div><div class="csub">${sub}</div><div class="blist">${items.map(x=>`<div><div class="bmeta"><span class="blabel">${esc(x.name)}</span><span class="bvals">${Math.round(x.v)} · ${money(x.ing)} · <span class="chip ${x.rate>=0.7?'cok':x.rate>=0.55?'cwa':'cer'}">${(x.rate*100).toFixed(1)}%</span></span></div><div class="dbar"><div class="dok" style="width:${(x.rate*100).toFixed(1)}%"></div><div class="derr" style="width:${(100-x.rate*100).toFixed(1)}%"></div></div><div style="display:flex;gap:12px;margin-top:3px;"><span style="font-family:var(--mono);font-size:9px;color:var(--accent);">✓ ${Math.round(x.ok)}</span><span style="font-family:var(--mono);font-size:9px;color:var(--accent3);">✗ ${Math.round(x.err)}</span></div></div>`).join('')}</div></div>`;}
+    const matrixHead=cols_m.map(c=>`<th class="ch">${esc(c)}</th>`).join('');
+    const matrixBody=rows_m.map(r=>{
       const rowTotals=flows.filter(f=>f.tgt===r).reduce((a,f)=>{a.v+=f.v;a.ing+=f.ing;return a;},{v:0,ing:0});
-      const cells = cols.map(c=>{
-        const f=flows.find(x=>x.src===c&&x.tgt===r);
-        if(!f) return `<td class="mc me">—</td>`;
-        return `<td class="mc ${colorClass(safeRate(f.ok,f.v),f.v,f.ing)}">${Math.round(f.v)} / ${money(f.ing)}</td>`;
-      }).join('');
+      const cells=cols_m.map(c=>{const f=flows.find(x=>x.src===c&&x.tgt===r); if(!f) return `<td class="mc me">—</td>`; return `<td class="mc ${colorClass(safeRate(f.ok,f.v),f.v,f.ing)}">${Math.round(f.v)} / ${money(f.ing)}</td>`;}).join('');
       return `<tr><td class="rl">${esc(r)}</td>${cells}<td class="mc" style="border-left:2px solid rgba(0,184,156,.4);color:var(--accent);font-weight:700">${Math.round(rowTotals.v)} / ${money(rowTotals.ing)}</td></tr>`;
     }).join('');
-    const totalRow = `<tr style="border-top:2px solid rgba(0,229,195,.3);"><td class="rl" style="color:var(--accent);font-weight:700">TOTAL</td>${cols.map(c=>{const t=flows.filter(f=>f.src===c).reduce((a,f)=>{a.v+=f.v;a.ing+=f.ing;return a;},{v:0,ing:0});return `<td class="mc" style="color:var(--accent);font-weight:700;background:rgba(0,184,156,.07)">${Math.round(t.v)} / ${money(t.ing)}</td>`;}).join('')}<td class="mc" style="border-left:2px solid rgba(0,184,156,.4);color:var(--accent);font-weight:700;background:rgba(0,184,156,.12);font-size:11px">${Math.round(stats.totalViajes)} / ${money(stats.totalIngreso)}</td></tr>`;
+    const totalRow=`<tr style="border-top:2px solid rgba(0,229,195,.3);"><td class="rl" style="color:var(--accent);font-weight:700">TOTAL</td>${cols_m.map(c=>{const t=flows.filter(f=>f.src===c).reduce((a,f)=>{a.v+=f.v;a.ing+=f.ing;return a;},{v:0,ing:0}); return `<td class="mc" style="color:var(--accent);font-weight:700;background:rgba(0,184,156,.07)">${Math.round(t.v)} / ${money(t.ing)}</td>`;}).join('')}<td class="mc" style="border-left:2px solid rgba(0,184,156,.4);color:var(--accent);font-weight:700;background:rgba(0,184,156,.12);font-size:11px">${Math.round(stats.totalViajes)} / ${money(stats.totalIngreso)}</td></tr>`;
 
     return `
+      <!-- IMPORT CARD -->
       <div class="import-card">
         <div>
-          <div class="tag">Clipp B2B · Proyecto Roaming · Quito</div>
-          <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Cargar meses en XLSX sin perder el dashboard</div>
-          <div class="import-note">Mantiene Dashboard, Sankey, Chord, Heatmap, Treemap, Mariposa, Scatter y Waterfall. El XLSX puede venir con columnas como el archivo adjunto: <b>empresa, application_clipper, application_cliente, city, total, succes, digital, efectivo</b>. En este formato, <b>application_cliente = generadora</b> y <b>empresa = conductora</b>.</div>
+          <div class="tag">Clipp B2B · Proyecto Roaming · Dashboard Anual</div>
+          <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Carga los XLSX mensuales para construir el año</div>
+          <div class="import-note">Sube uno o varios archivos XLSX (uno por mes). El sistema los agrega automáticamente por año. Puedes filtrar por mes desde la timeline. Columnas esperadas: <b>empresa, application_clipper, application_cliente, city, total, succes, digital, efectivo</b>. <b>application_cliente = generadora · empresa = conductora</b>.</div>
           <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-            <span class="import-pill">Periodo activo: ${esc(meta.label||'')}</span>
-            <span class="import-pill">Origen: ${esc(meta.source||'archivo')}</span>
+            <span class="import-pill">${monthsLoaded} mes${monthsLoaded!==1?'es':''} cargado${monthsLoaded!==1?'s':''}</span>
+            <span class="import-pill">Vista: ${esc(filterLabel)}</span>
             <span class="import-pill">Empresas: ${companyCount}</span>
           </div>
         </div>
         <div class="import-actions">
-          <label class="import-btn" for="xlsx-loader">Subir XLSX</label>
+          <label class="import-btn" for="xlsx-loader">+ Agregar XLSX</label>
           <input class="import-input" id="xlsx-loader" type="file" accept=".xlsx,.xls" multiple>
-          <select class="mini-select" id="dataset-selector"></select>
-          <select class="mini-select" id="compare-selector"></select>
-          <button class="ghost-btn" id="reset-default-btn" type="button">Limpiar datos</button>${buildUnifyToggle()}
+          <button class="ghost-btn" id="reset-default-btn" type="button">Limpiar todo</button>
+          ${buildUnifyToggle()}
         </div>
       </div>
+
+      <!-- TIMELINE -->
+      ${buildMonthTimeline()}
+
+      <!-- HEADER -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div class="tag">Clipp B2B · Proyecto Roaming · ${esc(meta.city||'Quito')}</div>
-          <h1 style="font-size:clamp(22px,3vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1.05;">Dashboard <span style="color:var(--accent)">${esc(meta.label||'Roaming')}</span></h1>
-          <p style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px;">// Archivo cargado en navegador · formato XLSX agregado por empresa generadora y conductora</p>
+          <div class="tag">Clipp B2B · Proyecto Roaming · Anual</div>
+          <h1 style="font-size:clamp(22px,3vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1.05;">Dashboard <span style="color:var(--accent)">${esc(filterLabel)}</span></h1>
+          <p style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px;">// Agregado de ${monthsLoaded} mes${monthsLoaded!==1?'es':''}${days?' · '+days+' días en total':''} · datos cargados desde archivos XLSX mensuales</p>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--border);padding:4px 12px;border-radius:2px;background:var(--surface);">${esc(monthRange)}</div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;">⬤ ${days} días estimados del periodo</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--border);padding:4px 12px;border-radius:2px;background:var(--surface);">${esc(filterLabel)}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--purple);letter-spacing:.1em;text-transform:uppercase;">⬤ ${monthsLoaded} mes${monthsLoaded!==1?'es':''} · ${days} días totales</div>
         </div>
       </div>
+
+      <!-- FLUJO -->
       <div class="flow">
         <div class="fstep"><div class="ficon fi-b">📱</div><div><div class="flabel">App Cliente (Emisora)</div><div class="fname">Genera el pedido</div></div></div>
         <div class="farr">→</div>
@@ -1363,6 +1472,8 @@ function inferCompanyOrder(flows){
         <div class="farr">→</div>
         <div class="fstep"><div class="ficon fi-g">🚖</div><div><div class="flabel">App Conductora (Receptora)</div><div class="fname">Ejecuta el viaje</div></div></div>
       </div>
+
+      <!-- KPIs -->
       <div class="kgrid">
         <div class="kpi cg"><div class="klabel">Ingreso Total</div><div class="kval">${money(stats.totalIngreso)}</div><div class="ksub">Efectivo + Digital</div></div>
         <div class="kpi cb"><div class="klabel">Viajes Totales</div><div class="kval">${Math.round(stats.totalViajes).toLocaleString('en-US')}</div><div class="ksub">${companyCount} empresas</div></div>
@@ -1370,138 +1481,196 @@ function inferCompanyOrder(flows){
         <div class="kpi cp"><div class="klabel">Ticket Promedio</div><div class="kval">${money2(stats.ticketProm)}</div><div class="ksub">Por viaje exitoso</div></div>
         <div class="kpi cr"><div class="klabel">Tasa de Error</div><div class="kval">${(stats.tasaError*100).toFixed(1)}%</div><div class="ksub">${Math.round(stats.totalErr)} viajes fallidos</div></div>
       </div>
-      ${alertItem?`<div class="alert"><div class="aicon">⚠</div><div><div class="atitle">${esc(alertItem.name)} — ${(alertItem.rate*100).toFixed(1)}% tasa de éxito · ${Math.round(alertItem.err)}/${Math.round(alertItem.v)} viajes erróneos</div><div class="abody">Es la conductora con peor desempeño del periodo cargado. Conviene revisar integración, tiempos de respuesta y asignación de taxis antes de seguir escalando roaming.</div></div></div>`:''}
-      ${compareHtml}
+      ${alertItem?`<div class="alert"><div class="aicon">⚠</div><div><div class="atitle">${esc(alertItem.name)} — ${(alertItem.rate*100).toFixed(1)}% tasa de éxito · ${Math.round(alertItem.err)}/${Math.round(alertItem.v)} viajes erróneos</div><div class="abody">Es la conductora con peor desempeño en el periodo seleccionado.</div></div></div>`:''}
+
+      <!-- ROL POR EMPRESA -->
       <div class="stitle">Rendimiento por rol — Conductora vs Generadora</div>
       <div class="two">${roleCard(gen,'Como Generadora — Envía viajes a otras conductoras','App del pasajero genera el pedido, se enruta a otra empresa')}${roleCard(cond,'Como Conductora — Recibe y ejecuta viajes','Empresa que tiene los taxis y atiende la solicitud de roaming')}</div>
+
+      <!-- MATRIZ -->
       <div class="stitle">Matriz empresa × empresa — Flujo inter-compañía</div>
       <div class="card full"><div class="ctitle">Empresa Generadora → Empresa Conductora · Viajes / Ingreso</div><div class="csub">Verde = alto volumen · Amarillo = medio · Gris = bajo · Rojo = errores / sin ingreso</div><div class="mwrap"><table class="mx"><thead><tr><th style="min-width:110px;text-align:left">Conductora ↓ / Generadora →</th>${matrixHead}<th class="ch" style="border-left:2px solid rgba(0,184,156,.4);color:var(--accent)">TOTAL</th></tr></thead><tbody>${matrixBody}${totalRow}</tbody></table></div></div>
-      <div class="stitle">Cobro, top pares y proyección</div>
+
+      <!-- COBRO + TOP PARES + PROYECCION -->
+      <div class="stitle">Cobro, top pares y proyección anual</div>
       <div class="three">
-        <div class="card"><div class="ctitle">Método de Cobro</div><div class="csub">Distribución leída directamente desde el archivo</div><div class="dwrap" style="margin-bottom:14px;"><svg width="80" height="80" viewBox="0 0 88 88"><circle cx="44" cy="44" r="30" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="13"></circle><circle cx="44" cy="44" r="30" fill="none" stroke="var(--accent2)" stroke-width="13" stroke-dasharray="${188.5*(digital/(totalCobro||1))} 188.5" stroke-dashoffset="0" transform="rotate(185 44 44)"></circle><circle cx="44" cy="44" r="30" fill="none" stroke="var(--accent)" stroke-width="13" stroke-dasharray="${188.5*(efectivo/(totalCobro||1))} 188.5" stroke-dashoffset="0" transform="rotate(-90 44 44)"></circle><text x="44" y="41" text-anchor="middle" fill="var(--accent)" font-family="DM Mono" font-size="9" font-weight="600">${((efectivo/(totalCobro||1))*100).toFixed(1)}%</text><text x="44" y="51" text-anchor="middle" fill="var(--muted)" font-family="DM Mono" font-size="7">efectivo</text></svg><div class="dleg"><div class="ditem"><div class="ddot" style="background:var(--accent)"></div><span>Efectivo</span><span class="dval">${money(efectivo)}</span></div><div class="ditem"><div class="ddot" style="background:var(--accent2)"></div><span>Digital</span><span class="dval">${money(digital)}</span></div><div style="border-top:1px solid var(--border);padding-top:6px;margin-top:2px;"><div class="ditem"><div class="ddot" style="background:transparent"></div><span style="font-weight:700">Total</span><span class="dval" style="color:var(--text)">${money(totalCobro)}</span></div></div></div></div><div class="sep"></div><div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em">Digital por conductora</div><div class="blist">${digitalByCond.length?digitalByCond.map(([n,v])=>`<div><div class="bmeta"><span class="blabel">${esc(n)}</span><span class="bvals">${money(v)} · ${((v/(digital||1))*100).toFixed(1)}%</span></div><div class="btrack"><div class="bfill" style="width:${((v/(digital||1))*100).toFixed(1)}%;background:var(--accent)"></div></div></div>`).join(''):'<div class="note">El archivo no trae monto digital.</div>'}</div></div>
-        <div class="card"><div class="ctitle">Top Pares Inter-Empresa</div><div class="csub">Generadora → Conductora · Por ingreso</div><table class="tbl"><thead><tr><th>Gen.</th><th>Cond.</th><th class="r">Viajes</th><th class="r">$</th><th class="r">Éxito</th></tr></thead><tbody>${topPairs.map(f=>`<tr><td>${esc(f.src)}</td><td>${esc(f.tgt)}</td><td class="r">${Math.round(f.v)}</td><td class="r" style="color:var(--accent)">${money(f.ing)}</td><td class="r"><span class="chip ${safeRate(f.ok,f.v)>=0.7?'cok':safeRate(f.ok,f.v)>=0.55?'cwa':'cer'}">${(safeRate(f.ok,f.v)*100).toFixed(0)}%</span></td></tr>`).join('')}</tbody></table></div>
-        <div class="card"><div class="ctitle">Proyección Mensual</div><div class="csub">Extrapolado a 30 días desde el periodo cargado</div><div style="margin-bottom:14px;"><div class="plabel">Ingreso mensual estimado</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em;color:var(--accent);line-height:1">~${money(projIngreso)}</div></div><div style="display:flex;flex-direction:column;gap:9px;"><div><div class="plabel">Ritmo diario</div><div style="font-size:14px;font-weight:800;color:var(--text)">${(stats.totalViajes/days).toFixed(1)} viajes · ${(stats.totalOk/days).toFixed(1)} exitosos</div></div><div class="sep"></div><div><div class="plabel">Clipp 4%</div><div style="font-size:14px;font-weight:800;color:var(--accent2)">${money2(clipp4)} en el periodo</div></div><div class="sep"></div><div><div class="plabel">Potencial si sube a 85% éxito</div><div style="font-size:14px;font-weight:800;color:var(--accent2)">~${money2(projExtra)} recuperables</div></div></div></div>
+        <div class="card"><div class="ctitle">Método de Cobro</div><div class="csub">Distribución leída desde los archivos cargados</div>
+          <div class="dwrap" style="margin-bottom:14px;">
+            <svg width="80" height="80" viewBox="0 0 88 88"><circle cx="44" cy="44" r="30" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="13"></circle><circle cx="44" cy="44" r="30" fill="none" stroke="var(--accent2)" stroke-width="13" stroke-dasharray="${188.5*(digital/(totalCobro||1))} 188.5" stroke-dashoffset="0" transform="rotate(185 44 44)"></circle><circle cx="44" cy="44" r="30" fill="none" stroke="var(--accent)" stroke-width="13" stroke-dasharray="${188.5*(efectivo/(totalCobro||1))} 188.5" stroke-dashoffset="0" transform="rotate(-90 44 44)"></circle><text x="44" y="41" text-anchor="middle" fill="var(--accent)" font-family="DM Mono" font-size="9" font-weight="600">${((efectivo/(totalCobro||1))*100).toFixed(1)}%</text><text x="44" y="51" text-anchor="middle" fill="var(--muted)" font-family="DM Mono" font-size="7">efectivo</text></svg>
+            <div class="dleg"><div class="ditem"><div class="ddot" style="background:var(--accent)"></div><span>Efectivo</span><span class="dval">${money(efectivo)}</span></div><div class="ditem"><div class="ddot" style="background:var(--accent2)"></div><span>Digital</span><span class="dval">${money(digital)}</span></div><div style="border-top:1px solid var(--border);padding-top:6px;margin-top:2px;"><div class="ditem"><div class="ddot" style="background:transparent"></div><span style="font-weight:700">Total</span><span class="dval" style="color:var(--text)">${money(totalCobro)}</span></div></div></div>
+          </div>
+          <div class="sep"></div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em">Digital por conductora</div>
+          <div class="blist">${digitalByCond.length?digitalByCond.map(([n,v])=>`<div><div class="bmeta"><span class="blabel">${esc(n)}</span><span class="bvals">${money(v)} · ${((v/(digital||1))*100).toFixed(1)}%</span></div><div class="btrack"><div class="bfill" style="width:${((v/(digital||1))*100).toFixed(1)}%;background:var(--accent)"></div></div></div>`).join(''):'<div class="note">El archivo no trae monto digital.</div>'}</div>
+        </div>
+        <div class="card"><div class="ctitle">Top Pares Inter-Empresa</div><div class="csub">Generadora → Conductora · Por ingreso acumulado</div>
+          <table class="tbl"><thead><tr><th>Gen.</th><th>Cond.</th><th class="r">Viajes</th><th class="r">$</th><th class="r">Éxito</th></tr></thead><tbody>${topPairs.map(f=>`<tr><td>${esc(f.src)}</td><td>${esc(f.tgt)}</td><td class="r">${Math.round(f.v)}</td><td class="r" style="color:var(--accent)">${money(f.ing)}</td><td class="r"><span class="chip ${safeRate(f.ok,f.v)>=0.7?'cok':safeRate(f.ok,f.v)>=0.55?'cwa':'cer'}">${(safeRate(f.ok,f.v)*100).toFixed(0)}%</span></td></tr>`).join('')}</tbody></table>
+        </div>
+        <div class="card"><div class="ctitle">Proyección Anual</div><div class="csub">Extrapolado a 12 meses desde el ritmo actual</div>
+          <div style="margin-bottom:14px;"><div class="plabel">Ingreso anual estimado</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em;color:var(--accent);line-height:1">~${money(projIngreso)}</div></div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div><div class="plabel">Promedio mensual actual</div><div style="font-size:14px;font-weight:800;color:var(--text)">${money(monthsLoaded?stats.totalIngreso/monthsLoaded:0)}/mes</div></div>
+            <div class="sep"></div>
+            <div><div class="plabel">Clipp 4% acumulado</div><div style="font-size:14px;font-weight:800;color:var(--accent2)">${money2(clipp4)} en el periodo</div></div>
+            <div class="sep"></div>
+            <div><div class="plabel">Clipp 4% proyectado/año</div><div style="font-size:14px;font-weight:800;color:var(--accent)">~${money2(projIngreso*0.04)}</div></div>
+          </div>
+        </div>
       </div>
+
+      <!-- COMISIONES -->
       <div class="stitle">Distribución de comisiones — Modelo 4% / 4% / 2%</div>
-      <div class="card full"><div class="ctitle">Reparto del 10% por viaje: Clipp B2B 4% · Empresa generadora 4% · Empresa conductora 2%</div><div class="csub">Base de cálculo: ingreso real del periodo cargado. Cada rol acumula su porción según los flujos actuales.</div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;"><div style="display:flex;align-items:center;gap:6px;background:rgba(0,184,156,.08);border:1px solid rgba(0,184,156,.25);border-radius:4px;padding:6px 12px;"><div style="width:10px;height:10px;border-radius:2px;background:var(--accent);"></div><span style="font-family:var(--mono);font-size:9px;color:var(--accent);font-weight:600;">4% Clipp B2B</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted);">${money2(clipp4)}</span></div><div style="display:flex;align-items:center;gap:6px;background:rgba(77,159,255,.08);border:1px solid rgba(77,159,255,.25);border-radius:4px;padding:6px 12px;"><div style="width:10px;height:10px;border-radius:2px;background:#4d9fff;"></div><span style="font-family:var(--mono);font-size:9px;color:#4d9fff;font-weight:600;">4% generadora</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted);">${money2(clipp4)}</span></div><div style="display:flex;align-items:center;gap:6px;background:rgba(247,166,0,.08);border:1px solid rgba(247,166,0,.25);border-radius:4px;padding:6px 12px;"><div style="width:10px;height:10px;border-radius:2px;background:#f7a600;"></div><span style="font-family:var(--mono);font-size:9px;color:#f7a600;font-weight:600;">2% conductora</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted);">${money2(stats.totalIngreso*0.02)}</span></div></div><div class="mwrap"><table style="width:100%;border-collapse:collapse;font-family:var(--mono);"><thead><tr style="border-bottom:2px solid var(--border);"><th style="text-align:left;padding:8px 10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:130px;">Empresa</th><th colspan="2" style="text-align:center;padding:8px 6px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#4d9fff;border-left:1px solid rgba(77,159,255,.2);background:rgba(77,159,255,.04);">ROL GENERADORA · 4%</th><th colspan="2" style="text-align:center;padding:8px 6px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#f7a600;border-left:1px solid rgba(247,166,0,.2);background:rgba(247,166,0,.04);">ROL CONDUCTORA · 2%</th><th colspan="2" style="text-align:center;padding:8px 6px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-left:1px solid rgba(0,184,156,.3);background:rgba(0,184,156,.06);">TOTAL EMPRESA</th></tr><tr style="border-bottom:1px solid var(--border);"><th style="padding:4px 10px;"></th><th style="text-align:right;padding:4px 6px;font-size:8px;color:var(--muted);font-weight:400;border-left:1px solid rgba(77,159,255,.2);background:rgba(77,159,255,.02);">Ing. originado</th><th style="text-align:right;padding:4px 6px;font-size:9px;color:#4d9fff;font-weight:700;background:rgba(77,159,255,.04);">Comisión 4%</th><th style="text-align:right;padding:4px 6px;font-size:8px;color:var(--muted);font-weight:400;border-left:1px solid rgba(247,166,0,.2);background:rgba(247,166,0,.02);">Ing. ejecutado</th><th style="text-align:right;padding:4px 6px;font-size:9px;color:#f7a600;font-weight:700;background:rgba(247,166,0,.04);">Comisión 2%</th><th style="text-align:right;padding:4px 6px;font-size:9px;color:var(--accent);font-weight:700;border-left:1px solid rgba(0,184,156,.3);background:rgba(0,184,156,.04);">Periodo</th><th style="text-align:right;padding:4px 6px;font-size:9px;color:var(--accent);font-weight:700;background:rgba(0,184,156,.06);">Proy./mes</th></tr></thead><tbody>${stats.companies.map(name=>{const ingSrc=sum(flows.filter(f=>f.src===name),f=>f.ing), ingTgt=sum(flows.filter(f=>f.tgt===name),f=>f.ing), gen4=ingSrc*0.04, cond2=ingTgt*0.02, total=gen4+cond2; return `<tr style="border-bottom:1px solid rgba(0,0,0,.04);"><td style="padding:9px 10px;font-weight:800;font-size:11px;color:${COL[name]||'#00e5c3'};font-family:var(--sans);">${esc(name)}</td><td style="text-align:right;padding:9px 6px;font-size:10px;color:var(--muted);border-left:1px solid rgba(77,159,255,.1);background:rgba(77,159,255,.02);">${money2(ingSrc)}</td><td style="text-align:right;padding:9px 10px;font-size:12px;font-weight:800;color:#4d9fff;background:rgba(77,159,255,.04);">${money2(gen4)}</td><td style="text-align:right;padding:9px 6px;font-size:10px;color:var(--muted);border-left:1px solid rgba(247,166,0,.1);background:rgba(247,166,0,.02);">${money2(ingTgt)}</td><td style="text-align:right;padding:9px 10px;font-size:12px;font-weight:800;color:#f7a600;background:rgba(247,166,0,.04);">${money2(cond2)}</td><td style="text-align:right;padding:9px 10px;font-size:14px;font-weight:800;color:var(--accent);border-left:1px solid rgba(0,184,156,.25);background:rgba(0,184,156,.04);">${money2(total)}</td><td style="text-align:right;padding:9px 10px;font-size:11px;font-weight:700;color:var(--muted);background:rgba(0,184,156,.06);">${money2(days?(total/days)*30:total)}</td></tr>`;}).join('')}</tbody></table></div></div>
+      <div class="card full">
+        <div class="ctitle">Reparto del 10% por viaje: Clipp B2B 4% · Empresa generadora 4% · Empresa conductora 2%</div>
+        <div class="csub">Base: ingreso real acumulado del periodo seleccionado. Cada rol acumula su porción según flujos.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:6px;background:rgba(0,184,156,.08);border:1px solid rgba(0,184,156,.25);border-radius:4px;padding:6px 12px;"><div style="width:10px;height:10px;border-radius:2px;background:var(--accent);"></div><span style="font-family:var(--mono);font-size:9px;color:var(--accent);font-weight:600;">4% Clipp B2B</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted);">${money2(clipp4)}</span></div>
+          <div style="display:flex;align-items:center;gap:6px;background:rgba(77,159,255,.08);border:1px solid rgba(77,159,255,.25);border-radius:4px;padding:6px 12px;"><div style="width:10px;height:10px;border-radius:2px;background:#4d9fff;"></div><span style="font-family:var(--mono);font-size:9px;color:#4d9fff;font-weight:600;">4% generadora</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted);">${money2(clipp4)}</span></div>
+          <div style="display:flex;align-items:center;gap:6px;background:rgba(247,166,0,.08);border:1px solid rgba(247,166,0,.25);border-radius:4px;padding:6px 12px;"><div style="width:10px;height:10px;border-radius:2px;background:#f7a600;"></div><span style="font-family:var(--mono);font-size:9px;color:#f7a600;font-weight:600;">2% conductora</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted);">${money2(stats.totalIngreso*0.02)}</span></div>
+        </div>
+        <div class="mwrap"><table style="width:100%;border-collapse:collapse;font-family:var(--mono);">
+          <thead><tr style="border-bottom:2px solid var(--border);">
+            <th style="text-align:left;padding:8px 10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:130px;">Empresa</th>
+            <th colspan="2" style="text-align:center;padding:8px 6px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#4d9fff;border-left:1px solid rgba(77,159,255,.2);background:rgba(77,159,255,.04);">ROL GENERADORA · 4%</th>
+            <th colspan="2" style="text-align:center;padding:8px 6px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#f7a600;border-left:1px solid rgba(247,166,0,.2);background:rgba(247,166,0,.04);">ROL CONDUCTORA · 2%</th>
+            <th colspan="2" style="text-align:center;padding:8px 6px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-left:1px solid rgba(0,184,156,.3);background:rgba(0,184,156,.06);">TOTAL EMPRESA</th>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="padding:4px 10px;"></th>
+            <th style="text-align:right;padding:4px 6px;font-size:8px;color:var(--muted);font-weight:400;border-left:1px solid rgba(77,159,255,.2);background:rgba(77,159,255,.02);">Ing. originado</th>
+            <th style="text-align:right;padding:4px 6px;font-size:9px;color:#4d9fff;font-weight:700;background:rgba(77,159,255,.04);">Comisión 4%</th>
+            <th style="text-align:right;padding:4px 6px;font-size:8px;color:var(--muted);font-weight:400;border-left:1px solid rgba(247,166,0,.2);background:rgba(247,166,0,.02);">Ing. ejecutado</th>
+            <th style="text-align:right;padding:4px 6px;font-size:9px;color:#f7a600;font-weight:700;background:rgba(247,166,0,.04);">Comisión 2%</th>
+            <th style="text-align:right;padding:4px 6px;font-size:9px;color:var(--accent);font-weight:700;border-left:1px solid rgba(0,184,156,.3);background:rgba(0,184,156,.04);">Periodo</th>
+            <th style="text-align:right;padding:4px 6px;font-size:9px;color:var(--accent);font-weight:700;background:rgba(0,184,156,.06);">Proy./año</th>
+          </tr></thead>
+          <tbody>${stats.companies.map(name=>{
+            const ingSrc=sum(flows.filter(f=>f.src===name),f=>f.ing);
+            const ingTgt=sum(flows.filter(f=>f.tgt===name),f=>f.ing);
+            const gen4=ingSrc*0.04, cond2=ingTgt*0.02, tot=gen4+cond2;
+            return `<tr style="border-bottom:1px solid rgba(0,0,0,.04);">
+              <td style="padding:9px 10px;font-weight:800;font-size:11px;color:${COL[name]||'#00e5c3'};font-family:var(--sans);">${esc(name)}</td>
+              <td style="text-align:right;padding:9px 6px;font-size:10px;color:var(--muted);border-left:1px solid rgba(77,159,255,.1);background:rgba(77,159,255,.02);">${money2(ingSrc)}</td>
+              <td style="text-align:right;padding:9px 10px;font-size:12px;font-weight:800;color:#4d9fff;background:rgba(77,159,255,.04);">${money2(gen4)}</td>
+              <td style="text-align:right;padding:9px 6px;font-size:10px;color:var(--muted);border-left:1px solid rgba(247,166,0,.1);background:rgba(247,166,0,.02);">${money2(ingTgt)}</td>
+              <td style="text-align:right;padding:9px 10px;font-size:12px;font-weight:800;color:#f7a600;background:rgba(247,166,0,.04);">${money2(cond2)}</td>
+              <td style="text-align:right;padding:9px 10px;font-size:14px;font-weight:800;color:var(--accent);border-left:1px solid rgba(0,184,156,.25);background:rgba(0,184,156,.04);">${money2(tot)}</td>
+              <td style="text-align:right;padding:9px 10px;font-size:11px;font-weight:700;color:var(--muted);background:rgba(0,184,156,.06);">${money2(monthsLoaded?(tot/monthsLoaded)*12:tot)}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>
+        <div class="note" style="margin-top:12px;">
+          · <b class="acc">4% Clipp B2B</b>: sobre el 100% del ingreso total del periodo.<br>
+          · <b style="color:#4d9fff;">4% generadora</b>: sobre el ingreso que cada empresa originó.<br>
+          · <b style="color:#f7a600;">2% conductora</b>: sobre el ingreso que cada empresa ejecutó.<br>
+          · Proyección anual = (total periodo / ${monthsLoaded} meses) × 12.
+        </div>
+      </div>
     `;
   }
-  function populateSelectors(){
-    const ds=document.getElementById('dataset-selector'), cs=document.getElementById('compare-selector');
-    const resetBtn=document.getElementById('reset-default-btn');
+
+  function buildUnifyToggle(){
+    return `<label class="unify-toggle ${UNIFY_COMPANIES?'active':''}" id="unify-toggle">
+      <input type="checkbox" id="unify-checkbox" ${UNIFY_COMPANIES?'checked':''}>
+      <span class="unify-switch"></span>
+      <span class="unify-copy"><strong>Vista unificada</strong><span>${UNIFY_COMPANIES?'APP + BOT consolidados':'Nombres exactos del archivo'}</span></span>
+    </label>`;
+  }
+
+  // ─── FILTER CONTROLS ──────────────────────────────────────────────────────
+  window.toggleMonthFilter = function(key){
+    ACTIVE_MONTH_FILTER = (ACTIVE_MONTH_FILTER===key) ? null : key;
+    applyDataset();
+  };
+  window.setYearFilter = function(yr){
+    ACTIVE_YEAR_FILTER = yr;
+    ACTIVE_MONTH_FILTER = null;
+    applyDataset();
+  };
+
+  // ─── STATE MANAGEMENT ─────────────────────────────────────────────────────
+  function clearVisuals(){
+    ['sankey-box','chord-box','heatmap-box','treemap-box','butterfly-box','scatter-box','waterfall-box'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+    Object.keys(drawn).forEach(k=>delete drawn[k]);
+  }
+
+  function updateSidebarFooter(stats,days){
+    const side=document.querySelector('.sidebar-footer');
+    const months=Object.keys(MONTH_DATASETS).length;
+    side.innerHTML=`<span>${Math.round(stats.totalViajes).toLocaleString('en-US')}</span> viajes · <span>${money(stats.totalIngreso)}</span><br>${stats.companies.length} empresas · ${months} meses<br>Éxito: <span>${(stats.tasaExito*100).toFixed(1)}%</span><br>Clipp 4%: <span>${money2(stats.totalIngreso*0.04)}</span>`;
+  }
+
+  function applyDataset(){
+    const {flows, pay}=getActiveFlowsAndPay();
+    FLOWS=flows; COMPANIES=inferCompanyOrder(flows);
+    const activeDSets=getActiveDatasets();
+    const days=sum(activeDSets,d=>d.meta.days||daysFromLabel(d.meta.label));
+    const stats=getStats(flows);
+    const meta={label: ACTIVE_MONTH_FILTER?(MONTH_DATASETS[ACTIVE_MONTH_FILTER]?.meta.label||'mes'):(ACTIVE_YEAR_FILTER?`Año ${ACTIVE_YEAR_FILTER}`:'Anual'), days, city:'Quito'};
+
+    const dash=document.querySelector('#panel-dashboard .dash-scroll');
+    if(!Object.keys(MONTH_DATASETS).length){
+      dash.innerHTML=buildEmptyDashboard();
+    } else {
+      dash.innerHTML=buildDashboard(meta, flows, pay);
+    }
+    updateSidebarFooter(stats, days);
+    clearVisuals();
+    bindControls();
+    const activePanel=document.querySelector('.panel.active');
+    if(activePanel && activePanel.id!=='panel-dashboard'){
+      const key=activePanel.id.replace('panel-','');
+      drawn[key]=true; setTimeout(()=>drawFns[key]&&drawFns[key](),50);
+    }
+  }
+
+  function bindControls(){
     const input=document.getElementById('xlsx-loader');
+    const resetBtn=document.getElementById('reset-default-btn');
     const unifyToggle=document.getElementById('unify-toggle');
     const unifyCheckbox=document.getElementById('unify-checkbox');
-    if(input && !input.dataset.bound){ input.dataset.bound='1'; input.addEventListener('change', handleFiles); }
+    if(input && !input.dataset.bound){ input.dataset.bound='1'; input.addEventListener('change',handleFiles); }
+    if(resetBtn) resetBtn.onclick=()=>clearAllData();
     if(unifyToggle && !unifyToggle.dataset.bound){
       unifyToggle.dataset.bound='1';
-      unifyToggle.addEventListener('click', (ev)=>{
-        if(ev.target && ev.target.tagName==='INPUT') return;
-        ev.preventDefault();
-        UNIFY_COMPANIES = !UNIFY_COMPANIES;
-        applyDataset();
-      });
+      unifyToggle.addEventListener('click',(ev)=>{if(ev.target&&ev.target.tagName==='INPUT')return; ev.preventDefault(); UNIFY_COMPANIES=!UNIFY_COMPANIES; applyDataset();});
     }
     if(unifyCheckbox && !unifyCheckbox.dataset.bound){
       unifyCheckbox.dataset.bound='1';
-      unifyCheckbox.addEventListener('change', ()=>{
-        UNIFY_COMPANIES = !!unifyCheckbox.checked;
-        applyDataset();
-      });
+      unifyCheckbox.addEventListener('change',()=>{UNIFY_COMPANIES=!!unifyCheckbox.checked; applyDataset();});
     }
-    if(!ds||!cs) return;
-    const keys=Object.keys(DATASETS);
-    if(!keys.length){
-      ds.innerHTML='<option value="">Sin archivos cargados</option>';
-      cs.innerHTML='<option value="">Comparar con...</option>';
-      ds.disabled=true;
-      cs.disabled=true;
-      if(resetBtn) resetBtn.onclick=()=>clearAllData();
-      return;
-    }
-    ds.disabled=false;
-    cs.disabled=false;
-    ds.innerHTML=keys.map(k=>`<option value="${esc(k)}" ${k===CURRENT_DATASET_KEY?'selected':''}>${esc(DATASETS[k].meta.label)}</option>`).join('');
-    cs.innerHTML='<option value="">Comparar con...</option>'+keys.filter(k=>k!==CURRENT_DATASET_KEY).map(k=>`<option value="${esc(k)}" ${k===CURRENT_COMPARE_KEY?'selected':''}>${esc(DATASETS[k].meta.label)}</option>`).join('');
-    ds.onchange=(e)=>{CURRENT_DATASET_KEY=e.target.value; CURRENT_COMPARE_KEY=''; applyDataset();};
-    cs.onchange=(e)=>{CURRENT_COMPARE_KEY=e.target.value; applyDataset();};
-    if(resetBtn) resetBtn.onclick=()=>clearAllData();
   }
-  function clearVisuals(){
-    ['sankey-box','chord-box','heatmap-box','treemap-box','butterfly-box','scatter-box','waterfall-box'].forEach(id=>{const el=document.getElementById(id); if(el) el.innerHTML='';});
-    Object.keys(drawn).forEach(k=>delete drawn[k]);
+
+  function clearAllData(){
+    MONTH_DATASETS={}; ACTIVE_YEAR_FILTER=''; ACTIVE_MONTH_FILTER=null;
+    applyDataset();
   }
+
   function buildEmptyDashboard(){
     return `
       <div class="import-card">
         <div>
-          <div class="tag">Clipp B2B · Proyecto Roaming</div>
-          <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Carga un archivo XLSX para ver el dashboard</div>
-          <div class="import-note">No se muestran datos base ni datos guardados. El dashboard solo se llena cuando subes un archivo. Mapeo usado sin renombrar ni agrupar: <b>Generadora = application_cliente</b> y <b>Conductora = empresa</b>. Cuando cargues datos puedes activar una <b>Vista unificada</b> para consolidar APP + BOT por empresa sin alterar la data original.</div>
-          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-            <span class="import-pill">Estado: esperando archivo</span>
-            <span class="import-pill">Datos visibles: 0</span>
-          </div>
+          <div class="tag">Clipp B2B · Dashboard Anual</div>
+          <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Carga los XLSX mensuales para construir el año</div>
+          <div class="import-note">Sube uno o varios archivos XLSX (uno por mes). El sistema los reconoce por el nombre del archivo (ej: <b>roaming_febrero_2026.xlsx</b>) y los agrega automáticamente. Puedes cargar varios meses de golpe o ir agregando uno a uno. La timeline mostrará cada mes y podrás filtrar por mes o ver el año completo consolidado.</div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;"><span class="import-pill">Estado: esperando archivos</span><span class="import-pill">0 meses cargados</span></div>
         </div>
         <div class="import-actions">
-          <label class="import-btn" for="xlsx-loader">Subir XLSX</label>
+          <label class="import-btn" for="xlsx-loader">+ Agregar XLSX</label>
           <input class="import-input" id="xlsx-loader" type="file" accept=".xlsx,.xls" multiple>
-          <select class="mini-select" id="dataset-selector"></select>
-          <select class="mini-select" id="compare-selector"></select>
-          <button class="ghost-btn" id="reset-default-btn" type="button">Limpiar datos</button>${buildUnifyToggle()}
+          <button class="ghost-btn" id="reset-default-btn" type="button">Limpiar todo</button>
+          ${buildUnifyToggle()}
         </div>
       </div>
       <div class="card full" style="padding:28px;min-height:320px;display:flex;align-items:center;justify-content:center;text-align:center;">
         <div>
-          <div style="font-size:42px;line-height:1;margin-bottom:12px;">📂</div>
-          <div style="font-size:22px;font-weight:800;margin-bottom:8px;">No hay archivos cargados</div>
-          <div class="csub" style="max-width:720px;margin:0 auto;">Sube un archivo para calcular KPIs, matriz, Sankey, heatmap y el resto de visualizaciones. Mientras no cargues un archivo, todo queda vacío.</div>
+          <div style="font-size:42px;line-height:1;margin-bottom:12px;">📅</div>
+          <div style="font-size:22px;font-weight:800;margin-bottom:8px;">Dashboard Anual — Sin archivos cargados</div>
+          <div class="csub" style="max-width:720px;margin:0 auto;">Sube los XLSX mensuales (uno por mes). El sistema los reconoce por nombre de archivo, los acumula y te permite ver el año completo o filtrar por mes individual. Mismo análisis que el reporte mensual, pero sobre el año completo.</div>
         </div>
-      </div>
-    `;
+      </div>`;
   }
-  function applyEmptyState(){
-    FLOWS=[];
-    COMPANIES=[];
-    RAW_ROWS=[];
-    PAYMENT_BREAKDOWN={digital:0, efectivo:0, byConductora:{}};
-    ACTIVE_META={label:'', source:'', days:0, city:''};
-    const dash=document.querySelector('#panel-dashboard .dash-scroll');
-    dash.innerHTML=buildEmptyDashboard();
-    const side=document.querySelector('.sidebar-footer');
-    side.innerHTML=`<span>0</span> viajes · <span>$0.00</span><br>0 empresas · 0 días<br>Éxito: <span>0.0%</span><br>Clipp 4%: <span>$0.00</span>`;
-    clearVisuals();
-    populateSelectors();
-  }
-  function clearAllData(){
-    DATASETS={};
-    CURRENT_DATASET_KEY='';
-    CURRENT_COMPARE_KEY='';
-    applyEmptyState();
-  }
-  function applyDataset(){
-    const ds=DATASETS[CURRENT_DATASET_KEY];
-    if(!ds){
-      applyEmptyState();
-      return;
-    }
-    ACTIVE_META=ds.meta;
-    RAW_ROWS=ds.originalRows||ds.rawRows||[];
-    const recalculated=aggregateFromRows(RAW_ROWS);
-    PAYMENT_BREAKDOWN=recalculated.pay||{digital:0,efectivo:0,byConductora:{}};
-    const dash=document.querySelector('#panel-dashboard .dash-scroll');
-    dash.innerHTML=buildDashboard(ds.meta, recalculated.flows, PAYMENT_BREAKDOWN);
-    const side=document.querySelector('.sidebar-footer');
-    const st=getStats(recalculated.flows); side.innerHTML=`<span>${Math.round(st.totalViajes).toLocaleString('en-US')}</span> viajes · <span>${money(st.totalIngreso)}</span><br>${st.companies.length} empresas · ${ACTIVE_META.days||daysFromLabel(ACTIVE_META.label)} días<br>Éxito: <span>${(st.tasaExito*100).toFixed(1)}%</span><br>Clipp 4%: <span>${money2(st.totalIngreso*0.04)}</span>`;
-    clearVisuals();
-    populateSelectors();
-    const activePanel=document.querySelector('.panel.active');
-    if(activePanel && activePanel.id!=='panel-dashboard'){
-      const key=activePanel.id.replace('panel-','');
-      drawn[key]=true;
-      setTimeout(()=>drawFns[key]&&drawFns[key](),50);
-    }
-  }
+
   async function handleFiles(ev){
     const files=[...(ev.target.files||[])];
     for(const file of files){
@@ -1512,16 +1681,25 @@ function inferCompanyOrder(flows){
       const parsed=aggregateFromRows(json);
       const label=monthFromFilename(file.name);
       const key=slugify(label);
-      DATASETS[key]={flows:parsed.flows, rawRows:parsed.rawRows, originalRows:json, pay:parsed.pay, meta:{label, source:file.name, days:daysFromLabel(label), city:(parsed.rawRows[0]&&parsed.rawRows[0].city)||'Quito'}};
-      CURRENT_DATASET_KEY=key;
+      const mi=monthIndex(label);
+      const yr=yearFromLabel(label);
+      MONTH_DATASETS[key]={
+        flows:parsed.flows, rawRows:parsed.rawRows, originalRows:json, pay:parsed.pay,
+        meta:{label, source:file.name, days:daysFromLabel(label), city:(parsed.rawRows[0]&&parsed.rawRows[0].city)||'Quito', year:yr, monthIndex:mi, key}
+      };
     }
     ev.target.value='';
-    CURRENT_COMPARE_KEY='';
+    ACTIVE_MONTH_FILTER=null;
+    // Auto-set year filter to most recent year if not set
+    if(!ACTIVE_YEAR_FILTER){
+      const years=getAvailableYears();
+      if(years.length===1) ACTIVE_YEAR_FILTER=String(years[0]);
+    }
     applyDataset();
   }
 
-  // Dynamic overrides for charts that had fixed company lists
-  window.drawHeatmap = function(){
+  // Dynamic chart overrides (use global FLOWS/COMPANIES set by applyDataset)
+  window.drawHeatmap=function(){
     const box=document.getElementById('heatmap-box'); box.innerHTML='';
     const W=box.clientWidth,H=box.clientHeight||500;
     const margin={top:30,right:80,bottom:110,left:130};
@@ -1534,25 +1712,24 @@ function inferCompanyOrder(flows){
     const colorScale=d3.scaleLinear().domain([0,0.5,1]).range(['#e8445a','#f7a600','#00e5c3']).clamp(true);
     const svg=d3.select(box).append('svg').attr('width',W).attr('height',H);
     const g=svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
-    const colTot = Object.fromEntries(cols.map(c=>[c,{v:sum(FLOWS.filter(f=>f.src===c),f=>f.v),ok:sum(FLOWS.filter(f=>f.src===c),f=>f.ok)}]));
-    const rowTot = Object.fromEntries(rows.map(r=>[r,{v:sum(FLOWS.filter(f=>f.tgt===r),f=>f.v),ok:sum(FLOWS.filter(f=>f.tgt===r),f=>f.ok)}]));
+    const colTot=Object.fromEntries(cols.map(c=>[c,{v:sum(FLOWS.filter(f=>f.src===c),f=>f.v),ok:sum(FLOWS.filter(f=>f.src===c),f=>f.ok)}]));
+    const rowTot=Object.fromEntries(rows.map(r=>[r,{v:sum(FLOWS.filter(f=>f.tgt===r),f=>f.v),ok:sum(FLOWS.filter(f=>f.tgt===r),f=>f.ok)}]));
     const grand={v:sum(FLOWS,f=>f.v),ok:sum(FLOWS,f=>f.ok)};
     rList.forEach((r,ri)=>cList.forEach((c,ci)=>{
-      let totV=0, totOk=0;
-      if(r==='TOTAL'&&c==='TOTAL'){totV=grand.v; totOk=grand.ok;}
-      else if(r==='TOTAL'){totV=colTot[c]?.v||0; totOk=colTot[c]?.ok||0;}
-      else if(c==='TOTAL'){totV=rowTot[r]?.v||0; totOk=rowTot[r]?.ok||0;}
-      else {const f=FLOWS.find(x=>x.src===c&&x.tgt===r); totV=f?.v||0; totOk=f?.ok||0;}
+      let totV=0,totOk=0;
+      if(r==='TOTAL'&&c==='TOTAL'){totV=grand.v;totOk=grand.ok;}
+      else if(r==='TOTAL'){totV=colTot[c]?.v||0;totOk=colTot[c]?.ok||0;}
+      else if(c==='TOTAL'){totV=rowTot[r]?.v||0;totOk=rowTot[r]?.ok||0;}
+      else{const f=FLOWS.find(x=>x.src===c&&x.tgt===r);totV=f?.v||0;totOk=f?.ok||0;}
       const rate=totV?totOk/totV:null; const isTotal=r==='TOTAL'||c==='TOTAL';
-      g.append('rect').attr('x',ci*cellW+1).attr('y',ri*cellH+1).attr('width',cellW-2).attr('height',cellH-2).attr('rx',3).attr('fill',rate!==null?colorScale(rate):'rgba(0,0,0,.025)').attr('opacity',rate!==null?(isTotal?0.95:0.8):1).attr('stroke',isTotal?'rgba(0,184,156,.4)':'rgba(0,0,0,.04)').attr('stroke-width',isTotal?1.5:0)
-      .on('mouseenter', rate!==null ? (ev)=>tipShow(ev,`${r==='TOTAL'?'Total':r} / ${c==='TOTAL'?'Total':c}`,[`Viajes: ${Math.round(totV)}`,`Correctos: ${Math.round(totOk)}`,`Tasa éxito: ${(rate*100).toFixed(1)}%`]) : null).on('mousemove',tipMove).on('mouseleave',tipHide);
+      g.append('rect').attr('x',ci*cellW+1).attr('y',ri*cellH+1).attr('width',cellW-2).attr('height',cellH-2).attr('rx',3).attr('fill',rate!==null?colorScale(rate):'rgba(0,0,0,.025)').attr('opacity',rate!==null?(isTotal?0.95:0.8):1).attr('stroke',isTotal?'rgba(0,184,156,.4)':'rgba(0,0,0,.04)').attr('stroke-width',isTotal?1.5:0).on('mouseenter',rate!==null?(ev)=>tipShow(ev,`${r==='TOTAL'?'Total':r} / ${c==='TOTAL'?'Total':c}`,[`Viajes: ${Math.round(totV)}`,`Correctos: ${Math.round(totOk)}`,`Tasa éxito: ${(rate*100).toFixed(1)}%`]):null).on('mousemove',tipMove).on('mouseleave',tipHide);
       g.append('text').attr('x',ci*cellW+cellW/2).attr('y',ri*cellH+cellH/2-4).attr('text-anchor','middle').attr('font-family',"'Syne',sans-serif").attr('font-size',Math.min(11,cellH*0.28)).attr('font-weight',isTotal?'800':'700').attr('fill',rate!==null?(rate<0.5?'#fff':'#0a0d12'):'rgba(0,0,0,.15)').text(rate!==null?`${(rate*100).toFixed(1)}%`:'—');
       if(rate!==null) g.append('text').attr('x',ci*cellW+cellW/2).attr('y',ri*cellH+cellH/2+10).attr('text-anchor','middle').attr('font-family',"'DM Mono',monospace").attr('font-size',8).attr('fill',rate<0.5?'rgba(255,255,255,.65)':'rgba(0,0,0,.5)').text(`${Math.round(totV)} v.`);
     }));
     cList.forEach((c,i)=>g.append('text').attr('x',i*cellW+cellW/2).attr('y',iH+14).attr('text-anchor','end').attr('transform',`rotate(-38,${i*cellW+cellW/2},${iH+14})`).attr('font-family',"'Syne',sans-serif").attr('font-weight',c==='TOTAL'?'800':'700').attr('font-size',c==='TOTAL'?11:10).attr('fill',c==='TOTAL'?'var(--accent)':(COL[c]||'#888')).text(c));
     rList.forEach((r,i)=>g.append('text').attr('x',-8).attr('y',i*cellH+cellH/2).attr('text-anchor','end').attr('dominant-baseline','middle').attr('font-family',"'Syne',sans-serif").attr('font-weight',r==='TOTAL'?'800':'700').attr('font-size',r==='TOTAL'?11:10).attr('fill',r==='TOTAL'?'var(--accent)':(COL[r]||'#888')).text(r));
   };
-  window.drawTreemap = function(){
+  window.drawTreemap=function(){
     const box=document.getElementById('treemap-box');box.innerHTML='';
     const W=box.clientWidth,H=box.clientHeight||500;
     const targets=[...new Set(FLOWS.map(f=>f.tgt))];
@@ -1563,11 +1740,10 @@ function inferCompanyOrder(flows){
     grp.append('rect').attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0).attr('height',d=>d.y1-d.y0).attr('fill',d=>COL[d.data.name]||'#888').attr('opacity',0.07).attr('rx',4);
     grp.append('text').attr('x',d=>d.x0+6).attr('y',d=>d.y0+14).attr('font-family',"'Syne',sans-serif").attr('font-weight','800').attr('font-size',11).attr('fill',d=>COL[d.data.name]||'#888').text(d=>`${d.data.name}  ${money(d.value)}`);
     const leaves=svg.selectAll('g.leaf').data(tree.leaves()).join('g').attr('class','leaf');
-    leaves.append('rect').attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>Math.max(0,d.x1-d.x0)).attr('height',d=>Math.max(0,d.y1-d.y0)).attr('fill',d=>COL[d.data.name]||'#888').attr('opacity',0.35).attr('rx',3)
-      .on('mouseenter',(ev,d)=>tipShow(ev,`${d.data.name} → ${d.data.conductora}`,[`Ingreso: ${money(d.data.ing)}`,`Viajes: ${Math.round(d.data.v)}`,`Éxito: ${(safeRate(d.data.ok,d.data.v)*100).toFixed(1)}%`])).on('mousemove',tipMove).on('mouseleave',tipHide);
+    leaves.append('rect').attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>Math.max(0,d.x1-d.x0)).attr('height',d=>Math.max(0,d.y1-d.y0)).attr('fill',d=>COL[d.data.name]||'#888').attr('opacity',0.35).attr('rx',3).on('mouseenter',(ev,d)=>tipShow(ev,`${d.data.name} → ${d.data.conductora}`,[`Ingreso: ${money(d.data.ing)}`,`Viajes: ${Math.round(d.data.v)}`,`Éxito: ${(safeRate(d.data.ok,d.data.v)*100).toFixed(1)}%`])).on('mousemove',tipMove).on('mouseleave',tipHide);
     leaves.filter(d=>(d.x1-d.x0)>45&&(d.y1-d.y0)>20).append('text').attr('x',d=>d.x0+5).attr('y',d=>d.y0+(d.y1-d.y0)/2-4).attr('font-family',"'Syne',sans-serif").attr('font-weight','700').attr('font-size',d=>Math.min(11,Math.max(8,(d.x1-d.x0)*0.12))).attr('fill','#fff').text(d=>d.data.name);
   };
-  window.drawSankey = function(){
+  window.drawSankey=function(){
     const box=document.getElementById('sankey-box');if(!box)return; box.innerHTML='';
     const W=box.clientWidth,H=box.clientHeight||500;
     const PAD={top:20,bot:20,left:170,right:170}; const nodeW=14,nodeGap=10; const chartH=H-PAD.top-PAD.bot; const xL=PAD.left,xR=W-PAD.right-nodeW;
@@ -1577,20 +1753,19 @@ function inferCompanyOrder(flows){
     const srcTotals=Object.fromEntries(srcNames.map(s=>[s,sum(validFlows.filter(f=>f.src===s),f=>sankeyMode==='viajes'?f.v:f.ing)]));
     const tgtTotals=Object.fromEntries(tgtNames.map(s=>[s,sum(validFlows.filter(f=>f.tgt===s),f=>sankeyMode==='viajes'?f.v:f.ing)]));
     const totalVal=sum(validFlows,f=>sankeyMode==='viajes'?f.v:f.ing);
-    function layoutCol(names, totals){const total=sum(names,n=>totals[n]||0)||1; const usableH=chartH-nodeGap*(names.length-1); let y=PAD.top; return names.map(name=>{const h=Math.max(6,(totals[name]||0)/total*usableH); const node={name,y,h}; y+=h+nodeGap; return node;});}
-    const leftNodes=layoutCol(srcNames,srcTotals), rightNodes=layoutCol(tgtNames,tgtTotals); const lOff={}, rOff={}; leftNodes.forEach(n=>lOff[n.name]=n.y); rightNodes.forEach(n=>rOff[n.name]=n.y);
-    const svg=d3.select(box).append('svg').attr('width',W).attr('height',H), rg=svg.append('g'); const lIdx={}, rIdx={}; leftNodes.forEach(n=>lIdx[n.name]=n); rightNodes.forEach(n=>rIdx[n.name]=n);
+    function layoutCol(names,totals){const total=sum(names,n=>totals[n]||0)||1;const usableH=chartH-nodeGap*(names.length-1);let y=PAD.top;return names.map(name=>{const h=Math.max(6,(totals[name]||0)/total*usableH);const node={name,y,h};y+=h+nodeGap;return node;});}
+    const leftNodes=layoutCol(srcNames,srcTotals),rightNodes=layoutCol(tgtNames,tgtTotals);const lOff={},rOff={};leftNodes.forEach(n=>lOff[n.name]=n.y);rightNodes.forEach(n=>rOff[n.name]=n.y);
+    const svg=d3.select(box).append('svg').attr('width',W).attr('height',H),rg=svg.append('g');const lIdx={},rIdx={};leftNodes.forEach(n=>lIdx[n.name]=n);rightNodes.forEach(n=>rIdx[n.name]=n);
     const sortedFlows=[...validFlows].sort((a,b)=>(sankeyMode==='viajes'?b.v-a.v:b.ing-a.ing));
-    const leftTotal=sum(leftNodes,n=>srcTotals[n.name]||0)||1, rightTotal=sum(rightNodes,n=>tgtTotals[n.name]||0)||1, lUsable=chartH-nodeGap*(srcNames.length-1), rUsable=chartH-nodeGap*(tgtNames.length-1);
-    sortedFlows.forEach(f=>{ if(!lIdx[f.src]||!rIdx[f.tgt]) return; const val=sankeyMode==='viajes'?f.v:f.ing; const lH=Math.max(1.5,val/leftTotal*lUsable), rH=Math.max(1.5,val/rightTotal*rUsable); const y0=lOff[f.src], y1=rOff[f.tgt]; lOff[f.src]+=lH+0.3; rOff[f.tgt]+=rH+0.3; const x0=xL+nodeW, x1=xR, cx2=(x0+x1)/2; const path=`M ${x0} ${y0} C ${cx2} ${y0}, ${cx2} ${y1}, ${x1} ${y1} L ${x1} ${y1+rH} C ${cx2} ${y1+rH}, ${cx2} ${y0+lH}, ${x0} ${y0+lH} Z`; const col=COL[f.src]||'#888'; rg.append('path').attr('d',path).attr('fill',col).attr('stroke',col).attr('fill-opacity',0.18).attr('stroke-opacity',0.3).attr('stroke-width',0.5).on('mouseenter',ev=>tipShow(ev,`${f.src} → ${f.tgt}`,[`${sankeyMode==='viajes'?Math.round(f.v)+' viajes':money2(f.ing)}`,`${((val/(totalVal||1))*100).toFixed(1)}% del total`,`Éxito: ${(safeRate(f.ok,f.v)*100).toFixed(1)}%`])).on('mousemove',tipMove).on('mouseleave',tipHide);});
-    leftNodes.forEach(node=>{const col=COL[node.name]||'#888'; svg.append('rect').attr('x',xL).attr('y',node.y).attr('width',nodeW).attr('height',node.h).attr('fill',col).attr('rx',2); svg.append('text').attr('x',xL-10).attr('y',node.y+node.h/2).attr('text-anchor','end').attr('dominant-baseline','middle').attr('font-family',"'Syne',sans-serif").attr('font-weight','700').attr('font-size',10).attr('fill',col).text(node.name);});
-    rightNodes.forEach(node=>{const col=COL[node.name]||'#888'; svg.append('rect').attr('x',xR).attr('y',node.y).attr('width',nodeW).attr('height',node.h).attr('fill',col).attr('rx',2); svg.append('text').attr('x',xR+nodeW+10).attr('y',node.y+node.h/2).attr('text-anchor','start').attr('dominant-baseline','middle').attr('font-family',"'Syne',sans-serif").attr('font-weight','700').attr('font-size',10).attr('fill',col).text(node.name);});
+    const leftTotal=sum(leftNodes,n=>srcTotals[n.name]||0)||1,rightTotal=sum(rightNodes,n=>tgtTotals[n.name]||0)||1,lUsable=chartH-nodeGap*(srcNames.length-1),rUsable=chartH-nodeGap*(tgtNames.length-1);
+    sortedFlows.forEach(f=>{if(!lIdx[f.src]||!rIdx[f.tgt])return;const val=sankeyMode==='viajes'?f.v:f.ing;const lH=Math.max(1.5,val/leftTotal*lUsable),rH=Math.max(1.5,val/rightTotal*rUsable);const y0=lOff[f.src],y1=rOff[f.tgt];lOff[f.src]+=lH+0.3;rOff[f.tgt]+=rH+0.3;const x0=xL+nodeW,x1=xR,cx2=(x0+x1)/2;const path=`M ${x0} ${y0} C ${cx2} ${y0}, ${cx2} ${y1}, ${x1} ${y1} L ${x1} ${y1+rH} C ${cx2} ${y1+rH}, ${cx2} ${y0+lH}, ${x0} ${y0+lH} Z`;const col=COL[f.src]||'#888';rg.append('path').attr('d',path).attr('fill',col).attr('stroke',col).attr('fill-opacity',0.18).attr('stroke-opacity',0.3).attr('stroke-width',0.5).on('mouseenter',ev=>tipShow(ev,`${f.src} → ${f.tgt}`,[`${sankeyMode==='viajes'?Math.round(f.v)+' viajes':money2(f.ing)}`,`${((val/(totalVal||1))*100).toFixed(1)}% del total`,`Éxito: ${(safeRate(f.ok,f.v)*100).toFixed(1)}%`])).on('mousemove',tipMove).on('mouseleave',tipHide);});
+    leftNodes.forEach(node=>{const col=COL[node.name]||'#888';svg.append('rect').attr('x',xL).attr('y',node.y).attr('width',nodeW).attr('height',node.h).attr('fill',col).attr('rx',2);svg.append('text').attr('x',xL-10).attr('y',node.y+node.h/2).attr('text-anchor','end').attr('dominant-baseline','middle').attr('font-family',"'Syne',sans-serif").attr('font-weight','700').attr('font-size',10).attr('fill',col).text(node.name);});
+    rightNodes.forEach(node=>{const col=COL[node.name]||'#888';svg.append('rect').attr('x',xR).attr('y',node.y).attr('width',nodeW).attr('height',node.h).attr('fill',col).attr('rx',2);svg.append('text').attr('x',xR+nodeW+10).attr('y',node.y+node.h/2).attr('text-anchor','start').attr('dominant-baseline','middle').attr('font-family',"'Syne',sans-serif").attr('font-weight','700').attr('font-size',10).attr('fill',col).text(node.name);});
   };
 
-  // start empty: no embedded dataset visible until a file is uploaded
-  applyEmptyState();
+  // Start empty
+  applyDataset();
 })();
 </script>
-
 </body>
 </html>
